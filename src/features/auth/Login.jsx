@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import authService from "../../api/auth";
 import OAuthButton from "../../components/OAuthButton";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, User } from "lucide-react";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -41,7 +41,6 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
 
     validateField(name, value);
   };
@@ -100,6 +99,8 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
+
+    
   };
 
   return (

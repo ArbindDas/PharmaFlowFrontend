@@ -291,3 +291,29 @@
     background-color: #f9f9f9;
   }
 }
+
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-\[popIn_0\.3s_ease-out_forwards\] {
+  animation: popIn 0.3s ease-out forwards;
+}
+
+
+
+/* For better mobile touch targets */
+@media (max-width: 640px) {
+  button, [role="button"] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}

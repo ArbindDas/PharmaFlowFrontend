@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import authService from "../api/auth"; // your API helper
+import { tr } from "framer-motion/client";
 
 const AuthContext = createContext();
 
@@ -7,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -46,6 +48,65 @@ export const AuthProvider = ({ children }) => {
       console.error("Fetch user details error:", error);
       setUser(null);
       setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false); // ✅ important!
+    }
+  };
+
+  // Delete user by id
+  const deleteUserById = async (userId) => {
+    try {
+      setIsLoading(true);
+      await authService.deleteUser(userId);
+
+      // If the deleted user is the currently logged-in user
+      if (user && user.id === userId) {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+
+      setError(null);
+    } catch (err) {
+      setError(err.message || "Failed to delete user");
+      console.error("deleteUserById error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateUser = async (userData) => {
+  try {
+    setIsLoading(true);
+    setError(null);
+
+    const updatedUser = await authService.updateuser(userData);
+
+    setUser(updatedUser);
+    setIsAuthenticated(true);
+    return updatedUser;
+  } catch (err) {
+    const errorMessage = err.response?.data?.message || 
+                       err.message || 
+                       "Failed to update user due to network issues";
+    setError(errorMessage);
+    console.error("updateUser error:", err);
+    throw errorMessage; // Throw a string instead of the error object
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  const getAllUsersFrom = async () => {
+    try {
+      const allUsers = await authService.getAllUsers();
+      setUser(allUsers);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error("fetch user details error : ", error);
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -90,6 +151,9 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         fetchUserDetails,
+        getAllUsersFrom,
+        deleteUserById,
+        updateUser
       }}
     >
       {children}

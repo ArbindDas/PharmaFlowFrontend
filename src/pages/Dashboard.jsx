@@ -1,10 +1,12 @@
-import React, { useEffect, useState  , useRef} from "react";
-import { useAuth } from "../context/AuthContext";
 
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { user, fetchUserDetails, logout } = useAuth();
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (fetchUserDetails) {
@@ -16,19 +18,28 @@ const Dashboard = () => {
     }
   }, []);
 
-  
+
+  useEffect(() => {
+    if (!loading && user?.roles?.includes("ROLE_ADMIN")) {
+      navigate("/admin");
+    }
+  }, [loading, user, navigate]);
 
   if (loading) return <div>Loading your dashboard...</div>;
 
   if (!user) return <div>Please log in to see your dashboard.</div>;
 
+  const hasUserRole = user.roles?.includes("ROLE_USER");
+
+  if (!hasUserRole) {
+    return <div>Access Denied: You do not have permission to view this page.</div>;
+  }
+
   return (
     <div>
       <h1>Welcome, {user.fullName || user.email}!</h1>
       <p>Email: {user.email}</p>
-      <p>password: {user.roles}</p>
-
-      {/* other user details */}
+      <p>Roles: {user.roles?.join(", ")}</p>
 
       <button
         onClick={logout}
@@ -41,3 +52,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
+

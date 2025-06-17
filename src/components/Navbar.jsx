@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
+import AdminDashboard from "../pages/AdminDashboard";
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
+
+  const {user} = useAuth();
+
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,6 +58,15 @@ const Navbar = () => {
             >
               Contact
             </Link>
+
+            {user?.isAdmin && (
+              <Link
+                to="/admin/dashboard"
+                className="text-sm font-medium text-blue-600"
+              >
+                Admin Dashboard
+              </Link>
+            )}
           </div>
 
           {/* Auth Buttons */}

@@ -22,6 +22,9 @@ import azithromycin from "../assets/images/Azithromycin.jpg";
 import fluoxetine from "../assets/images/Fluoxetine.jpg";
 import atorvastatin from "../assets/images/Atorvastatin.jpg";
 
+
+
+
 const Medicines = () => {
   // Complete medicine data with your actual images
   const medicines = [
@@ -586,6 +589,7 @@ const Medicines = () => {
                     className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 active:scale-95"
                     onClick={(e) => {
                       e.stopPropagation();
+                      
                       // Add to cart logic here
                     }}
                   >
@@ -829,3 +833,4 @@ const Medicines = () => {
 };
 
 export default Medicines;
+
