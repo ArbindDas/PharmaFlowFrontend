@@ -71,7 +71,7 @@ const UserDetailsModal = ({ user, isOpen, onClose }) => {
       onClick={handleBackdropClick}
     >
       <div
-        className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden animate-in slide-in-from-bottom-8 duration-500 border border-gray-200/50 hover:shadow-blue-500/20 hover:shadow-3xl transition-all duration-500"
+        className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden animate-in slide-in-from-bottom-8  border border-gray-200/50 hover:shadow-blue-500/20 hover:shadow-3xl transition-all duration-500"
         style={{
           background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
         }}

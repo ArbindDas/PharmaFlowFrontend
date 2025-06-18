@@ -20,6 +20,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import ForgotPassword from "./components/ForgotPassword.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -67,11 +68,19 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    // <AuthProvider>
+    //   <Router>
+    //     <AppContent />
+    //   </Router>
+    // </AuthProvider>
+
+      <ThemeProvider> {/* Wrap with ThemeProvider */}
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

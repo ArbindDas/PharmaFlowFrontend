@@ -21,7 +21,7 @@ import ciprofloxacin from "../assets/images/Ciprofloxacin.jpg";
 import azithromycin from "../assets/images/Azithromycin.jpg";
 import fluoxetine from "../assets/images/Fluoxetine.jpg";
 import atorvastatin from "../assets/images/Atorvastatin.jpg";
-
+import { useTheme } from '../context/ThemeContext';
 
 
 
@@ -410,6 +410,9 @@ const Medicines = () => {
     }
   ];
 
+
+
+
   // State management
   const [currentPage, setCurrentPage] = useState(1);
   const [medicinesPerPage] = useState(6);
@@ -417,6 +420,9 @@ const Medicines = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedMedicine, setSelectedMedicine] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+  const { isDarkMode } = useTheme();
 
   // Filter medicines
   const filteredMedicines = medicines.filter(medicine => {
@@ -452,7 +458,7 @@ const Medicines = () => {
   const categories = ["Pain Relief", "Antibiotics", "Allergy", "Digestive Health", "Vitamins", "Cardiovascular", "Diabetes", "Neurological", "Mental Health"];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

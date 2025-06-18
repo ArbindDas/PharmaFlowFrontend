@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle, User, MessageSquare } from 'lucide-react';
-
+import { useTheme } from '../context/ThemeContext';
 const Contact = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -16,6 +16,9 @@ const Contact = () => {
     email: '',
     message: ''
   });
+
+
+  const{isDarkMode} = useTheme();
 
   useEffect(() => {
     setIsVisible(true);
@@ -132,18 +135,17 @@ const Contact = () => {
       }, 3000);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-green-600/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-green-600/10 dark:from-blue-900/20 dark:to-green-900/20"></div>
         <div className={`max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-6">
               Get In Touch
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
               Have questions about your medications or need personalized healthcare advice? 
               Our friendly team is here to help you every step of the way.
             </p>
@@ -158,8 +160,8 @@ const Contact = () => {
             {contactInfo.map((info, index) => (
               <div 
                 key={index}
-                className={`group bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100 
-                           hover:shadow-2xl hover:border-blue-200 transition-all duration-300 cursor-pointer
+                className={`group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700
+                           hover:shadow-2xl hover:border-blue-200 dark:hover:border-blue-500 transition-all duration-300 cursor-pointer
                            hover:-translate-y-2`}
                 style={{transitionDelay: `${index * 150}ms`}}
               >
@@ -168,10 +170,10 @@ const Contact = () => {
                                 group-hover:scale-110 transition-transform duration-300`}>
                   {info.icon}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {info.title}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-line">
                   {info.details}
                 </p>
               </div>
@@ -183,181 +185,183 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <div className={`transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`} style={{transitionDelay: '400ms'}}>
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-              <div className="p-8 md:p-10">
-                <div className="flex items-center mb-8">
-                  <div className="w-1 h-12 bg-gradient-to-b from-blue-500 to-green-500 rounded-full mr-4"></div>
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Send Us a Message</h2>
-                    <p className="text-gray-600 mt-1">We'll get back to you within 24 hours</p>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="relative">
-                    <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className={`w-full pl-12 pr-4 py-3 border ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} 
-                                   rounded-xl focus:outline-none focus:ring-2 transition-all duration-300
-                                   bg-white/50 backdrop-blur-sm hover:bg-white/80`}
-                        placeholder="Enter your full name"
-                      />
+            <form onSubmit={handleSubmit}>
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div className="p-8 md:p-10">
+                  <div className="flex items-center mb-8">
+                    <div className="w-1 h-12 bg-gradient-to-b from-blue-500 to-green-500 rounded-full mr-4"></div>
+                    <div>
+                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Send Us a Message</h2>
+                      <p className="text-gray-600 dark:text-gray-300 mt-1">We'll get back to you within 24 hours</p>
                     </div>
-                    {errors.name && (
-                      <p className="text-red-500 text-sm mt-2 flex items-center">
-                        <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
-                        {errors.name}
-                      </p>
-                    )}
                   </div>
 
-                  <div className="relative">
-                    <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
-                      Email Address
-                    </label>
+                  <div className="space-y-6">
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className={`w-full pl-12 pr-4 py-3 border ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} 
-                                   rounded-xl focus:outline-none focus:ring-2 transition-all duration-300
-                                   bg-white/50 backdrop-blur-sm hover:bg-white/80`}
-                        placeholder="Enter your email address"
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="text-red-500 text-sm mt-2 flex items-center">
-                        <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
-                        {errors.email}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="relative">
-                    <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
-                      Your Message
-                    </label>
-                    <div className="relative">
-                      <MessageSquare className="absolute left-3 top-4 w-5 h-5 text-gray-400" />
-                      <textarea
-                        id="message"
-                        name="message"
-                        rows="5"
-                        value={formData.message}
-                        onChange={handleChange}
-                        className={`w-full pl-12 pr-4 py-3 border ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} 
-                                   rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 resize-none
-                                   bg-white/50 backdrop-blur-sm hover:bg-white/80`}
-                        placeholder="Tell us how we can help you..."
-                      ></textarea>
-                    </div>
-                    {errors.message && (
-                      <p className="text-red-500 text-sm mt-2 flex items-center">
-                        <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
-                        {errors.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 
-                               transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300
-                               ${isSubmitted 
-                                 ? 'bg-green-500 text-white' 
-                                 : isSubmitting 
-                                   ? 'bg-gray-400 text-white cursor-not-allowed'
-                                   : 'bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700 shadow-lg hover:shadow-xl'
-                               }`}
-                  >
-                    <div className="flex items-center justify-center space-x-2">
-                      {isSubmitted ? (
-                        <>
-                          <CheckCircle className="w-6 h-6" />
-                          <span>Message Sent Successfully!</span>
-                        </>
-                      ) : isSubmitting ? (
-                        <>
-                          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Sending Message...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5" />
-                          <span>Send Message</span>
-                        </>
+                      <label htmlFor="name" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                        Full Name
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                        <input
+                          type="text"
+                          id="name"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          className={`w-full pl-12 pr-4 py-3 border ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'} 
+                                     rounded-xl focus:outline-none focus:ring-2 transition-all duration-300
+                                     bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-gray-700/80`}
+                          placeholder="Enter your full name"
+                        />
+                      </div>
+                      {errors.name && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center">
+                          <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+                          {errors.name}
+                        </p>
                       )}
                     </div>
-                  </button>
+
+                    <div className="relative">
+                      <label htmlFor="email" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          className={`w-full pl-12 pr-4 py-3 border ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'} 
+                                     rounded-xl focus:outline-none focus:ring-2 transition-all duration-300
+                                     bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-gray-700/80`}
+                          placeholder="Enter your email address"
+                        />
+                      </div>
+                      {errors.email && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center">
+                          <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+                          {errors.email}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <label htmlFor="message" className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+                        Your Message
+                      </label>
+                      <div className="relative">
+                        <MessageSquare className="absolute left-3 top-4 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                        <textarea
+                          id="message"
+                          name="message"
+                          rows="5"
+                          value={formData.message}
+                          onChange={handleChange}
+                          className={`w-full pl-12 pr-4 py-3 border ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'} 
+                                     rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 resize-none
+                                     bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-gray-700/80`}
+                          placeholder="Tell us how we can help you..."
+                        ></textarea>
+                      </div>
+                      {errors.message && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center">
+                          <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+                          {errors.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || isSubmitted}
+                      className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 
+                                 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700
+                                 ${isSubmitted 
+                                   ? 'bg-green-500 text-white' 
+                                   : isSubmitting 
+                                     ? 'bg-gray-400 text-white cursor-not-allowed'
+                                     : 'bg-gradient-to-r from-blue-600 to-green-600 text-white hover:from-blue-700 hover:to-green-700 shadow-lg hover:shadow-xl'
+                                 }`}
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        {isSubmitted ? (
+                          <>
+                            <CheckCircle className="w-6 h-6" />
+                            <span>Message Sent Successfully!</span>
+                          </>
+                        ) : isSubmitting ? (
+                          <>
+                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Sending Message...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-5 h-5" />
+                            <span>Send Message</span>
+                          </>
+                        )}
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </form>
           </div>
 
           {/* Why Contact Us Section */}
           <div className={`transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`} style={{transitionDelay: '600ms'}}>
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-100 overflow-hidden h-full">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden h-full">
               <div className="p-8 md:p-10">
                 <div className="flex items-center mb-8">
                   <div className="w-1 h-12 bg-gradient-to-b from-green-500 to-blue-500 rounded-full mr-4"></div>
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Why Contact Us?</h2>
-                    <p className="text-gray-600 mt-1">Here's how we can help you</p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Why Contact Us?</h2>
+                    <p className="text-gray-600 dark:text-gray-300 mt-1">Here's how we can help you</p>
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  <div className="flex items-start space-x-4 p-4 rounded-2xl bg-blue-50/50 border border-blue-100">
+                  <div className="flex items-start space-x-4 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
                     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                       <span className="text-white font-bold text-lg">💊</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 mb-2">Medication Questions</h3>
-                      <p className="text-gray-600 text-sm">Get expert advice about your prescriptions, dosages, and potential interactions.</p>
+                      <h3 className="font-bold text-gray-900 dark:text-white mb-2">Medication Questions</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">Get expert advice about your prescriptions, dosages, and potential interactions.</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-4 p-4 rounded-2xl bg-green-50/50 border border-green-100">
+                  <div className="flex items-start space-x-4 p-4 rounded-2xl bg-green-50/50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
                     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
                       <span className="text-white font-bold text-lg">🚚</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 mb-2">Delivery Services</h3>
-                      <p className="text-gray-600 text-sm">Learn about our fast and reliable prescription delivery options.</p>
+                      <h3 className="font-bold text-gray-900 dark:text-white mb-2">Delivery Services</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">Learn about our fast and reliable prescription delivery options.</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-4 p-4 rounded-2xl bg-purple-50/50 border border-purple-100">
+                  <div className="flex items-start space-x-4 p-4 rounded-2xl bg-purple-50/50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800">
                     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
                       <span className="text-white font-bold text-lg">💰</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 mb-2">Insurance & Pricing</h3>
-                      <p className="text-gray-600 text-sm">Questions about insurance coverage, pricing, or payment options? We're here to help.</p>
+                      <h3 className="font-bold text-gray-900 dark:text-white mb-2">Insurance & Pricing</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">Questions about insurance coverage, pricing, or payment options? We're here to help.</p>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-4 p-4 rounded-2xl bg-orange-50/50 border border-orange-100">
+                  <div className="flex items-start space-x-4 p-4 rounded-2xl bg-orange-50/50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800">
                     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
                       <span className="text-white font-bold text-lg">🏥</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 mb-2">Health Consultations</h3>
-                      <p className="text-gray-600 text-sm">Schedule a consultation with our licensed pharmacists for personalized health advice.</p>
+                      <h3 className="font-bold text-gray-900 dark:text-white mb-2">Health Consultations</h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm">Schedule a consultation with our licensed pharmacists for personalized health advice.</p>
                     </div>
                   </div>
                 </div>
@@ -374,5 +378,4 @@ const Contact = () => {
     </div>
   );
 };
-
 export default Contact;
