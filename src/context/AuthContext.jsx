@@ -74,6 +74,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
+
   const updateUser = async (userData) => {
   try {
     setIsLoading(true);
@@ -81,20 +83,31 @@ export const AuthProvider = ({ children }) => {
 
     const updatedUser = await authService.updateuser(userData);
 
-    setUser(updatedUser);
+    setUser(updatedUser.data); // Assuming the response has data property
     setIsAuthenticated(true);
     return updatedUser;
   } catch (err) {
-    const errorMessage = err.response?.data?.message || 
-                       err.message || 
-                       "Failed to update user due to network issues";
-    setError(errorMessage);
+    // Handle different error types
+    if (err.type === 'validation') {
+      setError({
+        type: 'validation',
+        message: err.message,
+        errors: err.errors
+      });
+    } else {
+      setError({
+        type: err.type || 'unknown',
+        message: err.message || "Failed to update user due to unexpected error"
+      });
+    }
     console.error("updateUser error:", err);
-    throw errorMessage; // Throw a string instead of the error object
+    throw err; // Re-throw for component-level handling
   } finally {
     setIsLoading(false);
   }
 };
+
+
 
   const getAllUsersFrom = async () => {
     try {

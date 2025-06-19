@@ -134,11 +134,14 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
   const [error, setError] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleEditUser = (user) => {
-    setSelectedUser(user);
-    setIsEditModalOpen(true);
-    setError(null); // Reset error when opening modal
-  };
+
+    const handleEditUser = (member) => {
+        console.log("Edit button clicked, user:", member); // <-- Check if this logs
+      setSelectedUser(member);
+      setIsEditModalOpen(true);
+      setError(null); // Reset error when opening modal
+    };
+
 
   const handleUpdateUser = async (updatedData) => {
     if (isUpdating) return;
@@ -356,11 +359,27 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       />
 
       {/* Edit Modal */}
-      <UserEditModal
+      {/* <UserEditModal
+      
         user={selectedUser}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleUpdateUser}
+      /> */}
+
+      {/* Edit Modal */}
+      <UserEditModal
+        user={selectedUser}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          console.log("Closing modal from parent");
+          setIsEditModalOpen(false);
+        }}
+        onUpdate={(updatedUser) => {
+          console.log("Saving user data:", updatedUser);
+          handleUpdateUser(updatedUser);
+          setIsEditModalOpen(false); // Close after save
+        }}
       />
 
       {/* Debug output */}

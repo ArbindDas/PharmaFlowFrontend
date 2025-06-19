@@ -36,7 +36,7 @@ const getAllUsers = async () => {
     if (!userData?.token) {
       throw new Error('No authentication token found - please login again');
     }
-
+    
     const response = await axiosInstance.get("/get-all-users", {
       headers: {
         Authorization: `Bearer ${userData.token}`,
@@ -69,28 +69,9 @@ const deleteUser = async (userId) => {
 };
 
 
-
-// const updateuser = async (userData) => {
-//   try {
-//     const response = await axiosInstance.put(`/update`, userData, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error updating user:", error);
-//     if (error.response && error.response.data) {
-//       throw new Error(error.response.data.message || "Failed to update user");
-//     } else {
-//       throw new Error("Network error or server is unreachable");
-//     }
-//   }
-// };
-
 const updateuser = async (userData) => {
   try {
-    const token = await getToken(); // Implement secure token retrieval
+    const token = await getToken();
     const response = await axiosInstance.put(`/update`, userData, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -100,22 +81,34 @@ const updateuser = async (userData) => {
     return response.data;
   } catch (error) {
     if (error.response) {
+      // Handle validation errors (400 status)
+      if (error.response.status === 400 && error.response.data.errors) {
+        const validationErrors = error.response.data.errors;
+        throw { 
+          type: 'validation', 
+          errors: validationErrors,
+          message: 'Please fix the validation errors'
+        };
+      }
+      
       switch (error.response.status) {
         case 401:
-          throw new Error('Please authenticate');
+          throw { type: 'auth', message: 'Please authenticate' };
         case 403:
-          throw new Error('Not authorized to update this user');
+          throw { type: 'auth', message: 'Not authorized to update this user' };
         case 404:
-          throw new Error('User not found');
+          throw { type: 'not_found', message: 'User not found' };
         default:
-          throw new Error(error.response.data.message || 'Update failed');
+          throw { 
+            type: 'server', 
+            message: error.response.data.message || 'Update failed' 
+          };
       }
     } else {
-      throw new Error('Network error - please try again later');
+      throw { type: 'network', message: 'Network error - please try again later' };
     }
   }
 };
-
 
 
 const login = async (email, password) => {

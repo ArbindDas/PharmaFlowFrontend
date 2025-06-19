@@ -1,236 +1,580 @@
+import React, { useState, useEffect } from "react";
+import {
+  X,
+  User,
+  Mail,
+  Save,
+  Loader2,
+  Heart,
+  Lock,
+  Shield,
+} from "lucide-react";
+import Select from "react-select";
 
-import React, { useState, useEffect } from 'react';
-import { X, User, Mail, Save, Loader2, Heart } from 'lucide-react';
+const UserEditModal = ({ user, onClose, onUpdate, isOpen, onSave }) => {
+  const [formData, setFormData] = useState({
+    fullName: user?.fullName || "",
+    email: user?.email || "",
+    password: "",
+    roles: user?.roles || [],
+    authProvider: user?.authProvider || null,
+  });
 
-// Mock Modal component - replace with your actual Modal
-const Modal = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
-  
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity duration-300"
-        onClick={onClose}
-      />
-      <div className="relative z-10">
-        {children}
-      </div>
-    </div>
-  );
-};
+  // Add this useEffect to update formData when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        fullName: user.fullName || "",
+        email: user.email || "",
+        password: "", // Keep password empty for security
+        roles: user.roles || [],
+        authProvider: user.authProvider || null,
+      });
+    }
+  }, [user]); // Runs whenever user prop changes
 
-const UserEditModal = ({ user, isOpen, onClose, onSave }) => {
-  const [formData, setFormData] = useState(user || {});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Debugging - log current values
+  useEffect(() => {
+    console.log("Current formData:", formData);
+  }, [formData]);
+
+  const [availableRoles, setAvailableRoles] = useState([]);
   const [errors, setErrors] = useState({});
-  const [touchedFields, setTouchedFields] = useState({});
-  const [apiError, setApiError] = useState(null); // Add this state
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
   useEffect(() => {
-    setFormData(user || {});
-  }, [user]);
+    if (!isOpen) return; // Only fetch if modal is open
 
-  const validateField = (name, value) => {
-    switch (name) {
-      case 'fullName':
-        return value.trim().length < 2 ? 'Name must be at least 2 characters' : '';
-      case 'email':
-        return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Please enter a valid email address' : '';
-      default:
-        return '';
-    }
-  };
+    fetch("http://localhost:8080/api/auth/roles", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("API request failed");
+        return res.json();
+      })
+      .then((data) => setAvailableRoles(data))
+      .catch((err) => {
+        console.error("Failed to fetch roles:", err);
+        setAvailableRoles(["ADMIN", "USER"]);
+      });
+  }, [isOpen]); // Add isOpen to dependencies
+
+  // 2. Then handle the conditional return
+  if (!isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Real-time validation for touched fields
-    if (touchedFields[name]) {
-      const error = validateField(name, value);
-      setErrors(prev => ({ ...prev, [name]: error }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
     }
   };
 
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    setTouchedFields(prev => ({ ...prev, [name]: true }));
-    const error = validateField(name, value);
-    setErrors(prev => ({ ...prev, [name]: error }));
+  const handleRoleChange = (selectedRoles) => {
+    setFormData((prev) => ({
+      ...prev,
+      roles: selectedRoles,
+    }));
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setApiError(null); // Reset API error on new submission
-
-    // Validate all fields
-    const newErrors = {};
-    ['fullName', 'email'].forEach(field => {
-      const error = validateField(field, formData[field] || '');
-      if (error) newErrors[field] = error;
-    });
-    
-    setErrors(newErrors);
-    setTouchedFields({ fullName: true, email: true });
-    
-    if (Object.keys(newErrors).some(key => newErrors[key])) {
-      return;
-    }
-
     setIsSubmitting(true);
+    setApiError(null);
+
     try {
-      await onSave(formData);
-      onClose(); // Only close on success
+      const dataToSend = {
+        ...formData,
+        id: user?.id || 1,
+        ...(formData.password === "" && { password: undefined }),
+      };
+
+      // Mock success for demo
+      setTimeout(() => {
+        onUpdate && onUpdate(dataToSend);
+        onClose();
+      }, 1500);
     } catch (error) {
-      console.error("Save failed:", error);
-      setApiError(error); // Display the error to user
+      if (error.type === "validation") {
+        const fieldErrors = {};
+        Object.entries(error.errors).forEach(([field, message]) => {
+          fieldErrors[field] = message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        setApiError(error.message);
+      }
     } finally {
-      setIsSubmitting(false);
+      setTimeout(() => setIsSubmitting(false), 1500);
     }
   };
+
+  // return (
+  //   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  //     {/* Backdrop - fixed click handler */}
+  //     <div
+  //       className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+  //       onClick={(e) => {
+  //         if (!isSubmitting && e.target === e.currentTarget) {
+  //           onClose && onClose();
+  //         }
+  //       }}
+  //     />
+
+  //     {/* Modal */}
+  //     <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl transform transition-all duration-300 scale-100 animate-in fade-in-0 zoom-in-95">
+  //       {/* Header */}
+  //       <div className="relative px-6 py-5 border-b border-gray-100">
+  //         <div className="flex items-center gap-3">
+  //           <div className="p-2 bg-blue-100 rounded-lg">
+  //             <User className="w-5 h-5 text-blue-600" />
+  //           </div>
+  //           <div>
+  //             <h2 className="text-xl font-semibold text-gray-900">
+  //               {" "}
+  //               {formData.fullName || "No name available"}
+  //             </h2>
+  //             <p className="text-sm text-gray-500">Update user information</p>
+  //           </div>
+  //         </div>
+  //         <button
+  //           onClick={() => !isSubmitting && onClose && onClose()}
+  //           className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+  //           disabled={isSubmitting}
+  //           type="button"
+  //         >
+  //           <X className="w-5 h-5" />
+  //         </button>
+  //       </div>
+
+  //       {/* Content */}
+  //       <div className="px-6 py-6">
+  //         {apiError && (
+  //           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+  //             <div className="flex items-center gap-2">
+  //               <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+  //               <span className="text-red-700 text-sm">{apiError}</span>
+  //             </div>
+  //           </div>
+  //         )}
+
+  //         <form className="space-y-5" onSubmit={handleSubmit}>
+  //           {/* Form fields remain the same as your original */}
+  //           {/* Full Name */}
+  //           <div className="group">
+  //             <label className="block text-sm font-medium text-gray-700 mb-2">
+  //               Full Name
+  //             </label>
+  //             <div className="relative">
+  //               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+            
+  //               <input
+  //                 type="text"
+  //                 name="fullName"
+  //                 value={formData.fullName}
+  //                 onChange={handleChange}
+  //                 className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-200 
+  //             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+  //             hover:border-gray-400
+  //             text-gray-900 !important /* Force dark text color */
+  //             ${
+  //               errors.fullName
+  //                 ? "border-red-300 bg-red-50 focus:ring-red-500"
+  //                 : "border-gray-300 bg-white"
+  //             }`}
+  //                 placeholder="Enter full name"
+  //                 autoComplete="current-name"
+  //                 style={{
+  //                   color: "#111827",
+  //                 }} /* Additional safety - dark gray */
+  //               />
+  //             </div>
+  //             {errors.fullName && (
+  //               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+  //                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+  //                 {errors.fullName}
+  //               </p>
+  //             )}
+  //           </div>
+
+  //           {/* Email */}
+  //           <div className="group">
+  //             <label className="block text-sm font-medium text-gray-700 mb-2">
+  //               Email Address
+  //             </label>
+  //             <div className="relative">
+  //               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+  //               <input
+  //                 type="email"
+  //                 name="email"
+  //                 value={formData.email}
+  //                 onChange={handleChange}
+  //                 className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-200 
+  //             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+  //             hover:border-gray-400
+  //             text-gray-900 bg-white /* Explicit text and background colors */
+  //             font-medium /* Slightly bolder text */
+  //             ${
+  //               errors.email
+  //                 ? "border-red-300 bg-red-50 focus:ring-red-500"
+  //                 : "border-gray-300 bg-white"
+  //             }`}
+  //                 placeholder="Enter email address"
+  //                 autoComplete="current-email"
+  //                 style={{
+  //                   color: "#111827" /* Fallback dark gray color */,
+  //                   caretColor:
+  //                     "#3B82F6" /* Blue cursor for better visibility */,
+  //                 }}
+  //               />
+  //             </div>
+  //             {errors.email && (
+  //               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+  //                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+  //                 {errors.email}
+  //               </p>
+  //             )}
+  //           </div>
+
+  //           {/* Password */}
+  //           <div className="group">
+  //             <label className="block text-sm font-medium text-gray-700 mb-2">
+  //               Password
+  //               <span className="text-xs text-gray-500 ml-1">
+  //                 (leave blank to keep current)
+  //               </span>
+  //             </label>
+  //             <div className="relative">
+  //               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+  //               <input
+  //                 type="password"
+  //                 name="password"
+  //                 value={formData.password}
+  //                 onChange={handleChange}
+  //                 className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 ${
+  //                   errors.password
+  //                     ? "border-red-300 bg-red-50 focus:ring-red-500"
+  //                     : "border-gray-300 bg-white"
+  //                 }`}
+  //                 placeholder="Enter new password"
+  //                 autoComplete="current-password"
+  //               />
+  //             </div>
+  //             {errors.password && (
+  //               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+  //                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+  //                 {errors.password}
+  //               </p>
+  //             )}
+  //           </div>
+
+  //           {/* Roles */}
+  //           <div className="group">
+  //             <label className="block text-sm font-medium text-gray-700 mb-2">
+  //               <div className="flex items-center gap-2">
+  //                 <Shield className="w-4 h-4" />
+  //                 User Roles
+  //               </div>
+  //             </label>
+  //             <Select
+  //               isMulti
+  //               options={availableRoles.map((role) => ({
+  //                 value: role,
+  //                 label: role,
+  //               }))}
+  //               value={formData.roles.map((role) => ({
+  //                 value: role,
+  //                 label: role,
+  //               }))}
+  //               onChange={(selected) =>
+  //                 handleRoleChange(selected.map((item) => item.value))
+  //               }
+  //             />
+  //             {errors.roles && (
+  //               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+  //                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+  //                 {errors.roles}
+  //               </p>
+  //             )}
+  //           </div>
+
+  //           {/* Footer buttons moved INSIDE the form */}
+  //           <div className="px-0 py-4 bg-gray-50 rounded-b-2xl border-t border-gray-100 mt-6">
+  //             <div className="flex gap-3 justify-end">
+  //               <button
+  //                 type="button"
+  //                 onClick={() => !isSubmitting && onClose && onClose()}
+  //                 disabled={isSubmitting}
+  //                 className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+  //               >
+  //                 Cancel
+  //               </button>
+  //               <button
+  //                 type="submit"
+  //                 disabled={isSubmitting}
+  //                 className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+  //               >
+  //                 {isSubmitting ? (
+  //                   <>
+  //                     <Loader2 className="w-4 h-4 animate-spin" />
+  //                     Updating...
+  //                   </>
+  //                 ) : (
+  //                   <>
+  //                     <Save className="w-4 h-4" />
+  //                     Update User
+  //                   </>
+  //                 )}
+  //               </button>
+  //             </div>
+  //           </div>
+  //         </form>
+  //       </div>
+
+  //       {/* Decorative element */}
+  //       <div className="absolute -top-1 -right-1 w-6 h-6">
+  //         <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-20 animate-pulse"></div>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="bg-white rounded-3xl w-full max-w-md transform transition-all duration-500 ease-out scale-100 opacity-100 shadow-2xl border border-slate-200/50 overflow-hidden">
-        
-        {/* Medical-themed header with subtle healthcare colors */}
-        <div className="relative bg-gradient-to-br from-blue-50 via-white to-green-50 px-6 py-8 border-b border-slate-100">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-teal-500 to-green-500"></div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-3 bg-blue-500/10 rounded-2xl">
-                <Heart className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-1">Edit Member</h2>
-                <p className="text-slate-500 text-sm font-medium">Update patient information</p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-slate-100 rounded-xl transition-all duration-200 group"
-            >
-              <X className="w-5 h-5 text-slate-400 group-hover:text-slate-600 group-hover:rotate-90 transition-all duration-200" />
-            </button>
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    {/* Backdrop with subtle blue tint */}
+    <div
+      className="absolute inset-0 bg-blue-500/10 backdrop-blur-[2px] transition-opacity duration-300"
+      onClick={(e) => {
+        if (!isSubmitting && e.target === e.currentTarget) {
+          onClose && onClose();
+        }
+      }}
+    />
+
+    {/* Modern card-style modal with subtle shadow and border */}
+    <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl shadow-blue-100/50 border border-gray-100 transform transition-all duration-300 scale-100 animate-in fade-in-0 zoom-in-95">
+      {/* Floating header with gradient accent */}
+      <div className="relative px-6 py-5 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-inner">
+            <User className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 tracking-tight">
+              {formData.fullName || "No name available"}
+            </h2>
+            <p className="text-sm text-gray-500 font-medium">Update user information</p>
           </div>
         </div>
+        <button
+          onClick={() => !isSubmitting && onClose && onClose()}
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 hover:rotate-90"
+          disabled={isSubmitting}
+          type="button"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
 
-        {/* Form section */}
-        <div className="p-6">
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-6">
-            
-            {/* Full Name Field */}
-            <div className="space-y-2">
-              <label className="flex items-center text-sm font-semibold text-slate-700 mb-2">
-                <User className="w-4 h-4 mr-2 text-slate-400" />
-                Full Name
-                <span className="text-red-400 ml-1">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName || ''}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`w-full border-2 rounded-2xl py-4 px-4 text-slate-700 bg-slate-50/50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/20 hover:bg-white hover:border-slate-300 ${
-                    errors.fullName && touchedFields.fullName
-                      ? 'border-red-300 focus:border-red-400 bg-red-50/30'
-                      : 'border-slate-200 focus:border-blue-400 focus:bg-white'
-                  }`}
-                  placeholder="Enter full name"
-                  autoFocus
-                />
-                {errors.fullName && touchedFields.fullName && (
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-                  </div>
-                )}
-              </div>
-              {errors.fullName && touchedFields.fullName && (
-                <p className="text-red-500 text-xs mt-1 ml-1 animate-in slide-in-from-top-1 duration-200">
-                  {errors.fullName}
-                </p>
-              )}
+      {/* Content with subtle padding adjustments */}
+      <div className="px-6 py-5">
+        {apiError && (
+          <div className="mb-4 p-3 bg-red-50/80 border border-red-200 rounded-lg backdrop-blur-sm">
+            <div className="flex items-center gap-2 animate-pulse">
+              <div className="w-4 h-4 bg-red-500 rounded-full flex-shrink-0"></div>
+              <span className="text-red-700 text-sm font-medium">{apiError}</span>
             </div>
+          </div>
+        )}
 
-            {/* Email Field */}
-            <div className="space-y-2">
-              <label className="flex items-center text-sm font-semibold text-slate-700 mb-2">
-                <Mail className="w-4 h-4 mr-2 text-slate-400" />
-                Email Address
-                <span className="text-red-400 ml-1">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email || ''}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`w-full border-2 rounded-2xl py-4 px-4 text-slate-700 bg-slate-50/50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/20 hover:bg-white hover:border-slate-300 ${
-                    errors.email && touchedFields.email
-                      ? 'border-red-300 focus:border-red-400 bg-red-50/30'
-                      : 'border-slate-200 focus:border-blue-400 focus:bg-white'
-                  }`}
-                  placeholder="Enter email address"
-                />
-                {errors.email && touchedFields.email && (
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-                  </div>
-                )}
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          {/* Full Name - Enhanced with floating label effect */}
+          <div className="relative">
+            <input
+              type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              className={`peer w-full px-4 py-3 border rounded-lg transition-all duration-200 
+                focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent 
+                hover:border-blue-300 text-gray-900 placeholder-transparent
+                ${errors.fullName ? "border-red-300 bg-red-50/50" : "border-gray-200"}`}
+              placeholder=" "
+            />
+            <label className="absolute left-4 -top-2.5 px-1 bg-white text-xs font-medium text-gray-500 transition-all duration-200 
+              peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 
+              peer-placeholder-shown:top-3 peer-placeholder-shown:left-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-blue-600">
+              Full Name
+            </label>
+            <User className="absolute right-4 top-4 w-4 h-4 text-gray-400 peer-focus:text-blue-500" />
+            {errors.fullName && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1 animate-fade-in">
+                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                {errors.fullName}
+              </p>
+            )}
+          </div>
+
+          {/* Email - Similar floating label */}
+          <div className="relative">
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`peer w-full px-4 py-3 border rounded-lg transition-all duration-200 
+                focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent 
+                hover:border-blue-300 text-gray-900 placeholder-transparent
+                ${errors.email ? "border-red-300 bg-red-50/50" : "border-gray-200"}`}
+              placeholder=" "
+            />
+            <label className="absolute left-4 -top-2.5 px-1 bg-white text-xs font-medium text-gray-500 transition-all duration-200 
+              peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 
+              peer-placeholder-shown:top-3 peer-placeholder-shown:left-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-blue-600">
+              Email Address
+            </label>
+            <Mail className="absolute right-4 top-4 w-4 h-4 text-gray-400 peer-focus:text-blue-500" />
+            {errors.email && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1 animate-fade-in">
+                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                {errors.email}
+              </p>
+            )}
+          </div>
+
+          {/* Password - With strength meter */}
+          <div className="relative">
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className={`peer w-full px-4 py-3 border rounded-lg transition-all duration-200 
+                focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent 
+                hover:border-blue-300 text-gray-900 placeholder-transparent
+                ${errors.password ? "border-red-300 bg-red-50/50" : "border-gray-200"}`}
+              placeholder=" "
+            />
+            <label className="absolute left-4 -top-2.5 px-1 bg-white text-xs font-medium text-gray-500 transition-all duration-200 
+              peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 
+              peer-placeholder-shown:top-3 peer-placeholder-shown:left-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-blue-600">
+              Password (leave blank to keep current)
+            </label>
+            <Lock className="absolute right-4 top-4 w-4 h-4 text-gray-400 peer-focus:text-blue-500" />
+            {formData.password && (
+              <div className="h-1 mt-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${formData.password.length > 10 ? 'bg-green-500 w-full' : formData.password.length > 5 ? 'bg-yellow-500 w-2/3' : 'bg-red-500 w-1/3'}`}></div>
               </div>
-              {errors.email && touchedFields.email && (
-                <p className="text-red-500 text-xs mt-1 ml-1 animate-in slide-in-from-top-1 duration-200">
-                  {errors.email}
-                </p>
-              )}
-            </div>
-                      </div>
+            )}
+            {errors.password && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1 animate-fade-in">
+                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                {errors.password}
+              </p>
+            )}
+          </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 mt-8 pt-6">
+          {/* Roles - Enhanced select */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+              User Roles
+            </label>
+            <div className="relative">
+              <Select
+                isMulti
+                options={availableRoles.map((role) => ({
+                  value: role,
+                  label: role,
+                }))}
+                value={formData.roles.map((role) => ({
+                  value: role,
+                  label: role,
+                }))}
+                onChange={(selected) =>
+                  handleRoleChange(selected.map((item) => item.value))
+                }
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: errors.roles ? '#fca5a5' : '#e5e7eb',
+                    backgroundColor: errors.roles ? '#fef2f2' : '#fff',
+                    minHeight: '48px',
+                    boxShadow: 'none',
+                    '&:hover': {
+                      borderColor: errors.roles ? '#fca5a5' : '#93c5fd'
+                    }
+                  }),
+                  multiValue: (base) => ({
+                    ...base,
+                    backgroundColor: '#e0f2fe',
+                    borderRadius: '6px'
+                  }),
+                  multiValueLabel: (base) => ({
+                    ...base,
+                    color: '#0369a1',
+                    fontWeight: '500'
+                  })
+                }}
+              />
+              <Shield className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
+            </div>
+            {errors.roles && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1 animate-fade-in">
+                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                {errors.roles}
+              </p>
+            )}
+          </div>
+
+          {/* Footer buttons with glass effect */}
+          <div className="pt-6 pb-2">
+            <div className="flex gap-3 justify-end">
               <button
                 type="button"
-                onClick={onClose}
-                className="flex-1 px-6 py-4 border-2 border-slate-200 rounded-2xl text-slate-600 font-semibold hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-500/20 transition-all duration-200 hover:shadow-sm"
+                onClick={() => !isSubmitting && onClose && onClose()}
+                disabled={isSubmitting}
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-teal-600 text-white font-semibold rounded-2xl hover:from-blue-700 hover:to-teal-700 focus:outline-none focus:ring-4 focus:ring-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 transform disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-br from-blue-500 to-blue-600 border border-blue-500 rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
               >
                 {isSubmitting ? (
-                  <span className="flex items-center justify-center">
-                    <Loader2 className="animate-spin w-5 h-5 mr-2" />
-                    Saving...
-                  </span>
+                  <>
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Updating...
+                  </>
                 ) : (
-                  <span className="flex items-center justify-center">
-                    <Save className="w-5 h-5 mr-2" />
-                    Save Changes
-                  </span>
+                  <>
+                    <Save className="w-4 h-4" />
+                    Update User
+                  </>
                 )}
               </button>
             </div>
-          </form>
-        </div>
-
-        {/* Loading progress bar */}
-        {isSubmitting && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-100 overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-blue-500 to-teal-500 animate-pulse"></div>
           </div>
-        )}
+        </form>
       </div>
-    </Modal>
-  );
+
+      {/* Decorative elements */}
+      <div className="absolute -bottom-3 -left-3 w-20 h-20 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-30"></div>
+      <div className="absolute -top-3 -right-3 w-20 h-20 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+    </div>
+  </div>
+);
 };
 
 export default UserEditModal;
+
