@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import authService from "../../api/auth";
 import OAuthButton from "../../components/OAuthButton";
 import { Eye, EyeOff, User } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -21,6 +22,7 @@ const Login = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+   const { isDarkMode } = useTheme();
 
   const [focused, setFocused] = useState({
     email: false,
@@ -67,6 +69,7 @@ const Login = () => {
       default:
         break;
     }
+     
 
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
@@ -104,16 +107,26 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className={`min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-300 ${
+        isDarkMode 
+            ? "bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900" 
+            : "bg-gray-50"
+    }`}>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className={`mt-6 text-center text-3xl font-extrabold ${
+            isDarkMode ? "text-white" : "text-gray-900"
+        }`}>
           Sign in to your account
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className={`mt-2 text-center text-sm ${
+            isDarkMode ? "text-gray-300" : "text-gray-600"
+        }`}>
           Or{" "}
           <Link
             to="/register"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className={`font-medium ${
+                isDarkMode ? "text-indigo-400 hover:text-indigo-300" : "text-indigo-600 hover:text-indigo-500"
+            }`}
           >
             create a new account
           </Link>
@@ -121,9 +134,13 @@ const Login = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className={`py-8 px-4 shadow sm:rounded-lg sm:px-10 ${
+            isDarkMode ? "bg-gray-700" : "bg-white"
+        }`}>
           {apiError && (
-            <div className="mb-4 rounded-md bg-red-50 p-4">
+            <div className={`mb-4 rounded-md p-4 ${
+                isDarkMode ? "bg-red-900" : "bg-red-50"
+            }`}>
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg
@@ -140,7 +157,9 @@ const Login = () => {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">
+                  <h3 className={`text-sm font-medium ${
+                      isDarkMode ? "text-red-200" : "text-red-800"
+                  }`}>
                     {apiError}
                   </h3>
                 </div>
@@ -158,21 +177,27 @@ const Login = () => {
                 value={formData.email}
                 onFocus={() => setFocused((prev) => ({ ...prev, email: true }))}
                 onBlur={() => setFocused((prev) => ({ ...prev, email: false }))}
-                onChange={handleChange} // ✅ Fixed
-                className="mt-1 block w-full px-3 py-2 pt-6 border rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={handleChange}
+                className={`mt-1 block w-full px-3 py-2 pt-6 border ${
+                    isDarkMode 
+                        ? "bg-gray-600 border-gray-500 text-white focus:ring-indigo-400 focus:border-indigo-400" 
+                        : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                } rounded-md shadow-sm sm:text-sm`}
               />
               <label
                 htmlFor="email"
                 className={`absolute left-3 transition-all duration-200 ease-in-out pointer-events-none ${
                   focused.email || formData.email
-                    ? "top-1 text-xs text-indigo-600"
-                    : "top-3 text-sm text-gray-500"
+                    ? `top-1 text-xs ${isDarkMode ? "text-indigo-300" : "text-indigo-600"}`
+                    : `top-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-500"}`
                 }`}
               >
                 Email address
               </label>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className={`mt-1 text-sm ${
+                    isDarkMode ? "text-red-300" : "text-red-600"
+                }`}>{errors.email}</p>
               )}
             </div>
 
@@ -180,7 +205,7 @@ const Login = () => {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? "text" : "password"} // 🔹 Dynamic type
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 value={formData.password}
                 onFocus={() =>
@@ -192,15 +217,19 @@ const Login = () => {
                 }}
                 onChange={handleChange}
                 className={`mt-1 block w-full px-3 py-2 pt-6 border ${
-                  errors.password ? "border-red-300" : "border-gray-300"
-                } rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500`}
+                    isDarkMode
+                        ? "bg-gray-600 border-gray-500 text-white focus:ring-indigo-400 focus:border-indigo-400"
+                        : errors.password 
+                            ? "border-red-300" 
+                            : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                } rounded-md shadow-sm sm:text-sm`}
               />
               <label
                 htmlFor="password"
                 className={`absolute left-3 transition-all duration-200 ease-in-out pointer-events-none ${
                   focused.password || formData.password
-                    ? "top-1 text-xs text-indigo-600"
-                    : "top-3 text-sm text-gray-500"
+                    ? `top-1 text-xs ${isDarkMode ? "text-indigo-300" : "text-indigo-600"}`
+                    : `top-3 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-500"}`
                 }`}
               >
                 Password
@@ -208,12 +237,16 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                className={`absolute right-3 top-3 ${
+                    isDarkMode ? "text-gray-300 hover:text-gray-100" : "text-gray-400 hover:text-gray-600"
+                } focus:outline-none`}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className={`mt-1 text-sm ${
+                    isDarkMode ? "text-red-300" : "text-red-600"
+                }`}>{errors.password}</p>
               )}
             </div>
 
@@ -223,11 +256,16 @@ const Login = () => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className={`h-4 w-4 ${
+                      isDarkMode ? "text-indigo-400 focus:ring-indigo-400 border-gray-500" 
+                               : "text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  } rounded`}
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-900"
+                  className={`ml-2 block text-sm ${
+                      isDarkMode ? "text-gray-200" : "text-gray-900"
+                  }`}
                 >
                   Remember me
                 </label>
@@ -236,7 +274,10 @@ const Login = () => {
               <div className="text-sm">
                 <Link
                   to="/forgot-password"
-                  className="font-medium text-indigo-600 hover:text-indigo-500"
+                  className={`font-medium ${
+                      isDarkMode ? "text-indigo-400 hover:text-indigo-300" 
+                               : "text-indigo-600 hover:text-indigo-500"
+                  }`}
                 >
                   Forgot your password?
                 </Link>
@@ -249,9 +290,11 @@ const Login = () => {
                 disabled={!isFormValid || isLoading}
                 className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
                   !isFormValid
-                    ? "bg-indigo-300"
-                    : "bg-indigo-600 hover:bg-indigo-700"
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                    ? isDarkMode ? "bg-indigo-700" : "bg-indigo-300"
+                    : isDarkMode ? "bg-indigo-600 hover:bg-indigo-500" : "bg-indigo-600 hover:bg-indigo-700"
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    isDarkMode ? "focus:ring-indigo-400" : "focus:ring-indigo-500"
+                } ${
                   isLoading ? "opacity-75 cursor-not-allowed" : ""
                 }`}
               >
@@ -287,11 +330,12 @@ const Login = () => {
                 <OAuthButton
                   provider="Google"
                   iconSrc="https://www.svgrepo.com/show/475656/google-color.svg"
+                  darkMode={isDarkMode}
                 />
-                {/* Add more providers as needed */}
                 <OAuthButton
                   provider="GitHub"
                   iconSrc="https://www.svgrepo.com/show/512317/github-142.svg"
+                  darkMode={isDarkMode}
                 />
               </div>
             </div>
