@@ -10,8 +10,12 @@ import {
   Shield,
 } from "lucide-react";
 import Select from "react-select";
+import { useAuth } from '../context/AuthContext'; // Adjust path as needed
 
 const UserEditModal = ({ user, onClose, onUpdate, isOpen, onSave }) => {
+
+  const { updateUserProfile, adminUpdateUserProfile, user: currentUser } = useAuth();
+
   const [formData, setFormData] = useState({
     fullName: user?.fullName || "",
     email: user?.email || "",
@@ -27,8 +31,8 @@ const UserEditModal = ({ user, onClose, onUpdate, isOpen, onSave }) => {
         fullName: user.fullName || "",
         email: user.email || "",
         password: "", // Keep password empty for security
-        roles: user.roles || [],
-        authProvider: user.authProvider || null,
+        roles: user.roles || ['USER'],
+        authProvider: user.authProvider || 'LOCAL',
       });
     }
   }, [user]); // Runs whenever user prop changes
@@ -81,268 +85,48 @@ const UserEditModal = ({ user, onClose, onUpdate, isOpen, onSave }) => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setApiError(null);
+    setErrors({});
+
+
 
     try {
       const dataToSend = {
         ...formData,
-        id: user?.id || 1,
+        id: user?.id, // The user being edited (from props)
         ...(formData.password === "" && { password: undefined }),
       };
 
-      // Mock success for demo
-      setTimeout(() => {
-        onUpdate && onUpdate(dataToSend);
-        onClose();
-      }, 1500);
+      // Check if current user is admin AND editing a different user
+      const isAdminUpdatingOtherUser =   currentUser?.roles?.some(role => 
+      role === 'ADMIN' || role === 'ROLE_ADMIN'
+      )
+      
+      if (isAdminUpdatingOtherUser) {
+        await adminUpdateUserProfile(dataToSend);
+      } else {
+        await updateUserProfile(dataToSend);
+      }
+
+      onUpdate?.(dataToSend);
+      onClose();
     } catch (error) {
-      if (error.type === "validation") {
+      if (error.response?.data?.errors) {
         const fieldErrors = {};
-        Object.entries(error.errors).forEach(([field, message]) => {
+        Object.entries(error.response.data.errors).forEach(([field, message]) => {
           fieldErrors[field] = message;
         });
         setErrors(fieldErrors);
       } else {
-        setApiError(error.message);
+        setApiError(error.message || "Update failed. Please try again.");
       }
     } finally {
-      setTimeout(() => setIsSubmitting(false), 1500);
+      setIsSubmitting(false);
     }
   };
-
-  // return (
-  //   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-  //     {/* Backdrop - fixed click handler */}
-  //     <div
-  //       className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
-  //       onClick={(e) => {
-  //         if (!isSubmitting && e.target === e.currentTarget) {
-  //           onClose && onClose();
-  //         }
-  //       }}
-  //     />
-
-  //     {/* Modal */}
-  //     <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl transform transition-all duration-300 scale-100 animate-in fade-in-0 zoom-in-95">
-  //       {/* Header */}
-  //       <div className="relative px-6 py-5 border-b border-gray-100">
-  //         <div className="flex items-center gap-3">
-  //           <div className="p-2 bg-blue-100 rounded-lg">
-  //             <User className="w-5 h-5 text-blue-600" />
-  //           </div>
-  //           <div>
-  //             <h2 className="text-xl font-semibold text-gray-900">
-  //               {" "}
-  //               {formData.fullName || "No name available"}
-  //             </h2>
-  //             <p className="text-sm text-gray-500">Update user information</p>
-  //           </div>
-  //         </div>
-  //         <button
-  //           onClick={() => !isSubmitting && onClose && onClose()}
-  //           className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
-  //           disabled={isSubmitting}
-  //           type="button"
-  //         >
-  //           <X className="w-5 h-5" />
-  //         </button>
-  //       </div>
-
-  //       {/* Content */}
-  //       <div className="px-6 py-6">
-  //         {apiError && (
-  //           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-  //             <div className="flex items-center gap-2">
-  //               <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-  //               <span className="text-red-700 text-sm">{apiError}</span>
-  //             </div>
-  //           </div>
-  //         )}
-
-  //         <form className="space-y-5" onSubmit={handleSubmit}>
-  //           {/* Form fields remain the same as your original */}
-  //           {/* Full Name */}
-  //           <div className="group">
-  //             <label className="block text-sm font-medium text-gray-700 mb-2">
-  //               Full Name
-  //             </label>
-  //             <div className="relative">
-  //               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-            
-  //               <input
-  //                 type="text"
-  //                 name="fullName"
-  //                 value={formData.fullName}
-  //                 onChange={handleChange}
-  //                 className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-200 
-  //             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-  //             hover:border-gray-400
-  //             text-gray-900 !important /* Force dark text color */
-  //             ${
-  //               errors.fullName
-  //                 ? "border-red-300 bg-red-50 focus:ring-red-500"
-  //                 : "border-gray-300 bg-white"
-  //             }`}
-  //                 placeholder="Enter full name"
-  //                 autoComplete="current-name"
-  //                 style={{
-  //                   color: "#111827",
-  //                 }} /* Additional safety - dark gray */
-  //               />
-  //             </div>
-  //             {errors.fullName && (
-  //               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-  //                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-  //                 {errors.fullName}
-  //               </p>
-  //             )}
-  //           </div>
-
-  //           {/* Email */}
-  //           <div className="group">
-  //             <label className="block text-sm font-medium text-gray-700 mb-2">
-  //               Email Address
-  //             </label>
-  //             <div className="relative">
-  //               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-  //               <input
-  //                 type="email"
-  //                 name="email"
-  //                 value={formData.email}
-  //                 onChange={handleChange}
-  //                 className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-200 
-  //             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-  //             hover:border-gray-400
-  //             text-gray-900 bg-white /* Explicit text and background colors */
-  //             font-medium /* Slightly bolder text */
-  //             ${
-  //               errors.email
-  //                 ? "border-red-300 bg-red-50 focus:ring-red-500"
-  //                 : "border-gray-300 bg-white"
-  //             }`}
-  //                 placeholder="Enter email address"
-  //                 autoComplete="current-email"
-  //                 style={{
-  //                   color: "#111827" /* Fallback dark gray color */,
-  //                   caretColor:
-  //                     "#3B82F6" /* Blue cursor for better visibility */,
-  //                 }}
-  //               />
-  //             </div>
-  //             {errors.email && (
-  //               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-  //                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-  //                 {errors.email}
-  //               </p>
-  //             )}
-  //           </div>
-
-  //           {/* Password */}
-  //           <div className="group">
-  //             <label className="block text-sm font-medium text-gray-700 mb-2">
-  //               Password
-  //               <span className="text-xs text-gray-500 ml-1">
-  //                 (leave blank to keep current)
-  //               </span>
-  //             </label>
-  //             <div className="relative">
-  //               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-  //               <input
-  //                 type="password"
-  //                 name="password"
-  //                 value={formData.password}
-  //                 onChange={handleChange}
-  //                 className={`w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 ${
-  //                   errors.password
-  //                     ? "border-red-300 bg-red-50 focus:ring-red-500"
-  //                     : "border-gray-300 bg-white"
-  //                 }`}
-  //                 placeholder="Enter new password"
-  //                 autoComplete="current-password"
-  //               />
-  //             </div>
-  //             {errors.password && (
-  //               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-  //                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-  //                 {errors.password}
-  //               </p>
-  //             )}
-  //           </div>
-
-  //           {/* Roles */}
-  //           <div className="group">
-  //             <label className="block text-sm font-medium text-gray-700 mb-2">
-  //               <div className="flex items-center gap-2">
-  //                 <Shield className="w-4 h-4" />
-  //                 User Roles
-  //               </div>
-  //             </label>
-  //             <Select
-  //               isMulti
-  //               options={availableRoles.map((role) => ({
-  //                 value: role,
-  //                 label: role,
-  //               }))}
-  //               value={formData.roles.map((role) => ({
-  //                 value: role,
-  //                 label: role,
-  //               }))}
-  //               onChange={(selected) =>
-  //                 handleRoleChange(selected.map((item) => item.value))
-  //               }
-  //             />
-  //             {errors.roles && (
-  //               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-  //                 <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-  //                 {errors.roles}
-  //               </p>
-  //             )}
-  //           </div>
-
-  //           {/* Footer buttons moved INSIDE the form */}
-  //           <div className="px-0 py-4 bg-gray-50 rounded-b-2xl border-t border-gray-100 mt-6">
-  //             <div className="flex gap-3 justify-end">
-  //               <button
-  //                 type="button"
-  //                 onClick={() => !isSubmitting && onClose && onClose()}
-  //                 disabled={isSubmitting}
-  //                 className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-  //               >
-  //                 Cancel
-  //               </button>
-  //               <button
-  //                 type="submit"
-  //                 disabled={isSubmitting}
-  //                 className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
-  //               >
-  //                 {isSubmitting ? (
-  //                   <>
-  //                     <Loader2 className="w-4 h-4 animate-spin" />
-  //                     Updating...
-  //                   </>
-  //                 ) : (
-  //                   <>
-  //                     <Save className="w-4 h-4" />
-  //                     Update User
-  //                   </>
-  //                 )}
-  //               </button>
-  //             </div>
-  //           </div>
-  //         </form>
-  //       </div>
-
-  //       {/* Decorative element */}
-  //       <div className="absolute -top-1 -right-1 w-6 h-6">
-  //         <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-20 animate-pulse"></div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
-
   return (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
     {/* Backdrop with subtle blue tint */}
@@ -404,6 +188,7 @@ const UserEditModal = ({ user, onClose, onUpdate, isOpen, onSave }) => {
                 hover:border-blue-300 text-gray-900 placeholder-transparent
                 ${errors.fullName ? "border-red-300 bg-red-50/50" : "border-gray-200"}`}
               placeholder=" "
+              autoComplete="current-fullName"
             />
             <label className="absolute left-4 -top-2.5 px-1 bg-white text-xs font-medium text-gray-500 transition-all duration-200 
               peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 
@@ -431,6 +216,7 @@ const UserEditModal = ({ user, onClose, onUpdate, isOpen, onSave }) => {
                 hover:border-blue-300 text-gray-900 placeholder-transparent
                 ${errors.email ? "border-red-300 bg-red-50/50" : "border-gray-200"}`}
               placeholder=" "
+              autoComplete="current-email"
             />
             <label className="absolute left-4 -top-2.5 px-1 bg-white text-xs font-medium text-gray-500 transition-all duration-200 
               peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 
@@ -457,7 +243,8 @@ const UserEditModal = ({ user, onClose, onUpdate, isOpen, onSave }) => {
                 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent 
                 hover:border-blue-300 text-gray-900 placeholder-transparent
                 ${errors.password ? "border-red-300 bg-red-50/50" : "border-gray-200"}`}
-              placeholder=" "
+              placeholder=""
+              autocomplete="current-password"
             />
             <label className="absolute left-4 -top-2.5 px-1 bg-white text-xs font-medium text-gray-500 transition-all duration-200 
               peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 

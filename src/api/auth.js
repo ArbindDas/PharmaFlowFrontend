@@ -69,43 +69,70 @@ const deleteUser = async (userId) => {
 };
 
 
-const updateuser = async (userData) => {
+
+// const updateuser = async (userData) => {
+//   const token = getToken();
+  
+//   console.log("Sending to:", `${API_URL}/users/${userData.id}`);
+//   console.log("Payload:", userData);
+  
+//   if (!token) {
+//     throw new Error("No authentication token found");
+//   }
+
+//   try {
+//     const response = await axios.put(`${API_URL}/users/${userData.id}`, userData, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         'Content-Type': 'application/json'
+//       },
+//     });
+//     return response.data;
+//   } catch (error) {
+//     if (error.response) {
+//       throw new Error(error.response.data.message || "Update failed");
+//     } else if (error.request) {
+//       throw new Error("Network error - no response from server");
+//     } else {
+//       throw new Error("Update failed: " + error.message);
+//     }
+//   }
+// };
+
+const updateuser = async (userData, ROLE_ADMIN = false) => {
+  const token = getToken();
+
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
   try {
-    const token = await getToken();
-    const response = await axiosInstance.put(`/update`, userData, {
+    const endpoint = ROLE_ADMIN
+      ? `${API_URL}/admin/users/${userData.id}`
+      : `${API_URL}/users/${userData.id}`;
+
+    const response = await axios.put(endpoint, userData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
       },
     });
+
     return response.data;
   } catch (error) {
     if (error.response) {
-      // Handle validation errors (400 status)
-      if (error.response.status === 400 && error.response.data.errors) {
-        const validationErrors = error.response.data.errors;
-        throw { 
-          type: 'validation', 
-          errors: validationErrors,
-          message: 'Please fix the validation errors'
-        };
-      }
-      
-      switch (error.response.status) {
-        case 401:
-          throw { type: 'auth', message: 'Please authenticate' };
-        case 403:
-          throw { type: 'auth', message: 'Not authorized to update this user' };
-        case 404:
-          throw { type: 'not_found', message: 'User not found' };
-        default:
-          throw { 
-            type: 'server', 
-            message: error.response.data.message || 'Update failed' 
-          };
-      }
+      // Server responded with a status other than 2xx
+      const status = error.response.status;
+      const message = error.response.data?.message || "Server error occurred";
+      console.error(`HTTP ${status}: ${message}`);
+      throw new Error(message);
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error("Network error or no response from server");
+      throw new Error("Network error - please check your internet connection or try again later.");
     } else {
-      throw { type: 'network', message: 'Network error - please try again later' };
+      // Something else caused the error
+      console.error("Unexpected error:", error.message);
+      throw new Error("Unexpected error - " + error.message);
     }
   }
 };
@@ -240,3 +267,6 @@ const authService = {
 };
 
 export default authService;
+export const getToken = () => {
+  return localStorage.getItem("token") || null;
+};

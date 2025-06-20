@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import authService from "../api/auth"; // your API helper
-import { tr } from "framer-motion/client";
+
 
 const AuthContext = createContext();
 
@@ -74,38 +74,33 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+ 
 
-
-  const updateUser = async (userData) => {
-  try {
-    setIsLoading(true);
-    setError(null);
-
-    const updatedUser = await authService.updateuser(userData);
-
-    setUser(updatedUser.data); // Assuming the response has data property
-    setIsAuthenticated(true);
-    return updatedUser;
-  } catch (err) {
-    // Handle different error types
-    if (err.type === 'validation') {
-      setError({
-        type: 'validation',
-        message: err.message,
-        errors: err.errors
-      });
-    } else {
-      setError({
-        type: err.type || 'unknown',
-        message: err.message || "Failed to update user due to unexpected error"
-      });
+   // Wrapper function for regular user updates
+  const updateUserProfile = async (userData) => {
+    try {
+      setError(null);
+      const updatedUser = await authService.updateuser(userData, false); // Regular update
+      setUser(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      setError(error);
+      throw error;
     }
-    console.error("updateUser error:", err);
-    throw err; // Re-throw for component-level handling
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
+
+  // New wrapper function for admin updates
+  const adminUpdateUserProfile = async (userData) => {
+    try {
+      setError(null);
+      const updatedUser = await authService.updateuser(userData, true); // Admin update
+      return updatedUser; // Typically don't setUser for admin actions
+    } catch (error) {
+      setError(error);
+      throw error;
+    }
+  };
+
 
 
 
@@ -166,7 +161,8 @@ export const AuthProvider = ({ children }) => {
         fetchUserDetails,
         getAllUsersFrom,
         deleteUserById,
-        updateUser
+        updateUserProfile,
+        adminUpdateUserProfile
       }}
     >
       {children}

@@ -127,12 +127,15 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
     });
   };
 
-  const auth = useAuth();
+  
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [error, setError] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { user, updateUserProfile, adminUpdateUserProfile } = useAuth();
+const [success, setSuccess] = useState(null);
+
 
 
     const handleEditUser = (member) => {
@@ -143,29 +146,102 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
     };
 
 
-  const handleUpdateUser = async (updatedData) => {
-    if (isUpdating) return;
+// const handleUpdateUser = async (updatedData) => {
+//   if (isUpdating) return;
 
-    try {
-      setIsUpdating(true);
-      setError(null);
+//   try {
+//     setIsUpdating(true);
+//     setError(null);
 
-      const dataToUpdate = {
-        ...updatedData,
-        id: selectedUser.id,
-      };
+//     const dataToUpdate = {
+//       ...updatedData,
+//       id: selectedUser.id,
+//     };
 
-      await auth.updateUser(dataToUpdate);
-      onRefreshMembers();
-      setIsEditModalOpen(false);
-    } catch (error) {
-      console.error("Update failed:", error);
-      setError(error.message || "Update failed. Please check your connection.");
-    } finally {
-      setIsUpdating(false);
+//     // Get current user from auth context
+//     const { user: currentUser } = useAuth();
+
+//     console.log("Attempting update with:", dataToUpdate);
+    
+//     // Check if current user is admin and updating another user's profile
+//     const isAdminUpdatingOtherUser = user?.roles?.includes('ADMIN') && 
+//                                    selectedUser.id !== user?.id;
+
+//     if (isAdminUpdatingOtherUser) {
+//       await adminUpdateUserProfile(dataToUpdate); // Use admin endpoint
+//     } else {
+//       await updateUserProfile(dataToUpdate); // Use regular endpoint
+//     }
+
+//     onRefreshMembers();
+//     setIsEditModalOpen(false);
+    
+//     // Show success feedback
+//     setSuccess("User updated successfully!");
+//     setTimeout(() => setSuccess(null), 3000);
+    
+//   } catch (error) {
+//     console.error("Update failed:", error);
+    
+//     // Enhanced error handling
+//     const errorMessage = error.response?.data?.message || 
+//                         error.message || 
+//                         "Update failed. Please try again.";
+    
+//     setError({
+//       type: 'update',
+//       message: errorMessage,
+//       details: error.response?.data || null,
+//       isAdminError: error.message.includes("Unauthorized") && 
+//                   user?.roles?.includes('ADMIN')
+//     });
+    
+//   } finally {
+//     setIsUpdating(false);
+//   }
+// };
+
+const handleUpdateUser = async (updatedData) => {
+  if (isUpdating) return;
+
+  try {
+    setIsUpdating(true);
+    setError(null);
+
+    const dataToUpdate = {
+      ...updatedData,
+      id: selectedUser.id,
+    };
+
+    // Get current user from auth context
+    const { user: currentUser } = useAuth();
+    
+    // Check for both admin role formats
+    const isAdmin = currentUser?.roles?.some(role => 
+      role === 'ADMIN' || role === 'ROLE_ADMIN'
+    );
+    
+    // Determine if admin is updating another user
+    const isAdminUpdate = isAdmin && selectedUser.id !== currentUser?.id;
+
+    if (isAdminUpdate) {
+      await adminUpdateUserProfile(dataToUpdate); // Use admin endpoint
+    } else {
+      await updateUserProfile(dataToUpdate); // Use regular endpoint
     }
-  };
 
+    onRefreshMembers();
+    setIsEditModalOpen(false);
+  } catch (error) {
+    setError({
+      type: 'update',
+      message: error.message || "Update failed. Please try again.",
+      details: error.response?.data || null
+    });
+  } finally {
+    setIsUpdating(false);
+  }
+};
   const getInitials = (name) => {
     if (!name) return "NA";
     return name
@@ -372,7 +448,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
         user={selectedUser}
         isOpen={isEditModalOpen}
         onClose={() => {
-          console.log("Closing modal from parent");
+          // console.log("Closing modal from parent");
           setIsEditModalOpen(false);
         }}
         onUpdate={(updatedUser) => {
