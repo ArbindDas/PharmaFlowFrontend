@@ -28,8 +28,9 @@ import { useAuth } from "../context/AuthContext";
 import UserDetailsModal from "../components/UserDetailsModal";
 import UserEditModal from "../components/UserEditModal";
 import ConfirmationModal from "../components/ConfirmationModal";
-import { toast } from 'react-toastify'; // or your toast library
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify"; // or your toast library
+import "react-toastify/dist/ReactToastify.css";
+import AddMemberModal from "../components/AddMemberModal";
 
 const AnimatedCard = ({
   children,
@@ -130,6 +131,17 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
     });
   };
 
+  // Initialize with empty array if members is falsy
+  const [localMembers, setLocalMembers] = useState(
+    Array.isArray(members) ? members : []
+  );
+
+  useEffect(() => {
+    if (Array.isArray(members)) {
+      setLocalMembers(members);
+    }
+  }, [members]);
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -141,65 +153,87 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [users, setUsers] = useState([]); // Add this line with your other state declarations
 
+  // Add this state to your UsersPanel component
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Add this function to handle member creation
+  // const handleAddMember = async (memberData) => {
+  //   try {
+  //     // Call your API service to add the member
+  //     const response = await authService.register({
+  //       fullname: memberData.fullname,
+  //       email: memberData.email,
+  //       password: memberData.password,
+  //     });
+
+  //     // Update local state
+  //     setUsers((prev) => [...prev, response]);
+  //     return response;
+  //   } catch (error) {
+  //     throw new Error(error.message || "Failed to add member");
+  //   }
+  // };
+
+
+  const handleAddMember = async (memberData) => {
+  try {
+    // Destructure the memberData object and pass individual parameters
+    const response = await authService.register(
+      memberData.fullname,
+      memberData.email,
+      memberData.password
+    );
+
+    // Update local state
+    setUsers((prev) => [...prev, response]);
+    return response;
+  } catch (error) {
+    throw new Error(error.message || "Failed to add member");
+  }
+};
+
   const handleDeleteClick = (user) => {
-      console.log('Setting user to delete:', user); // Check user data
+    console.log("Setting user to delete:", user); // Check user data
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
   };
 
+  const handleConfirmDelete = async () => {
+    if (!userToDelete?.id) {
+      console.error("No user selected for deletion");
+      toast.error("No user selected for deletion");
+      return;
+    }
 
+    try {
+      console.log("Attempting to delete user ID:", userToDelete.id);
 
-  const fetchUsers = async () => {
-  try {
-    const response = await fetch('/api/auth/get-all-users');
-    const data = await response.json();
-    setUsers(data); // Assuming you have a state setter
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    toast.error('Failed to fetch users');
-  }
-};
+      // Using authService with admin flag
+      await authService.deleteUser(userToDelete.id, true);
 
+      console.log("Delete successful");
 
+      // Close modal and reset selection
+      setIsDeleteModalOpen(false);
+      setUserToDelete(null);
 
-const handleConfirmDelete = async () => {
-  if (!userToDelete?.id) {
-    console.error('No user selected for deletion');
-    toast.error('No user selected for deletion');
-    return;
-  }
+      // Update UI - choose ONE of these approaches:
 
-  try {
-    console.log('Attempting to delete user ID:', userToDelete.id);
-    
-    // Using authService with admin flag
-    await authService.deleteUser(userToDelete.id, true);
-    
-    console.log('Delete successful');
-    
-    // Close modal and reset selection
-    setIsDeleteModalOpen(false);
-    setUserToDelete(null);
-    
-    // Update UI - choose ONE of these approaches:
-    
-    // OPTION 1: Optimistic update (faster UI response)
-    setUsers(prevUsers => prevUsers.filter(user => user.id !== userToDelete.id));
-    
-    // OPTION 2: Full refresh (more reliable)
-    // await fetchUsers();
-    
-    // Show success message
-    toast.success('User deleted successfully');
-    
-  } catch (error) {
-    console.error('Delete failed:', error);
-    toast.error(error.message || 'Failed to delete user');
-  }
-};
+      // OPTION 1: Optimistic update (faster UI response)
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== userToDelete.id)
+      );
 
+      // OPTION 2: Full refresh (more reliable)
+      // await fetchUsers();
 
-
+      // Show success message
+      toast.success("User deleted successfully");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      toast.error(error.message || "Failed to delete user");
+    }
+  };
 
   const handleCancelDelete = () => {
     setIsDeleteModalOpen(false);
@@ -306,13 +340,20 @@ const handleConfirmDelete = async () => {
             <Activity className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
-          <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center space-x-2">
+          {/* <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center space-x-2">
+            <Plus className="w-4 h-4" />
+            <span>Add Member</span>
+          </button> */}
+          // Update your Add Member button to open the modal
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center space-x-2"
+          >
             <Plus className="w-4 h-4" />
             <span>Add Member</span>
           </button>
         </div>
       </div>
-
       <AnimatedCard className="overflow-hidden border border-red-500">
         {" "}
         {/* Temporary border */}
@@ -388,7 +429,7 @@ const handleConfirmDelete = async () => {
                 </tr>
               ) : (
                 // Actual data
-                members.map((member) => (
+                localMembers.map((member) => (
                   <tr
                     key={member.id}
                     className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 group"
@@ -453,14 +494,12 @@ const handleConfirmDelete = async () => {
           </table>
         </div>
       </AnimatedCard>
-
       {/* User Details Modal */}
       <UserDetailsModal
         user={selectedUser}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
-
       {/* Edit Modal */}
       <UserEditModal
         user={selectedUser}
@@ -477,19 +516,22 @@ const handleConfirmDelete = async () => {
           setSelectedUser(null); // Clear selection
         }}
       />
-
-          <ConfirmationModal
+      {/* // Add the modal component at the bottom of your UsersPanel return */}
+      {/* statement */}
+      <AddMemberModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddMember={handleAddMember}
+      />
+      <ConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
         title="Confirm Deletion"
       >
         <p>Are you sure you want to delete {userToDelete?.name}?</p>
-        <p className="text-sm text-gray-500">
-          This action cannot be undone.
-        </p>
+        <p className="text-sm text-gray-500">This action cannot be undone.</p>
       </ConfirmationModal>
-
       {/* Debug output */}
       <div className="mt-4 p-4 bg-yellow-50 text-sm">
         <h4 className="font-bold">Debug Info:</h4>

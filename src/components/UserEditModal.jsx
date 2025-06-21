@@ -244,7 +244,7 @@ const handleSubmit = async (e) => {
                 hover:border-blue-300 text-gray-900 placeholder-transparent
                 ${errors.password ? "border-red-300 bg-red-50/50" : "border-gray-200"}`}
               placeholder=""
-              autocomplete="current-password"
+              autoComplete="current-password"
             />
             <label className="absolute left-4 -top-2.5 px-1 bg-white text-xs font-medium text-gray-500 transition-all duration-200 
               peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 
