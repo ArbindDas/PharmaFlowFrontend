@@ -27,6 +27,9 @@ import authService from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 import UserDetailsModal from "../components/UserDetailsModal";
 import UserEditModal from "../components/UserEditModal";
+import ConfirmationModal from "../components/ConfirmationModal";
+import { toast } from 'react-toastify'; // or your toast library
+import 'react-toastify/dist/ReactToastify.css';
 
 const AnimatedCard = ({
   children,
@@ -127,121 +130,144 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
     });
   };
 
-  
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [error, setError] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const { user, updateUserProfile, adminUpdateUserProfile } = useAuth();
-const [success, setSuccess] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [users, setUsers] = useState([]); // Add this line with your other state declarations
+
+  const handleDeleteClick = (user) => {
+      console.log('Setting user to delete:', user); // Check user data
+    setUserToDelete(user);
+    setIsDeleteModalOpen(true);
+  };
 
 
 
-    const handleEditUser = (member) => {
-        console.log("Edit button clicked, user:", member); // <-- Check if this logs
-      setSelectedUser(member);
-      setIsEditModalOpen(true);
-      setError(null); // Reset error when opening modal
-    };
-
-
-// const handleUpdateUser = async (updatedData) => {
-//   if (isUpdating) return;
-
-//   try {
-//     setIsUpdating(true);
-//     setError(null);
-
-//     const dataToUpdate = {
-//       ...updatedData,
-//       id: selectedUser.id,
-//     };
-
-//     // Get current user from auth context
-//     const { user: currentUser } = useAuth();
-
-//     console.log("Attempting update with:", dataToUpdate);
-    
-//     // Check if current user is admin and updating another user's profile
-//     const isAdminUpdatingOtherUser = user?.roles?.includes('ADMIN') && 
-//                                    selectedUser.id !== user?.id;
-
-//     if (isAdminUpdatingOtherUser) {
-//       await adminUpdateUserProfile(dataToUpdate); // Use admin endpoint
-//     } else {
-//       await updateUserProfile(dataToUpdate); // Use regular endpoint
-//     }
-
-//     onRefreshMembers();
-//     setIsEditModalOpen(false);
-    
-//     // Show success feedback
-//     setSuccess("User updated successfully!");
-//     setTimeout(() => setSuccess(null), 3000);
-    
-//   } catch (error) {
-//     console.error("Update failed:", error);
-    
-//     // Enhanced error handling
-//     const errorMessage = error.response?.data?.message || 
-//                         error.message || 
-//                         "Update failed. Please try again.";
-    
-//     setError({
-//       type: 'update',
-//       message: errorMessage,
-//       details: error.response?.data || null,
-//       isAdminError: error.message.includes("Unauthorized") && 
-//                   user?.roles?.includes('ADMIN')
-//     });
-    
-//   } finally {
-//     setIsUpdating(false);
-//   }
-// };
-
-const handleUpdateUser = async (updatedData) => {
-  if (isUpdating) return;
-
+  const fetchUsers = async () => {
   try {
-    setIsUpdating(true);
-    setError(null);
-
-    const dataToUpdate = {
-      ...updatedData,
-      id: selectedUser.id,
-    };
-
-    // Get current user from auth context
-    const { user: currentUser } = useAuth();
-    
-    // Check for both admin role formats
-    const isAdmin = currentUser?.roles?.some(role => 
-      role === 'ADMIN' || role === 'ROLE_ADMIN'
-    );
-    
-    // Determine if admin is updating another user
-    const isAdminUpdate = isAdmin && selectedUser.id !== currentUser?.id;
-
-    if (isAdminUpdate) {
-      await adminUpdateUserProfile(dataToUpdate); // Use admin endpoint
-    } else {
-      await updateUserProfile(dataToUpdate); // Use regular endpoint
-    }
-
-    onRefreshMembers();
-    setIsEditModalOpen(false);
+    const response = await fetch('/api/auth/get-all-users');
+    const data = await response.json();
+    setUsers(data); // Assuming you have a state setter
   } catch (error) {
-    setError({
-      type: 'update',
-      message: error.message || "Update failed. Please try again.",
-      details: error.response?.data || null
-    });
-  } finally {
-    setIsUpdating(false);
+    console.error('Error fetching users:', error);
+    toast.error('Failed to fetch users');
   }
 };
+
+
+
+const handleConfirmDelete = async () => {
+  if (!userToDelete?.id) {
+    console.error('No user selected for deletion');
+    toast.error('No user selected for deletion');
+    return;
+  }
+
+  try {
+    console.log('Attempting to delete user ID:', userToDelete.id);
+    
+    // Using authService with admin flag
+    await authService.deleteUser(userToDelete.id, true);
+    
+    console.log('Delete successful');
+    
+    // Close modal and reset selection
+    setIsDeleteModalOpen(false);
+    setUserToDelete(null);
+    
+    // Update UI - choose ONE of these approaches:
+    
+    // OPTION 1: Optimistic update (faster UI response)
+    setUsers(prevUsers => prevUsers.filter(user => user.id !== userToDelete.id));
+    
+    // OPTION 2: Full refresh (more reliable)
+    // await fetchUsers();
+    
+    // Show success message
+    toast.success('User deleted successfully');
+    
+  } catch (error) {
+    console.error('Delete failed:', error);
+    toast.error(error.message || 'Failed to delete user');
+  }
+};
+
+
+
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setUserToDelete(null);
+  };
+
+  const handleEditUser = (member) => {
+    console.log("Edit button clicked, user:", member); // <-- Check if this logs
+    setSelectedUser(member);
+    setIsEditModalOpen(true);
+    setError(null); // Reset error when opening modal
+  };
+
+  const handleUpdateUser = async (updatedData) => {
+    if (isUpdating) return;
+
+    try {
+      setIsUpdating(true);
+      setError(null);
+
+      const { user: currentUser } = useAuth();
+
+      const isAdmin = currentUser?.roles?.some(
+        (role) => role === "ADMIN" || role === "ROLE_ADMIN"
+      );
+
+      const isAdminUpdate = isAdmin && selectedUser.id !== currentUser?.id;
+
+      // Force fresh update with all required fields
+      const updatePayload = {
+        id: selectedUser.id,
+        fullName: updatedData.fullName,
+        email: updatedData.email,
+        roles: updatedData.roles,
+        authProvider: updatedData.authProvider,
+      };
+
+      const updatedUser = isAdminUpdate
+        ? await adminUpdateUserProfile(updatePayload)
+        : await updateUserProfile(updatePayload);
+
+      // DEBUG: Verify the updated user data
+      console.log("Updated user from API:", updatedUser);
+
+      // DEEP STATE UPDATE
+      setUsers((prevUsers) => {
+        const newUsers = prevUsers.map((user) =>
+          user.id === updatedUser.id
+            ? { ...user, ...updatedUser } // COMPLETE overwrite
+            : user
+        );
+        console.log("New users state:", newUsers);
+        return newUsers;
+      });
+
+      setIsEditModalOpen(false);
+      setSuccess("User updated successfully!");
+    } catch (error) {
+      setError({
+        type: "update",
+        message: error.message || "Update failed. Please try again.",
+        details: error.response?.data || null,
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const getInitials = (name) => {
     if (!name) return "NA";
     return name
@@ -413,6 +439,7 @@ const handleUpdateUser = async (updatedData) => {
                           tooltip="Edit Member"
                         />
                         <ActionButton
+                          onClick={() => handleDeleteClick(member)}
                           icon={Trash2}
                           variant="danger"
                           tooltip="Remove Member"
@@ -435,28 +462,33 @@ const handleUpdateUser = async (updatedData) => {
       />
 
       {/* Edit Modal */}
-      {/* <UserEditModal
-      
-        user={selectedUser}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSave={handleUpdateUser}
-      /> */}
-
-      {/* Edit Modal */}
       <UserEditModal
         user={selectedUser}
         isOpen={isEditModalOpen}
         onClose={() => {
           // console.log("Closing modal from parent");
           setIsEditModalOpen(false);
+          setSelectedUser(null); // Clear selection
         }}
         onUpdate={(updatedUser) => {
           console.log("Saving user data:", updatedUser);
           handleUpdateUser(updatedUser);
           setIsEditModalOpen(false); // Close after save
+          setSelectedUser(null); // Clear selection
         }}
       />
+
+          <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Deletion"
+      >
+        <p>Are you sure you want to delete {userToDelete?.name}?</p>
+        <p className="text-sm text-gray-500">
+          This action cannot be undone.
+        </p>
+      </ConfirmationModal>
 
       {/* Debug output */}
       <div className="mt-4 p-4 bg-yellow-50 text-sm">

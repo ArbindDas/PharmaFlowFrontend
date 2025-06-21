@@ -54,50 +54,62 @@ const getAllUsers = async () => {
 };
 
 
-const deleteUser = async (userId) => {
+
+
+
+const deleteUser = async (userId, ROLE_ADMIN = false) => {
+  const token = getToken();
+
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
   try {
-    const response = await axiosInstance.delete(`/users/${userId}`, {
-      headers: {          
+
+       const endpoint = ROLE_ADMIN
+      ? `${API_URL}/admin/users/${(userId)}`
+      : `${API_URL}/users/${(userId)}`;
+
+    console.log('Making DELETE request to:', endpoint); // Debug log
+
+    const response = await axios.delete(endpoint, {
+      headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
     return response.data;
   } catch (error) {
-    console.error("Failed to delete user ", error.response?.data || error.message);
-    throw error;
+    if (error.response) {
+      // Server responded with a status other than 2xx
+      const status = error.response.status;
+      let message = "Server error occurred";
+      
+      if (status === 403) {
+        message = "You don't have permission to delete users";
+      } else if (status === 404) {
+        message = "User not found";
+      } else if (error.response.data) {
+        message = typeof error.response.data === 'string' 
+          ? error.response.data 
+          : error.response.data.message || message;
+      }
+
+      console.error(`HTTP ${status}: ${message}`);
+      throw new Error(message);
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error("Network error or no response from server");
+      throw new Error("Network error - please check your internet connection or try again later.");
+    } else {
+      // Something else caused the error
+      console.error("Unexpected error:", error.message);
+      throw new Error("Unexpected error - " + error.message);
+    }
   }
 };
 
 
-
-// const updateuser = async (userData) => {
-//   const token = getToken();
-  
-//   console.log("Sending to:", `${API_URL}/users/${userData.id}`);
-//   console.log("Payload:", userData);
-  
-//   if (!token) {
-//     throw new Error("No authentication token found");
-//   }
-
-//   try {
-//     const response = await axios.put(`${API_URL}/users/${userData.id}`, userData, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         'Content-Type': 'application/json'
-//       },
-//     });
-//     return response.data;
-//   } catch (error) {
-//     if (error.response) {
-//       throw new Error(error.response.data.message || "Update failed");
-//     } else if (error.request) {
-//       throw new Error("Network error - no response from server");
-//     } else {
-//       throw new Error("Update failed: " + error.message);
-//     }
-//   }
-// };
 
 const updateuser = async (userData, ROLE_ADMIN = false) => {
   const token = getToken();

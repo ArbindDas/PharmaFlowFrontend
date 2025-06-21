@@ -53,22 +53,44 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Delete user by id
-  const deleteUserById = async (userId) => {
+  // // Delete user by id
+  // const deleteUserById = async (userId) => {
+  //   try {
+  //     setIsLoading(true);
+  //     await authService.deleteUser(userId);
+
+  //     // If the deleted user is the currently logged-in user
+  //     if (user && user.id === userId) {
+  //       setUser(null);
+  //       setIsAuthenticated(false);
+  //     }
+
+  //     setError(null);
+  //   } catch (err) {
+  //     setError(err.message || "Failed to delete user");
+  //     console.error("deleteUserById error:", err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
+    const deleteUserById = async (userId, isAdmin = false) => {
     try {
       setIsLoading(true);
-      await authService.deleteUser(userId);
+      setError(null);
+      
+      await deleteUser(userId, isAdmin);
 
       // If the deleted user is the currently logged-in user
       if (user && user.id === userId) {
         setUser(null);
         setIsAuthenticated(false);
       }
-
-      setError(null);
     } catch (err) {
-      setError(err.message || "Failed to delete user");
+      setError(err.message);
       console.error("deleteUserById error:", err);
+      throw err; // Re-throw to allow component-level handling
     } finally {
       setIsLoading(false);
     }
@@ -76,18 +98,37 @@ export const AuthProvider = ({ children }) => {
 
  
 
-   // Wrapper function for regular user updates
-  const updateUserProfile = async (userData) => {
-    try {
-      setError(null);
-      const updatedUser = await authService.updateuser(userData, false); // Regular update
-      setUser(updatedUser);
-      return updatedUser;
-    } catch (error) {
-      setError(error);
-      throw error;
-    }
-  };
+
+const updateUserProfile = async (userData) => {
+  try {
+    setError(null);
+    setIsUpdating(true);
+    
+    // Ensure fresh API call returns new data
+    const response = await authService.updateuser(userData, false);
+    
+    // Create completely new user object
+    const updatedUser = { 
+      ...response,
+      // Ensure all critical fields are included
+      id: response.id || userData.id,
+      fullName: response.fullName || userData.fullName,
+      email: response.email || userData.email,
+      roles: response.roles || userData.roles
+    };
+    
+    // Update context state
+    setUser(prev => ({ ...prev, ...updatedUser }));
+    
+    // Return fresh object
+    return { ...updatedUser };
+  } catch (error) {
+    setError(error);
+    throw error;
+  } finally {
+    setIsUpdating(false);
+  }
+};
 
   // New wrapper function for admin updates
   const adminUpdateUserProfile = async (userData) => {
