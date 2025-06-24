@@ -24,13 +24,18 @@ import {
   Menu,
 } from "lucide-react";
 import authService from "../api/auth";
+import { useMemo } from "react";
+import { RotateCcw } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import UserDetailsModal from "../components/UserDetailsModal";
+import { X } from "lucide-react";
 import UserEditModal from "../components/UserEditModal";
 import ConfirmationModal from "../components/ConfirmationModal";
 import { toast } from "react-toastify"; // or your toast library
 import "react-toastify/dist/ReactToastify.css";
 import AddMemberModal from "../components/AddMemberModal";
+import { SearchX } from "lucide-react";
 
 const AnimatedCard = ({
   children,
@@ -156,24 +161,109 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
   // Add this state to your UsersPanel component
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  // NEW: Search and filter state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
 
+  // NEW: Filter and search logic
+  const filteredAndSortedMembers = useMemo(() => {
+    let filtered = localMembers.filter((member) => {
+      const matchesSearch =
+        member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.id?.toString().includes(searchTerm);
+
+      // const matchesRole = filterRole === "all" || member.roles?.toLowerCase().includes(filterRole.toLowerCase());
+      const matchesRole =
+        filterRole === "all" ||
+        member.roles
+          ?.toString()
+          ?.toLowerCase()
+          ?.includes(filterRole.toLowerCase()) ||
+        false;
+
+      const matchesStatus =
+        filterStatus === "all" ||
+        (filterStatus === "active" && member.status !== "inactive") ||
+        (filterStatus === "inactive" && member.status === "inactive");
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+
+    // Sort the filtered results
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortBy) {
+        case "name":
+          aValue = a.fullName?.toLowerCase() || "";
+          bValue = b.fullName?.toLowerCase() || "";
+          break;
+        case "email":
+          aValue = a.email?.toLowerCase() || "";
+          bValue = b.email?.toLowerCase() || "";
+          break;
+        // case "role":
+        //   aValue = a.roles?.toLowerCase() || "";
+        //   bValue = b.roles?.toLowerCase() || "";
+        //   break;
+        case "role":
+          aValue = Array.isArray(a.roles)
+            ? a.roles.join(", ").toLowerCase()
+            : "";
+          bValue = Array.isArray(b.roles)
+            ? b.roles.join(", ").toLowerCase()
+            : "";
+          break;
+        case "date":
+          aValue = new Date(a.createdAt || 0);
+          bValue = new Date(b.createdAt || 0);
+          break;
+        default:
+          aValue = a.fullName?.toLowerCase() || "";
+          bValue = b.fullName?.toLowerCase() || "";
+      }
+
+      if (sortBy === "date") {
+        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+      }
+
+      if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  }, [localMembers, searchTerm, filterRole, filterStatus, sortBy, sortOrder]);
+
+  // NEW: Clear all filters
+  const clearFilters = () => {
+    setSearchTerm("");
+    setFilterRole("all");
+    setFilterStatus("all");
+    setSortBy("name");
+    setSortOrder("asc");
+  };
 
   const handleAddMember = async (memberData) => {
-  try {
-    // Destructure the memberData object and pass individual parameters
-    const response = await authService.register(
-      memberData.fullname,
-      memberData.email,
-      memberData.password
-    );
+    try {
+      // Destructure the memberData object and pass individual parameters
+      const response = await authService.register(
+        memberData.fullname,
+        memberData.email,
+        memberData.password
+      );
 
-    // Update local state
-    setUsers((prev) => [...prev, response]);
-    return response;
-  } catch (error) {
-    throw new Error(error.message || "Failed to add member");
-  }
-};
+      // Update local state
+      setUsers((prev) => [...prev, response]);
+      return response;
+    } catch (error) {
+      throw new Error(error.message || "Failed to add member");
+    }
+  };
 
   const handleDeleteClick = (user) => {
     console.log("Setting user to delete:", user); // Check user data
@@ -191,7 +281,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
 
     try {
       console.log("Attempting to delete user ID:", userToDelete.id);
-        setIsDeleteModalOpen(false);
+      setIsDeleteModalOpen(false);
 
       // Using authService with admin flag
       await authService.deleteUser(userToDelete.id, true);
@@ -209,17 +299,17 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
         prevUsers.filter((user) => user.id !== userToDelete.id)
       );
 
-       // Background refresh
-    try {
-      const response = await authService.getAllUsers();
-      setUsers(response.data); // Update with fresh data
-    } catch (refreshError) {
-      console.warn("Background refresh failed:", refreshError);
-    }
+      // Background refresh
+      try {
+        const response = await authService.getAllUsers();
+        setUsers(response.data); // Update with fresh data
+      } catch (refreshError) {
+        console.warn("Background refresh failed:", refreshError);
+      }
 
       // Reset states
-    setUserToDelete(null);
-    // setDeletingUserId(null);
+      setUserToDelete(null);
+      // setDeletingUserId(null);
 
       // OPTION 2: Full refresh (more reliable)
       // await fetchUsers();
@@ -229,12 +319,12 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
     } catch (error) {
       console.error("Delete failed:", error);
       toast.error(error.message || "Failed to delete user");
-         // Re-fetch original state
-    const response = await authService.getAllUsers();
-    setUsers(response.data);
-    }finally{
+      // Re-fetch original state
+      const response = await authService.getAllUsers();
+      setUsers(response.data);
+    } finally {
       setUserToDelete(null);
-    // setDeletingUserId(null);
+      // setDeletingUserId(null);
     }
   };
 
@@ -325,165 +415,428 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
   };
 
   return (
-    <div className="space-y-6 ">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900">Medicare Members</h3>
-          <p className="text-gray-600 mt-1">
-            Manage and view all Medicare beneficiaries ({members?.length || 0}{" "}
+    <div className="space-y-8">
+      {/* Enhanced Header Section */}
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
+            Medicare Members
+          </h3>
+          <p className="text-gray-600 text-base leading-relaxed">
+            Manage and view all Medicare beneficiaries (
+            {filteredAndSortedMembers?.length || 0} of {members?.length || 0}{" "}
             total)
           </p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex items-center space-x-4">
           <button
             onClick={onRefreshMembers}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-200 flex items-center space-x-2"
+            className="group relative px-5 py-2.5 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl transition-all duration-300 flex items-center space-x-2 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             disabled={loading}
           >
-            <Activity className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            <span>Refresh</span>
+            <Activity
+              className={`w-4 h-4 transition-transform duration-500 ${
+                loading ? "animate-spin" : "group-hover:rotate-180"
+              }`}
+            />
+            <span className="font-medium">Refresh</span>
           </button>
-        
+
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center space-x-2"
+            className="group relative px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white rounded-xl hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-center space-x-2 overflow-hidden"
           >
-            <Plus className="w-4 h-4" />
-            <span>Add Member</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+            <Plus className="w-4 h-4 transition-transform duration-200 group-hover:rotate-90" />
+            <span className="font-semibold relative z-10">Add Member</span>
           </button>
         </div>
       </div>
-      <AnimatedCard className="overflow-hidden border border-red-500">
-        {" "}
-        {/* Temporary border */}
+
+      {/* NEW: Beautiful Search and Filter Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 bg-gradient-to-r from-blue-50/50 via-white to-purple-50/30 border-b border-gray-100">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Search Bar */}
+            <div className="flex-1 relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search members by name, email, or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-lg"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-50 rounded-r-xl transition-colors duration-200"
+                >
+                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Controls */}
+            <div className="flex flex-wrap gap-4 items-center">
+              {/* Role Filter */}
+              <div className="relative">
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                  <option value="member">Member</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Status Filter */}
+              <div className="relative">
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+                >
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Sort Options */}
+              <div className="flex items-center space-x-2">
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+                  >
+                    <option value="name">Sort by Name</option>
+                    <option value="email">Sort by Email</option>
+                    <option value="role">Sort by Role</option>
+                    <option value="date">Sort by Date</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
+
+                <button
+                  onClick={() =>
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                  }
+                  className="p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md"
+                  title={`Sort ${
+                    sortOrder === "asc" ? "Descending" : "Ascending"
+                  }`}
+                >
+                  {sortOrder === "asc" ? (
+                    <ArrowUp className="h-4 w-4 text-gray-600" />
+                  ) : (
+                    <ArrowDown className="h-4 w-4 text-gray-600" />
+                  )}
+                </button>
+              </div>
+
+              {/* Clear Filters */}
+              {(searchTerm ||
+                filterRole !== "all" ||
+                filterStatus !== "all" ||
+                sortBy !== "name" ||
+                sortOrder !== "asc") && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center space-x-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span>Clear</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Active Filters Display */}
+          {(searchTerm || filterRole !== "all" || filterStatus !== "all") && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="text-sm text-gray-600 font-medium">
+                Active filters:
+              </span>
+              {searchTerm && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Search: "{searchTerm}"
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              {filterRole !== "all" && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  Role: {filterRole}
+                  <button
+                    onClick={() => setFilterRole("all")}
+                    className="ml-2 hover:bg-purple-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              {filterStatus !== "all" && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Status: {filterStatus}
+                  <button
+                    onClick={() => setFilterStatus("all")}
+                    className="ml-2 hover:bg-green-200 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Enhanced Table Container */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+            {/* Sticky Enhanced Header */}
+            <thead className="sticky top-0 z-10 bg-gradient-to-r from-gray-50 via-blue-50/30 to-gray-50 backdrop-blur-sm border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
                   Member
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
                   Email
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
                   Roles
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  createdAt
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+                  Created At
                 </th>
-
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
-                // Loading skeleton
+                // Enhanced Loading Skeleton with shimmer effect
                 [...Array(3)].map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                        <div className="space-y-2">
-                          <div className="h-4 bg-gray-300 rounded w-32"></div>
-                          <div className="h-3 bg-gray-300 rounded w-24"></div>
+                  <tr
+                    key={i}
+                    className="animate-pulse bg-white even:bg-gray-50/50"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center space-x-4">
+                        <div className="relative w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="relative h-4 bg-gray-200 rounded-lg w-36 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                          </div>
+                          <div className="relative h-3 bg-gray-200 rounded-lg w-28 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="h-4 bg-gray-300 rounded w-40"></div>
+                    <td className="px-6 py-5">
+                      <div className="relative h-4 bg-gray-200 rounded-lg w-44 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="h-6 bg-gray-300 rounded-full w-16"></div>
+                    <td className="px-6 py-5">
+                      <div className="relative h-7 bg-gray-200 rounded-full w-20 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="h-4 bg-gray-300 rounded w-24"></div>
+                    <td className="px-6 py-5">
+                      <div className="relative h-6 bg-gray-200 rounded-full w-16 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-5">
+                      <div className="relative h-4 bg-gray-200 rounded-lg w-28 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
                       <div className="flex space-x-2">
-                        <div className="w-8 h-8 bg-gray-300 rounded"></div>
-                        <div className="w-8 h-8 bg-gray-300 rounded"></div>
-                        <div className="w-8 h-8 bg-gray-300 rounded"></div>
+                        {[...Array(3)].map((_, j) => (
+                          <div
+                            key={j}
+                            className="relative w-9 h-9 bg-gray-200 rounded-lg overflow-hidden"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                          </div>
+                        ))}
                       </div>
                     </td>
                   </tr>
                 ))
-              ) : members.length === 0 ? (
-                // Empty state
+              ) : filteredAndSortedMembers.length === 0 ? (
+                // Enhanced Empty State
                 <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center space-y-3">
-                      <Users className="w-12 h-12 text-gray-400" />
-                      <p className="text-gray-500 text-lg">No members found</p>
-                      <p className="text-gray-400 text-sm">
-                        Get started by adding your first Medicare member
-                      </p>
+                  <td colSpan="6" className="px-6 py-16">
+                    <div className="flex flex-col items-center space-y-6 text-center">
+                      <div className="relative">
+                        <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center animate-pulse">
+                          {searchTerm ||
+                          filterRole !== "all" ||
+                          filterStatus !== "all" ? (
+                            <SearchX className="w-10 h-10 text-blue-500" />
+                          ) : (
+                            <Users className="w-10 h-10 text-blue-500 animate-bounce" />
+                          )}
+                        </div>
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full animate-ping opacity-20"></div>
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-xl font-semibold text-gray-800">
+                          {searchTerm ||
+                          filterRole !== "all" ||
+                          filterStatus !== "all"
+                            ? "No members match your filters"
+                            : "No members found"}
+                        </h4>
+                        <p className="text-gray-500 max-w-md">
+                          {searchTerm ||
+                          filterRole !== "all" ||
+                          filterStatus !== "all"
+                            ? "Try adjusting your search terms or filters to find what you're looking for"
+                            : "Get started by adding your first Medicare member to begin managing beneficiaries"}
+                        </p>
+                      </div>
+                      {searchTerm ||
+                      filterRole !== "all" ||
+                      filterStatus !== "all" ? (
+                        <button
+                          onClick={clearFilters}
+                          className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-semibold"
+                        >
+                          Clear All Filters
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setIsAddModalOpen(true)}
+                          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-semibold"
+                        >
+                          Add Your First Member
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
               ) : (
-                // Actual data
-                localMembers.map((member) => (
+                // Enhanced Data Rows with alternating colors
+                filteredAndSortedMembers.map((member, index) => (
                   <tr
                     key={member.id}
-                    className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 group"
+                    className={`group transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/70 hover:via-blue-50/40 hover:to-transparent hover:shadow-sm ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
+                    }`}
                   >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-medium shadow-md">
-                          {getInitials(member.fullName)}
+                    <td className="px-6 py-5">
+                      <div className="flex items-center space-x-4">
+                        <div className="relative">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-bold shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                            {getInitials(member.fullName)}
+                          </div>
+                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
                         </div>
-                        <div>
-                          <div className="font-medium text-gray-900">
+                        <div className="space-y-1">
+                          <div className="font-semibold text-gray-900 group-hover:text-blue-900 transition-colors duration-200">
                             {member.fullName}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 font-mono">
                             ID: {member.id}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {member.email}
+                    <td className="px-6 py-5">
+                      <div className="text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors duration-200">
+                        {member.email}
+                      </div>
                     </td>
-
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {member.roles}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        Active
+                    <td className="px-6 py-5">
+                      <span className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-200">
+                        {member.roles}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {formatDate(member.createdAt)}
+                    <td className="px-6 py-5">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="inline-flex px-3 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
+                          Active
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        {/* <ActionButton  icon={Eye} variant="secondary" tooltip="View Details" /> */}
-                        <ActionButton
-                          onClick={() => handleViewUser(member)}
-                          icon={Eye}
-                          variant="secondary"
-                          tooltip="View Details"
-                        />
-                        <ActionButton
-                          onClick={() => handleEditUser(member)}
-                          icon={Edit}
-                          variant="primary"
-                          tooltip="Edit Member"
-                        />
-                        <ActionButton
-                          onClick={() => handleDeleteClick(member)}
-                          icon={Trash2}
-                          variant="danger"
-                          tooltip="Remove Member"
-                        />
+                    <td className="px-6 py-5">
+                      <div className="text-sm text-gray-700 font-medium">
+                        {formatDate(member.createdAt)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex space-x-2 opacity-70 group-hover:opacity-100 transition-all duration-300 transform translate-x-1 group-hover:translate-x-0">
+                        <div className="relative group/tooltip">
+                          <ActionButton
+                            onClick={() => handleViewUser(member)}
+                            icon={Eye}
+                            variant="secondary"
+                            className="hover:bg-blue-100 hover:text-blue-700 hover:scale-110 transition-all duration-200"
+                          />
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                            View Details
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+
+                        <div className="relative group/tooltip">
+                          <ActionButton
+                            onClick={() => handleEditUser(member)}
+                            icon={Edit}
+                            variant="primary"
+                            className="hover:bg-green-100 hover:text-green-700 hover:scale-110 transition-all duration-200"
+                          />
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                            Edit Member
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+
+                        <div className="relative group/tooltip">
+                          <ActionButton
+                            onClick={() => handleDeleteClick(member)}
+                            icon={Trash2}
+                            variant="danger"
+                            className="hover:bg-red-100 hover:text-red-700 hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg"
+                          />
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                            Remove Member
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -492,36 +845,36 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
             </tbody>
           </table>
         </div>
-      </AnimatedCard>
-      {/* User Details Modal */}
+      </div>
+
+      {/* Modals - unchanged functionality */}
       <UserDetailsModal
         user={selectedUser}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
-      {/* Edit Modal */}
+
       <UserEditModal
         user={selectedUser}
         isOpen={isEditModalOpen}
         onClose={() => {
-          // console.log("Closing modal from parent");
           setIsEditModalOpen(false);
-          setSelectedUser(null); // Clear selection
+          setSelectedUser(null);
         }}
         onUpdate={(updatedUser) => {
           console.log("Saving user data:", updatedUser);
           handleUpdateUser(updatedUser);
-          setIsEditModalOpen(false); // Close after save
-          setSelectedUser(null); // Clear selection
+          setIsEditModalOpen(false);
+          setSelectedUser(null);
         }}
       />
-      {/* // Add the modal component at the bottom of your UsersPanel return */}
-      {/* statement */}
+
       <AddMemberModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAddMember={handleAddMember}
       />
+
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
@@ -531,15 +884,128 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
         <p>Are you sure you want to delete {userToDelete?.name}?</p>
         <p className="text-sm text-gray-500">This action cannot be undone.</p>
       </ConfirmationModal>
-      {/* Debug output */}
-      <div className="mt-4 p-4 bg-yellow-50 text-sm">
-        <h4 className="font-bold">Debug Info:</h4>
-        <p>Loading: {loading?.toString() ?? "undefined"}</p>
-        <p>Member Count: {members?.length}</p>
-        {members.length > 0 && (
-          <p>First Member: {JSON.stringify(members[0])}</p>
-        )}
+
+      {/* Enhanced Collapsible Debug Section */}
+      <div className="mt-8">
+        <details className="group">
+          <summary className="cursor-pointer flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200">
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+              <span className="font-semibold text-amber-800">
+                Debug Information
+              </span>
+            </div>
+            <div className="transform group-open:rotate-180 transition-transform duration-200">
+              <svg
+                className="w-5 h-5 text-amber-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </summary>
+
+          <div className="mt-3 p-5 bg-white border border-amber-200 rounded-xl shadow-sm">
+            <h4 className="font-bold text-gray-800 text-lg mb-4">
+              System Status
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <div className="font-semibold text-gray-700 mb-1">
+                  Loading State
+                </div>
+                <div
+                  className={`font-mono ${
+                    loading ? "text-orange-600" : "text-green-600"
+                  }`}
+                >
+                  {loading?.toString() ?? "undefined"}
+                </div>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <div className="font-semibold text-gray-700 mb-1">
+                  Total Members
+                </div>
+                <div className="font-mono text-blue-600 text-lg font-bold">
+                  {members?.length || 0}
+                </div>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <div className="font-semibold text-gray-700 mb-1">
+                  Filtered Members
+                </div>
+                <div className="font-mono text-purple-600 text-lg font-bold">
+                  {filteredAndSortedMembers?.length || 0}
+                </div>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <div className="font-semibold text-gray-700 mb-1">
+                  Search Term
+                </div>
+                <div
+                  className={`font-mono ${
+                    searchTerm ? "text-blue-600" : "text-gray-500"
+                  }`}
+                >
+                  {searchTerm || "None"}
+                </div>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <div className="font-semibold text-gray-700 mb-1">
+                  Active Filters
+                </div>
+                <div className="font-mono text-purple-600">
+                  {[
+                    filterRole !== "all" ? `Role: ${filterRole}` : null,
+                    filterStatus !== "all" ? `Status: ${filterStatus}` : null,
+                    sortBy !== "name" ? `Sort: ${sortBy}` : null,
+                  ].filter(Boolean).length || "None"}
+                </div>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <div className="font-semibold text-gray-700 mb-1">
+                  Data Status
+                </div>
+                <div
+                  className={`font-mono ${
+                    members.length > 0 ? "text-green-600" : "text-gray-500"
+                  }`}
+                >
+                  {members.length > 0 ? "Loaded" : "Empty"}
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
+
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+      `}</style>
     </div>
   );
 };
@@ -914,12 +1380,12 @@ const AdminDashboard = () => {
 
               {/* Search bar - adjusts for mobile */}
               <div className="relative group">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 transition-colors duration-200 group-hover:text-blue-500" />
+                {/* <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 transition-colors duration-200 group-hover:text-blue-500" />
                 <input
                   type="text"
                   placeholder="Search..."
                   className="pl-10 pr-3 py-1.5 sm:pl-10 sm:pr-4 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:shadow-md focus:shadow-lg w-36 sm:w-48 md:w-64"
-                />
+                /> */}
               </div>
             </div>
 
