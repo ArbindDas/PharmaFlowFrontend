@@ -156,23 +156,6 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
   // Add this state to your UsersPanel component
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Add this function to handle member creation
-  // const handleAddMember = async (memberData) => {
-  //   try {
-  //     // Call your API service to add the member
-  //     const response = await authService.register({
-  //       fullname: memberData.fullname,
-  //       email: memberData.email,
-  //       password: memberData.password,
-  //     });
-
-  //     // Update local state
-  //     setUsers((prev) => [...prev, response]);
-  //     return response;
-  //   } catch (error) {
-  //     throw new Error(error.message || "Failed to add member");
-  //   }
-  // };
 
 
   const handleAddMember = async (memberData) => {
@@ -196,6 +179,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
     console.log("Setting user to delete:", user); // Check user data
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
+    // setDeletingUserId(userToDelete.id);
   };
 
   const handleConfirmDelete = async () => {
@@ -207,6 +191,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
 
     try {
       console.log("Attempting to delete user ID:", userToDelete.id);
+        setIsDeleteModalOpen(false);
 
       // Using authService with admin flag
       await authService.deleteUser(userToDelete.id, true);
@@ -214,7 +199,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       console.log("Delete successful");
 
       // Close modal and reset selection
-      setIsDeleteModalOpen(false);
+      // setIsDeleteModalOpen(false);
       setUserToDelete(null);
 
       // Update UI - choose ONE of these approaches:
@@ -224,6 +209,18 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
         prevUsers.filter((user) => user.id !== userToDelete.id)
       );
 
+       // Background refresh
+    try {
+      const response = await authService.getAllUsers();
+      setUsers(response.data); // Update with fresh data
+    } catch (refreshError) {
+      console.warn("Background refresh failed:", refreshError);
+    }
+
+      // Reset states
+    setUserToDelete(null);
+    // setDeletingUserId(null);
+
       // OPTION 2: Full refresh (more reliable)
       // await fetchUsers();
 
@@ -232,6 +229,12 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
     } catch (error) {
       console.error("Delete failed:", error);
       toast.error(error.message || "Failed to delete user");
+         // Re-fetch original state
+    const response = await authService.getAllUsers();
+    setUsers(response.data);
+    }finally{
+      setUserToDelete(null);
+    // setDeletingUserId(null);
     }
   };
 
@@ -340,11 +343,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
             <Activity className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </button>
-          {/* <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center space-x-2">
-            <Plus className="w-4 h-4" />
-            <span>Add Member</span>
-          </button> */}
-          // Update your Add Member button to open the modal
+        
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center space-x-2"

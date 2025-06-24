@@ -53,27 +53,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // // Delete user by id
-  // const deleteUserById = async (userId) => {
-  //   try {
-  //     setIsLoading(true);
-  //     await authService.deleteUser(userId);
-
-  //     // If the deleted user is the currently logged-in user
-  //     if (user && user.id === userId) {
-  //       setUser(null);
-  //       setIsAuthenticated(false);
-  //     }
-
-  //     setError(null);
-  //   } catch (err) {
-  //     setError(err.message || "Failed to delete user");
-  //     console.error("deleteUserById error:", err);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
 
     const deleteUserById = async (userId, isAdmin = false) => {
     try {
