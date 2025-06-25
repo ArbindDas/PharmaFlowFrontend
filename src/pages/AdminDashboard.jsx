@@ -36,6 +36,7 @@ import { toast } from "react-toastify"; // or your toast library
 import "react-toastify/dist/ReactToastify.css";
 import AddMemberModal from "../components/AddMemberModal";
 import { SearchX } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
 const AnimatedCard = ({
   children,
@@ -206,10 +207,6 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
           aValue = a.email?.toLowerCase() || "";
           bValue = b.email?.toLowerCase() || "";
           break;
-        // case "role":
-        //   aValue = a.roles?.toLowerCase() || "";
-        //   bValue = b.roles?.toLowerCase() || "";
-        //   break;
         case "role":
           aValue = Array.isArray(a.roles)
             ? a.roles.join(", ").toLowerCase()
@@ -415,9 +412,9 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ">
       {/* Enhanced Header Section */}
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
         <div className="space-y-2">
           <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
             Medicare Members
@@ -454,11 +451,11 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       </div>
 
       {/* NEW: Beautiful Search and Filter Section */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 bg-gradient-to-r from-blue-50/50 via-white to-purple-50/30 border-b border-gray-100">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+        <div className="p-6 bg-gradient-to-r from-blue-50/50 via-white to-purple-50/30 border-b border-gray-100  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Search Bar */}
-            <div className="flex-1 relative group">
+            <div className="flex-1 relative group  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
@@ -480,7 +477,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
             </div>
 
             {/* Filter Controls */}
-            <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex flex-wrap gap-4 items-center  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
               {/* Role Filter */}
               <div className="relative">
                 <select
@@ -515,8 +512,8 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
               </div>
 
               {/* Sort Options */}
-              <div className="flex items-center space-x-2">
-                <div className="relative">
+              <div className="flex items-center space-x-2  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+                <div className="relative ">
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
@@ -568,7 +565,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
 
           {/* Active Filters Display */}
           {(searchTerm || filterRole !== "all" || filterStatus !== "all") && (
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
               <span className="text-sm text-gray-600 font-medium">
                 Active filters:
               </span>
@@ -611,9 +608,9 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       </div>
 
       {/* Enhanced Table Container */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
             {/* Sticky Enhanced Header */}
             <thead className="sticky top-0 z-10 bg-gradient-to-r from-gray-50 via-blue-50/30 to-gray-50 backdrop-blur-sm border-b border-gray-200">
               <tr>
@@ -637,7 +634,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
               {loading ? (
                 // Enhanced Loading Skeleton with shimmer effect
                 [...Array(3)].map((_, i) => (
@@ -696,7 +693,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 ))
               ) : filteredAndSortedMembers.length === 0 ? (
                 // Enhanced Empty State
-                <tr>
+                <tr className=" from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                   <td colSpan="6" className="px-6 py-16">
                     <div className="flex flex-col items-center space-y-6 text-center">
                       <div className="relative">
@@ -752,13 +749,13 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 filteredAndSortedMembers.map((member, index) => (
                   <tr
                     key={member.id}
-                    className={`group transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/70 hover:via-blue-50/40 hover:to-transparent hover:shadow-sm ${
+                    className={`group transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/70 hover:via-blue-50/40 hover:to-transparent hover:shadow-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ${
                       index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
                     }`}
                   >
-                    <td className="px-6 py-5">
-                      <div className="flex items-center space-x-4">
-                        <div className="relative">
+                    <td className="px-6 py-5 ">
+                      <div className="flex items-center space-x-4 ">
+                        <div className="relative ">
                           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-bold shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                             {getInitials(member.fullName)}
                           </div>
@@ -886,9 +883,9 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       </ConfirmationModal>
 
       {/* Enhanced Collapsible Debug Section */}
-      <div className="mt-8">
-        <details className="group">
-          <summary className="cursor-pointer flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200">
+      <div className="mt-8 ">
+        <details className="group ">
+          <summary className="cursor-pointer flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
               <span className="font-semibold text-amber-800">
@@ -912,12 +909,12 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
             </div>
           </summary>
 
-          <div className="mt-3 p-5 bg-white border border-amber-200 rounded-xl shadow-sm">
+          <div className="mt-3 p-5 bg-white border border-amber-200 rounded-xl shadow-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
             <h4 className="font-bold text-gray-800 text-lg mb-4">
               System Status
             </h4>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ">
               <div className="p-3 bg-gray-50 rounded-lg">
                 <div className="font-semibold text-gray-700 mb-1">
                   Loading State
@@ -932,7 +929,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
               </div>
 
               <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="font-semibold text-gray-700 mb-1">
+                <div className="font-semibold text-gray-700 mb-1 ">
                   Total Members
                 </div>
                 <div className="font-mono text-blue-600 text-lg font-bold">
@@ -1011,7 +1008,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
 };
 
 const OrdersPanel = () => (
-  <div className="space-y-6">
+  <div className="space-y-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
     <div className="flex justify-between items-center">
       <div>
         <h3 className="text-2xl font-bold text-gray-900">Claims & Requests</h3>
@@ -1025,7 +1022,7 @@ const OrdersPanel = () => (
       </button>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {[
         {
           label: "Pending Claims",
@@ -1058,8 +1055,8 @@ const OrdersPanel = () => (
       ].map((stat, i) => {
         const Icon = stat.icon;
         return (
-          <AnimatedCard key={i} className="p-6 group cursor-pointer">
-            <div className="flex items-center justify-between">
+          <AnimatedCard key={i} className="p-6 group cursor-pointer  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+            <div className="flex items-center justify-between  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
                 <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
@@ -1081,7 +1078,7 @@ const OrdersPanel = () => (
                 <Icon className="w-6 h-6 text-white" />
               </div>
             </div>
-            <div className="mt-4 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+            <div className="mt-4 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden ">
               <div
                 className={`h-1.5 bg-gradient-to-r ${stat.color} rounded-full transition-all duration-1000 ease-out transform origin-left`}
                 style={{ width: `${Math.random() * 80 + 20}%` }}
@@ -1092,15 +1089,15 @@ const OrdersPanel = () => (
       })}
     </div>
 
-    <AnimatedCard className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <AnimatedCard className="p-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      <div className="flex justify-between items-center mb-6  from-blue-50 via-white to-purple-50 ">
         <h4 className="text-lg font-semibold text-gray-900">Recent Claims</h4>
         <button className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center space-x-1 hover:underline">
           <span>View All</span>
           <ArrowUpRight className="w-4 h-4" />
         </button>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 ">
         {[
           {
             member: "John Smith",
@@ -1126,7 +1123,7 @@ const OrdersPanel = () => (
         ].map((claim, i) => (
           <div
             key={i}
-            className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-transparent rounded-xl hover:from-blue-50 hover:shadow-md transition-all duration-300 group cursor-pointer"
+            className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-transparent rounded-xl hover:from-blue-50 hover:shadow-md transition-all duration-300 group cursor-pointer  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
           >
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200">
@@ -1187,7 +1184,7 @@ const ProductsPanel = () => (
       </button>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {[
         {
           name: "Medicare Advantage",
@@ -1216,12 +1213,12 @@ const ProductsPanel = () => (
       ].map((plan, i) => (
         <AnimatedCard
           key={i}
-          className="p-6 group cursor-pointer overflow-hidden relative"
+          className="p-6 group cursor-pointer overflow-hidden relative  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
         >
           <div
             className={`absolute inset-0 bg-gradient-to-br ${plan.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
           ></div>
-          <div className="relative z-10">
+          <div className="relative z-10  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
                 {plan.name}
@@ -1233,7 +1230,7 @@ const ProductsPanel = () => (
               </span>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 ">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Active Members</span>
                 <span className="text-lg font-bold text-gray-900">
@@ -1285,6 +1282,8 @@ const ProductsPanel = () => (
 );
 
 const AdminDashboard = () => {
+
+   const { isDarkMode } = useTheme();
   // const { user, logout } = useAuth();
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -1318,14 +1317,14 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-all duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static lg:inset-0`}
       >
-        <div className="flex items-center justify-center h-16 px-4 bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
+        <div className="flex items-center justify-center h-16 px-4 bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg    dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
               <Heart className="w-6 h-6 text-white" />
@@ -1366,7 +1365,7 @@ const AdminDashboard = () => {
           sidebarOpen ? "ml-64" : "ml-0"
         }`}
       >
-        <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200/50 sticky top-0 z-40">
+        <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200/50 sticky top-0 z-40  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
           <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
             {/* Left side - search and menu button */}
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -1436,11 +1435,11 @@ const AdminDashboard = () => {
         </header>
 
         {/* Main Content Area */}
-        <main className="p-6">
+        <main className="p-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
           {activeTab === "dashboard" && (
-            <div className="space-y-8">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
+            <div className="space-y-8  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+              <div className="flex items-center justify-between ">
+                <div className="space-y-2 ">
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent">
                     Dashboard Overview
                   </h1>
@@ -1463,7 +1462,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Key Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                 {[
                   {
                     label: "Total Members",
@@ -1502,13 +1501,13 @@ const AdminDashboard = () => {
                   return (
                     <AnimatedCard
                       key={i}
-                      className={`p-6 bg-gradient-to-br ${metric.bg} border-0 group cursor-pointer overflow-hidden relative`}
+                      className={`p-6 bg-gradient-to-br ${metric.bg} border-0 group cursor-pointer overflow-hidden relative  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300`}
                     >
                       <div
                         className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
                       ></div>
-                      <div className="relative z-10">
-                        <div className="flex items-start justify-between">
+                      <div className="relative z-10  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+                        <div className="flex items-start justify-between ">
                           <div className="space-y-2">
                             <p className="text-sm font-medium text-gray-600">
                               {metric.label}
@@ -1517,7 +1516,7 @@ const AdminDashboard = () => {
                               {metric.value}
                             </p>
                             <p
-                              className={`text-sm font-semibold flex items-center space-x-1 ${
+                              className={`text-sm font-semibold flex items-center space-x-1 from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ${
                                 metric.change.startsWith("+")
                                   ? "text-green-600"
                                   : "text-red-600"
@@ -1547,7 +1546,7 @@ const AdminDashboard = () => {
 
               {/* Recent Activity */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <AnimatedCard className="p-6">
+                <AnimatedCard className="p-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-bold text-gray-900">
                       Recent Claims
@@ -1557,7 +1556,7 @@ const AdminDashboard = () => {
                       <ArrowUpRight className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-4  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                     {[
                       {
                         member: "John Smith",
@@ -1580,7 +1579,7 @@ const AdminDashboard = () => {
                     ].map((claim, i) => (
                       <div
                         key={i}
-                        className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-transparent rounded-xl hover:from-blue-50 hover:shadow-md transition-all duration-300 group cursor-pointer"
+                        className="flex items-center justify-between p-4 bg-gradient-to-r rounded-xl hover:from-blue-50 hover:shadow-md transition-all duration-300 group cursor-pointer  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 "
                       >
                         <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200">
@@ -1590,7 +1589,7 @@ const AdminDashboard = () => {
                               .join("")}
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200 ">
                               {claim.member}
                             </div>
                             <div className="text-sm text-gray-500">
@@ -1604,7 +1603,7 @@ const AdminDashboard = () => {
                               {claim.amount}
                             </div>
                             <div
-                              className={`text-xs px-2 py-1 rounded-full ${
+                              className={`text-xs px-2 py-1 rounded-full  ${
                                 claim.status === "Approved"
                                   ? "bg-green-100 text-green-800"
                                   : claim.status === "Under Review"
@@ -1621,11 +1620,11 @@ const AdminDashboard = () => {
                   </div>
                 </AnimatedCard>
 
-                <AnimatedCard className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">
+                <AnimatedCard className="p-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 ">
                     Plan Enrollment Trends
                   </h3>
-                  <div className="space-y-6">
+                  <div className="space-y-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                     {[
                       {
                         plan: "Medicare Advantage",
@@ -1646,8 +1645,8 @@ const AdminDashboard = () => {
                         color: "from-purple-500 to-purple-600",
                       },
                     ].map((plan, i) => (
-                      <div key={i} className="space-y-3 group">
-                        <div className="flex justify-between items-center">
+                      <div key={i} className="space-y-3 group  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+                        <div className="flex justify-between items-center  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                           <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
                             {plan.plan}
                           </span>
@@ -1655,7 +1654,7 @@ const AdminDashboard = () => {
                             {plan.members.toLocaleString()} members
                           </span>
                         </div>
-                        <div className="relative">
+                        <div className="relative  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                             <div
                               className={`h-3 bg-gradient-to-r ${plan.color} rounded-full transition-all duration-1000 ease-out transform origin-left shadow-sm group-hover:shadow-md`}
