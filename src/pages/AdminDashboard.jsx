@@ -452,7 +452,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
 
       {/* NEW: Beautiful Search and Filter Section */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-        <div className="p-6 bg-gradient-to-r from-blue-50/50 via-white to-purple-50/30 border-b border-gray-100  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+        <div className="p-6 bg-gradient-to-r from-blue-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Search Bar */}
             <div className="flex-1 relative group  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
@@ -749,7 +749,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 filteredAndSortedMembers.map((member, index) => (
                   <tr
                     key={member.id}
-                    className={`group transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/70 hover:via-blue-50/40 hover:to-transparent hover:shadow-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ${
+                    className={`group  hover:bg-gradient-to-r hover:from-blue-50/70 hover:via-blue-50/40 hover:to-transparent hover:shadow-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ${
                       index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
                     }`}
                   >
@@ -885,7 +885,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       {/* Enhanced Collapsible Debug Section */}
       <div className="mt-8 ">
         <details className="group ">
-          <summary className="cursor-pointer flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-all duration-200  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+          <summary className="cursor-pointer flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
               <span className="font-semibold text-amber-800">
@@ -1123,7 +1123,7 @@ const OrdersPanel = () => (
         ].map((claim, i) => (
           <div
             key={i}
-            className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-transparent rounded-xl hover:from-blue-50 hover:shadow-md transition-all duration-300 group cursor-pointer  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
+            className="flex items-center justify-between p-4 bg-gradient-to-r rounded-xl hover:from-blue-50 hover:shadow-md  group cursor-pointer  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
           >
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200">
@@ -1379,12 +1379,7 @@ const AdminDashboard = () => {
 
               {/* Search bar - adjusts for mobile */}
               <div className="relative group">
-                {/* <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 transition-colors duration-200 group-hover:text-blue-500" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="pl-10 pr-3 py-1.5 sm:pl-10 sm:pr-4 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:shadow-md focus:shadow-lg w-36 sm:w-48 md:w-64"
-                /> */}
+            
               </div>
             </div>
 
@@ -1683,6 +1678,7 @@ const AdminDashboard = () => {
           )}
           {activeTab === "orders" && <OrdersPanel />}
           {activeTab === "products" && <ProductsPanel />}
+          {activeTab === "addMedicines" && <MedicinePanel/>}
         </main>
       </div>
     </div>
