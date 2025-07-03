@@ -22,8 +22,10 @@ import {
   ArrowUpRight,
   MoreVertical,
   Menu,
+  Pill,
 } from "lucide-react";
 import authService from "../api/auth";
+import {AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { useMemo } from "react";
 import { RotateCcw } from "lucide-react";
 import { ArrowUp } from "lucide-react";
@@ -37,6 +39,7 @@ import "react-toastify/dist/ReactToastify.css";
 import AddMemberModal from "../components/AddMemberModal";
 import { SearchX } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { addMedicine , updateMedicine , deleteMedicine , getMedicines } from "../api/medicineApi";
 
 const AnimatedCard = ({
   children,
@@ -1169,6 +1172,1784 @@ const OrdersPanel = () => (
   </div>
 );
 
+
+// const MedicineProductsPanel = () => {
+//   const [medicines, setMedicines] = useState([]);
+//   const [showForm, setShowForm] = useState(false);
+//   const [formData, setFormData] = useState({
+//     name: '',
+//     description: '',
+//     price: '',
+//     stock: '',
+//     expiryDate: '',
+//     imageUrl: '',
+//     status: 'ACTIVE'
+//   });
+//   const [errors, setErrors] = useState({});
+
+//   // Fetch medicines from API
+//   // useEffect(() => {
+//   //   // Mock data - replace with actual API call
+//   //   const mockMedicines = [
+//   //     {
+//   //       id: 1,
+//   //       name: 'Paracetamol',
+//   //       description: 'Pain reliever and fever reducer',
+//   //       price: 5.99,
+//   //       stock: 100,
+//   //       expiryDate: '2025-12-31',
+//   //       imageUrl: 'https://example.com/paracetamol.jpg',
+//   //       status: 'ACTIVE',
+//   //       createdBy: 1,
+//   //       createdAt: new Date().toISOString()
+//   //     },
+//   //     {
+//   //       id: 2,
+//   //       name: 'Ibuprofen',
+//   //       description: 'Anti-inflammatory medication',
+//   //       price: 8.50,
+//   //       stock: 75,
+//   //       expiryDate: '2024-11-30',
+//   //       imageUrl: 'https://example.com/ibuprofen.jpg',
+//   //       status: 'ACTIVE',
+//   //       createdBy: 1,
+//   //       createdAt: new Date().toISOString()
+//   //     }
+//   //   ];
+//   //   setMedicines(mockMedicines);
+//   // }, []);
+
+//   const validateField = (name, value) => {
+//     let error = '';
+    
+//     switch (name) {
+//       case 'name':
+//         if (!value) error = 'Name is required';
+//         else if (value.length < 2) error = 'Name must be at least 2 characters';
+//         break;
+//       case 'description':
+//         if (!value) error = 'Description is required';
+//         break;
+//       case 'price':
+//         if (!value) error = 'Price is required';
+//         else if (isNaN(value) || Number(value) <= 0) error = 'Price must be a positive number';
+//         break;
+//       case 'stock':
+//         if (!value && value !== 0) error = 'Stock is required';
+//         else if (isNaN(value) || Number(value) < 0) error = 'Stock must be 0 or more';
+//         break;
+//       case 'expiryDate':
+//         if (!value) error = 'Expiry date is required';
+//         else if (new Date(value) < new Date()) error = 'Expiry date must be in the future';
+//         break;
+//       case 'imageUrl':
+//         if (value && !/^https?:\/\/.+\..+/.test(value)) error = 'Please enter a valid URL';
+//         break;
+//     }
+    
+//     return error;
+//   };
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+    
+//     // Validate the field
+//     const error = validateField(name, value);
+//     setErrors(prev => ({ ...prev, [name]: error }));
+    
+//     // Update form data
+//     setFormData(prev => ({
+//       ...prev,
+//       [name]: name === 'price' || name === 'stock' ? 
+//         (value === '' ? '' : Number(value)) : 
+//         value
+//     }));
+//   };
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+    
+//     // Validate all fields before submission
+//     const newErrors = {};
+//     Object.entries(formData).forEach(([key, value]) => {
+//       if (key !== 'id' && key !== 'createdBy' && key !== 'createdAt' && key !== 'imageUrl') {
+//         const error = validateField(key, value);
+//         if (error) newErrors[key] = error;
+//       }
+//     });
+    
+//     setErrors(newErrors);
+    
+//     if (Object.keys(newErrors).length === 0) {
+//       // Submit form (replace with API call)
+//       const newMedicine = {
+//         ...formData,
+//         id: medicines.length + 1,
+//         createdBy: 1, // Replace with actual user ID
+//         createdAt: new Date().toISOString(),
+//         status: formData.status || 'ACTIVE'
+//       };
+      
+//       setMedicines(prev => [...prev, newMedicine]);
+//       setShowForm(false);
+//       setFormData({
+//         name: '',
+//         description: '',
+//         price: '',
+//         stock: '',
+//         expiryDate: '',
+//         imageUrl: '',
+//         status: 'ACTIVE'
+//       });
+//     }
+//   };
+
+//   return (
+//     <div className="space-y-6">
+//       <div className="flex justify-between items-center">
+//         <div>
+//           <h3 className="text-2xl font-bold text-gray-900">Medicine Products</h3>
+//           <p className="text-gray-600 mt-1">
+//             Manage available medicines in your inventory
+//           </p>
+//         </div>
+//         <button 
+//           onClick={() => setShowForm(true)}
+//           className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 flex items-center space-x-2"
+//         >
+//           <Plus className="w-4 h-4" />
+//           <span>Add Medicine</span>
+//         </button>
+//       </div>
+
+//       {/* Add Medicine Form */}
+//       {showForm && (
+//         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+//           <h4 className="text-xl font-bold mb-4">Add New Medicine</h4>
+//           <form onSubmit={handleSubmit} className="space-y-4">
+//             <div>
+//               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+//                 Name*
+//               </label>
+//               <input
+//                 type="text"
+//                 name="name"
+//                 value={formData.name}
+//                 onChange={handleChange}
+//                 className={`w-full px-3 py-2 border rounded-md ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+//               />
+//               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+//             </div>
+
+//             <div>
+//               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+//                 Description*
+//               </label>
+//               <textarea
+//                 name="description"
+//                 value={formData.description}
+//                 onChange={handleChange}
+//                 className={`w-full px-3 py-2 border rounded-md ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
+//                 rows={3}
+//               />
+//               {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+//             </div>
+
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+//                   Price*
+//                 </label>
+//                 <input
+//                   type="number"
+//                   name="price"
+//                   value={formData.price}
+//                   onChange={handleChange}
+//                   step="0.01"
+//                   min="0"
+//                   className={`w-full px-3 py-2 border rounded-md ${errors.price ? 'border-red-500' : 'border-gray-300'}`}
+//                 />
+//                 {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+//               </div>
+
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+//                   Stock*
+//                 </label>
+//                 <input
+//                   type="number"
+//                   name="stock"
+//                   value={formData.stock}
+//                   onChange={handleChange}
+//                   min="0"
+//                   className={`w-full px-3 py-2 border rounded-md ${errors.stock ? 'border-red-500' : 'border-gray-300'}`}
+//                 />
+//                 {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
+//               </div>
+//             </div>
+
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+//                   Expiry Date*
+//                 </label>
+//                 <input
+//                   type="date"
+//                   name="expiryDate"
+//                   value={formData.expiryDate}
+//                   onChange={handleChange}
+//                   className={`w-full px-3 py-2 border rounded-md ${errors.expiryDate ? 'border-red-500' : 'border-gray-300'}`}
+//                 />
+//                 {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
+//               </div>
+
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+//                   Status
+//                 </label>
+//                 <select
+//                   name="status"
+//                   value={formData.status}
+//                   onChange={handleChange}
+//                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
+//                 >
+//                   <option value="ACTIVE">Active</option>
+//                   <option value="INACTIVE">Inactive</option>
+//                   <option value="DISCONTINUED">Discontinued</option>
+//                 </select>
+//               </div>
+//             </div>
+
+//             <div>
+//               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+//                 Image URL
+//               </label>
+//               <input
+//                 type="text"
+//                 name="imageUrl"
+//                 value={formData.imageUrl}
+//                 onChange={handleChange}
+//                 className={`w-full px-3 py-2 border rounded-md ${errors.imageUrl ? 'border-red-500' : 'border-gray-300'}`}
+//                 placeholder="https://example.com/image.jpg"
+//               />
+//               {errors.imageUrl && <p className="text-red-500 text-sm mt-1">{errors.imageUrl}</p>}
+//             </div>
+
+//             <div className="flex justify-end space-x-3 pt-4">
+//               <button
+//                 type="button"
+//                 onClick={() => setShowForm(false)}
+//                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 type="submit"
+//                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+//               >
+//                 Save Medicine
+//               </button>
+//             </div>
+//           </form>
+//         </div>
+//       )}
+
+//       {/* Medicine Products Grid */}
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//         {medicines.map((medicine) => (
+//           <div 
+//             key={medicine.id}
+//             className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 dark:border-gray-700"
+//           >
+//             <div className="flex items-center justify-between mb-4">
+//               <h4 className="text-xl font-bold text-gray-900 dark:text-white">
+//                 {medicine.name}
+//               </h4>
+//               <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+//                 medicine.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+//                 medicine.status === 'INACTIVE' ? 'bg-yellow-100 text-yellow-800' :
+//                 'bg-red-100 text-red-800'
+//               }`}>
+//                 {medicine.status}
+//               </span>
+//             </div>
+
+//             <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm">
+//               {medicine.description}
+//             </p>
+
+//             {medicine.imageUrl && (
+//               <div className="mb-4">
+//                 <img 
+//                   src={medicine.imageUrl} 
+//                   alt={medicine.name} 
+//                   className="w-full h-32 object-cover rounded-md"
+//                 />
+//               </div>
+//             )}
+
+//             <div className="space-y-3">
+//               <div className="flex justify-between items-center">
+//                 <span className="text-sm text-gray-600 dark:text-gray-400">Price</span>
+//                 <span className="font-bold text-gray-900 dark:text-white">
+//                   ${medicine.price.toFixed(2)}
+//                 </span>
+//               </div>
+
+//               <div className="flex justify-between items-center">
+//                 <span className="text-sm text-gray-600 dark:text-gray-400">Stock</span>
+//                 <span className={`font-bold ${
+//                   medicine.stock > 50 ? 'text-green-600' :
+//                   medicine.stock > 10 ? 'text-yellow-600' :
+//                   'text-red-600'
+//                 }`}>
+//                   {medicine.stock}
+//                 </span>
+//               </div>
+
+//               <div className="flex justify-between items-center">
+//                 <span className="text-sm text-gray-600 dark:text-gray-400">Expiry Date</span>
+//                 <span className={`font-medium ${
+//                   new Date(medicine.expiryDate) > new Date(new Date().setFullYear(new Date().getFullYear() + 1)) ? 
+//                     'text-green-600' : 
+//                     new Date(medicine.expiryDate) > new Date() ? 
+//                     'text-yellow-600' : 
+//                     'text-red-600'
+//                 }`}>
+//                   {new Date(medicine.expiryDate).toLocaleDateString()}
+//                 </span>
+//               </div>
+//             </div>
+
+//             <div className="mt-6 flex space-x-2">
+//               <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full">
+//                 <Eye className="w-4 h-4" />
+//               </button>
+//               <button className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-full">
+//                 <Edit className="w-4 h-4" />
+//               </button>
+//               <button className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-full">
+//                 <Settings className="w-4 h-4" />
+//               </button>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
+
+// const MedicineProductsPanel = () => {
+//   const [medicines, setMedicines] = useState([]);
+//   const [showForm, setShowForm] = useState(false);
+//   const [showDetailModal, setShowDetailModal] = useState(false);
+//   const [selectedMedicine, setSelectedMedicine] = useState(null);
+//   const [showDeleteModal, setShowDeleteModal] = useState(false);
+//   const [formData, setFormData] = useState({
+//     name: '',
+//     description: '',
+//     price: '',
+//     stock: '',
+//     expiryDate: '',
+//     imageUrl: '',
+//     status: 'ACTIVE'
+//   });
+//   const [errors, setErrors] = useState({});
+//   const [editingId, setEditingId] = useState(null);
+
+//   // Mock data for demonstration
+//   useEffect(() => {
+//     const mockMedicines = [
+//       {
+//         id: 1,
+//         name: 'Paracetamol',
+//         description: 'Pain reliever and fever reducer for adults and children',
+//         price: 5.99,
+//         stock: 100,
+//         expiryDate: '2025-12-31',
+//         imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop',
+//         status: 'ACTIVE',
+//         createdBy: 1,
+//         createdAt: new Date().toISOString()
+//       },
+//       {
+//         id: 2,
+//         name: 'Ibuprofen',
+//         description: 'Anti-inflammatory medication for pain and swelling',
+//         price: 8.50,
+//         stock: 15,
+//         expiryDate: '2024-11-30',
+//         imageUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=300&fit=crop',
+//         status: 'ACTIVE',
+//         createdBy: 1,
+//         createdAt: new Date().toISOString()
+//       },
+//       {
+//         id: 3,
+//         name: 'Amoxicillin',
+//         description: 'Antibiotic for bacterial infections',
+//         price: 12.99,
+//         stock: 0,
+//         expiryDate: '2025-06-15',
+//         imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=300&fit=crop',
+//         status: 'INACTIVE',
+//         createdBy: 1,
+//         createdAt: new Date().toISOString()
+//       }
+//     ];
+//     setMedicines(mockMedicines);
+//   }, []);
+
+//   const validateField = (name, value) => {
+//     let error = '';
+    
+//     switch (name) {
+//       case 'name':
+//         if (!value) error = 'Name is required';
+//         else if (value.length < 2) error = 'Name must be at least 2 characters';
+//         break;
+//       case 'description':
+//         if (!value) error = 'Description is required';
+//         break;
+//       case 'price':
+//         if (!value) error = 'Price is required';
+//         else if (isNaN(value) || Number(value) <= 0) error = 'Price must be a positive number';
+//         break;
+//       case 'stock':
+//         if (!value && value !== 0) error = 'Stock is required';
+//         else if (isNaN(value) || Number(value) < 0) error = 'Stock must be 0 or more';
+//         break;
+//       case 'expiryDate':
+//         if (!value) error = 'Expiry date is required';
+//         else if (new Date(value) < new Date()) error = 'Expiry date must be in the future';
+//         break;
+//       case 'imageUrl':
+//         if (value && !/^https?:\/\/.+\..+/.test(value)) error = 'Please enter a valid URL';
+//         break;
+//     }
+    
+//     return error;
+//   };
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     const error = validateField(name, value);
+//     setErrors(prev => ({ ...prev, [name]: error }));
+    
+//     setFormData(prev => ({
+//       ...prev,
+//       [name]: name === 'price' || name === 'stock' ? 
+//         (value === '' ? '' : Number(value)) : 
+//         value
+//     }));
+//   };
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+    
+//     const newErrors = {};
+//     Object.entries(formData).forEach(([key, value]) => {
+//       if (key !== 'id' && key !== 'createdBy' && key !== 'createdAt' && key !== 'imageUrl') {
+//         const error = validateField(key, value);
+//         if (error) newErrors[key] = error;
+//       }
+//     });
+    
+//     setErrors(newErrors);
+    
+//     if (Object.keys(newErrors).length === 0) {
+//       if (editingId) {
+//         setMedicines(prev => prev.map(med => 
+//           med.id === editingId ? { ...med, ...formData } : med
+//         ));
+//         setEditingId(null);
+//       } else {
+//         const newMedicine = {
+//           ...formData,
+//           id: medicines.length + 1,
+//           createdBy: 1,
+//           createdAt: new Date().toISOString(),
+//           status: formData.status || 'ACTIVE'
+//         };
+//         setMedicines(prev => [...prev, newMedicine]);
+//       }
+      
+//       setShowForm(false);
+//       setFormData({
+//         name: '',
+//         description: '',
+//         price: '',
+//         stock: '',
+//         expiryDate: '',
+//         imageUrl: '',
+//         status: 'ACTIVE'
+//       });
+//     }
+//   };
+
+//   const handleEdit = (medicine) => {
+//     setFormData(medicine);
+//     setEditingId(medicine.id);
+//     setShowForm(true);
+//   };
+
+//   const handleDelete = (id) => {
+//     setMedicines(prev => prev.filter(med => med.id !== id));
+//     setShowDeleteModal(false);
+//     setSelectedMedicine(null);
+//   };
+
+//   const handleView = (medicine) => {
+//     setSelectedMedicine(medicine);
+//     setShowDetailModal(true);
+//   };
+
+//   const getStockStatus = (stock) => {
+//     if (stock === 0) return { color: 'text-red-500', bg: 'bg-red-50', icon: AlertTriangle };
+//     if (stock <= 10) return { color: 'text-yellow-500', bg: 'bg-yellow-50', icon: Clock };
+//     return { color: 'text-green-500', bg: 'bg-green-50', icon: CheckCircle };
+//   };
+
+//   const getExpiryStatus = (expiryDate) => {
+//     const today = new Date();
+//     const expiry = new Date(expiryDate);
+//     const daysDiff = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+    
+//     if (daysDiff <= 0) return { color: 'text-red-500', bg: 'bg-red-50', text: 'Expired' };
+//     if (daysDiff <= 30) return { color: 'text-orange-500', bg: 'bg-orange-50', text: 'Expiring Soon' };
+//     if (daysDiff <= 90) return { color: 'text-yellow-500', bg: 'bg-yellow-50', text: 'Monitor' };
+//     return { color: 'text-green-500', bg: 'bg-green-50', text: 'Good' };
+//   };
+
+
+//   // Add this function to get all medicines
+//   const getAllMedicines = () => {
+//     return medicines;
+//   };
+
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+//       <div className="max-w-7xl mx-auto space-y-8">
+//         {/* Header */}
+//         <div className="flex justify-between items-center">
+//           <div className="space-y-2">
+//             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+//               Medicine Products
+//             </h1>
+//             <p className="text-gray-600 text-lg">
+//               Manage your pharmaceutical inventory with ease
+//             </p>
+//           </div>
+//           <button 
+//             onClick={() => setShowForm(true)}
+//             className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center space-x-3"
+//           >
+//             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+//             <span className="font-semibold">Add Medicine</span>
+//           </button>
+//         </div>
+
+//         {/* Stats Cards */}
+//         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+//           <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 text-sm">Total Medicines</p>
+//                 <p className="text-3xl font-bold text-gray-900">{medicines.length}</p>
+//               </div>
+//               <div className="bg-blue-100 p-3 rounded-full">
+//                 <Package className="w-6 h-6 text-blue-600" />
+//               </div>
+//             </div>
+//           </div>
+//           <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 text-sm">In Stock</p>
+//                 <p className="text-3xl font-bold text-gray-900">{medicines.filter(m => m.stock > 0).length}</p>
+//               </div>
+//               <div className="bg-green-100 p-3 rounded-full">
+//                 <CheckCircle className="w-6 h-6 text-green-600" />
+//               </div>
+//             </div>
+//           </div>
+//           <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-200">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 text-sm">Low Stock</p>
+//                 <p className="text-3xl font-bold text-gray-900">{medicines.filter(m => m.stock <= 10 && m.stock > 0).length}</p>
+//               </div>
+//               <div className="bg-red-100 p-3 rounded-full">
+//                 <AlertTriangle className="w-6 h-6 text-red-600" />
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Add/Edit Medicine Form Modal */}
+//         {showForm && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+//               <div className="p-6 border-b border-gray-200">
+//                 <div className="flex justify-between items-center">
+//                   <h3 className="text-2xl font-bold text-gray-900">
+//                     {editingId ? 'Edit Medicine' : 'Add New Medicine'}
+//                   </h3>
+//                   <button
+//                     onClick={() => {
+//                       setShowForm(false);
+//                       setEditingId(null);
+//                       setFormData({
+//                         name: '',
+//                         description: '',
+//                         price: '',
+//                         stock: '',
+//                         expiryDate: '',
+//                         imageUrl: '',
+//                         status: 'ACTIVE'
+//                       });
+//                     }}
+//                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+//                   >
+//                     <X className="w-6 h-6" />
+//                   </button>
+//                 </div>
+//               </div>
+              
+//               <form onSubmit={handleSubmit} className="p-6 space-y-6">
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Medicine Name *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="name"
+//                       value={formData.name}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.name ? 'border-red-500' : 'border-gray-300'
+//                       }`}
+//                       placeholder="Enter medicine name"
+//                     />
+//                     {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+//                   </div>
+
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Description *
+//                     </label>
+//                     <textarea
+//                       name="description"
+//                       value={formData.description}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.description ? 'border-red-500' : 'border-gray-300'
+//                       }`}
+//                       rows={3}
+//                       placeholder="Enter medicine description"
+//                     />
+//                     {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+//                   </div>
+
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Price ($) *
+//                     </label>
+//                     <input
+//                       type="number"
+//                       name="price"
+//                       value={formData.price}
+//                       onChange={handleChange}
+//                       step="0.01"
+//                       min="0"
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.price ? 'border-red-500' : 'border-gray-300'
+//                       }`}
+//                       placeholder="0.00"
+//                     />
+//                     {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+//                   </div>
+
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Stock Quantity *
+//                     </label>
+//                     <input
+//                       type="number"
+//                       name="stock"
+//                       value={formData.stock}
+//                       onChange={handleChange}
+//                       min="0"
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.stock ? 'border-red-500' : 'border-gray-300'
+//                       }`}
+//                       placeholder="0"
+//                     />
+//                     {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
+//                   </div>
+
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Expiry Date *
+//                     </label>
+//                     <input
+//                       type="date"
+//                       name="expiryDate"
+//                       value={formData.expiryDate}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.expiryDate ? 'border-red-500' : 'border-gray-300'
+//                       }`}
+//                     />
+//                     {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
+//                   </div>
+
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Status
+//                     </label>
+//                     <select
+//                       name="status"
+//                       value={formData.status}
+//                       onChange={handleChange}
+//                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+//                     >
+//                       <option value="ACTIVE">Active</option>
+//                       <option value="INACTIVE">Inactive</option>
+//                       <option value="DISCONTINUED">Discontinued</option>
+//                     </select>
+//                   </div>
+
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Image URL
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="imageUrl"
+//                       value={formData.imageUrl}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.imageUrl ? 'border-red-500' : 'border-gray-300'
+//                       }`}
+//                       placeholder="https://example.com/image.jpg"
+//                     />
+//                     {errors.imageUrl && <p className="text-red-500 text-sm mt-1">{errors.imageUrl}</p>}
+//                   </div>
+//                 </div>
+
+//                 <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+//                   <button
+//                     type="button"
+//                     onClick={() => {
+//                       setShowForm(false);
+//                       setEditingId(null);
+//                       setFormData({
+//                         name: '',
+//                         description: '',
+//                         price: '',
+//                         stock: '',
+//                         expiryDate: '',
+//                         imageUrl: '',
+//                         status: 'ACTIVE'
+//                       });
+//                     }}
+//                     className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     type="submit"
+//                     className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105"
+//                   >
+//                     {editingId ? 'Update Medicine' : 'Save Medicine'}
+//                   </button>
+//                 </div>
+//               </form>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Medicine Detail Modal */}
+//         {showDetailModal && selectedMedicine && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+//               <div className="p-6 border-b border-gray-200">
+//                 <div className="flex justify-between items-center">
+//                   <h3 className="text-2xl font-bold text-gray-900">Medicine Details</h3>
+//                   <button
+//                     onClick={() => setShowDetailModal(false)}
+//                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+//                   >
+//                     <X className="w-6 h-6" />
+//                   </button>
+//                 </div>
+//               </div>
+              
+//               <div className="p-6">
+//                 {selectedMedicine.imageUrl && (
+//                   <img 
+//                     src={selectedMedicine.imageUrl} 
+//                     alt={selectedMedicine.name}
+//                     className="w-full h-48 object-cover rounded-xl mb-6"
+//                   />
+//                 )}
+                
+//                 <div className="space-y-4">
+//                   <div>
+//                     <h4 className="text-xl font-bold text-gray-900 mb-2">{selectedMedicine.name}</h4>
+//                     <p className="text-gray-600">{selectedMedicine.description}</p>
+//                   </div>
+                  
+//                   <div className="grid grid-cols-2 gap-4">
+//                     <div className="bg-gray-50 p-4 rounded-xl">
+//                       <p className="text-sm text-gray-600">Price</p>
+//                       <p className="text-lg font-bold text-gray-900">${selectedMedicine.price.toFixed(2)}</p>
+//                     </div>
+//                     <div className="bg-gray-50 p-4 rounded-xl">
+//                       <p className="text-sm text-gray-600">Stock</p>
+//                       <p className="text-lg font-bold text-gray-900">{selectedMedicine.stock}</p>
+//                     </div>
+//                   </div>
+                  
+//                   <div className="bg-gray-50 p-4 rounded-xl">
+//                     <p className="text-sm text-gray-600">Expiry Date</p>
+//                     <p className="text-lg font-bold text-gray-900">{new Date(selectedMedicine.expiryDate).toLocaleDateString()}</p>
+//                   </div>
+                  
+//                   <div className="bg-gray-50 p-4 rounded-xl">
+//                     <p className="text-sm text-gray-600">Status</p>
+//                     <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+//                       selectedMedicine.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+//                       selectedMedicine.status === 'INACTIVE' ? 'bg-yellow-100 text-yellow-800' :
+//                       'bg-red-100 text-red-800'
+//                     }`}>
+//                       {selectedMedicine.status}
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Delete Confirmation Modal */}
+//         {showDeleteModal && selectedMedicine && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+//               <div className="p-6 text-center">
+//                 <div className="bg-red-100 p-4 rounded-full w-fit mx-auto mb-4">
+//                   <Trash2 className="w-8 h-8 text-red-600" />
+//                 </div>
+//                 <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Medicine</h3>
+//                 <p className="text-gray-600 mb-6">
+//                   Are you sure you want to delete "{selectedMedicine.name}"? This action cannot be undone.
+//                 </p>
+//                 <div className="flex justify-center space-x-4">
+//                   <button
+//                     onClick={() => setShowDeleteModal(false)}
+//                     className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     onClick={() => handleDelete(selectedMedicine.id)}
+//                     className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all"
+//                   >
+//                     Delete
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Medicine Products Grid */}
+//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+//           {medicines.map((medicine) => {
+//             const stockStatus = getStockStatus(medicine.stock);
+//             const expiryStatus = getExpiryStatus(medicine.expiryDate);
+//             const StockIcon = stockStatus.icon;
+            
+//             return (
+//               <div 
+//                 key={medicine.id}
+//                 className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 overflow-hidden transform hover:scale-105"
+//               >
+//                 {/* Medicine Image */}
+//                 <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 overflow-hidden">
+//                   {medicine.imageUrl ? (
+//                     <img 
+//                       src={medicine.imageUrl} 
+//                       alt={medicine.name}
+//                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+//                     />
+//                   ) : (
+//                     <div className="w-full h-full flex items-center justify-center">
+//                       <Package className="w-16 h-16 text-gray-400" />
+//                     </div>
+//                   )}
+                  
+//                   {/* Status Badge */}
+//                   <div className="absolute top-4 right-4">
+//                     <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+//                       medicine.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+//                       medicine.status === 'INACTIVE' ? 'bg-yellow-100 text-yellow-800' :
+//                       'bg-red-100 text-red-800'
+//                     }`}>
+//                       {medicine.status}
+//                     </span>
+//                   </div>
+//                 </div>
+
+//                 {/* Medicine Info */}
+//                 <div className="p-6">
+//                   <h4 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+//                     {medicine.name}
+//                   </h4>
+//                   <p className="text-gray-600 mb-4 text-sm line-clamp-2">
+//                     {medicine.description}
+//                   </p>
+
+//                   {/* Stats */}
+//                   <div className="space-y-3 mb-6">
+//                     <div className="flex items-center justify-between">
+//                       <div className="flex items-center space-x-2">
+//                         <DollarSign className="w-4 h-4 text-green-600" />
+//                         <span className="text-sm text-gray-600">Price</span>
+//                       </div>
+//                       <span className="font-bold text-green-600">
+//                         ${medicine.price.toFixed(2)}
+//                       </span>
+//                     </div>
+
+//                     <div className="flex items-center justify-between">
+//                       <div className="flex items-center space-x-2">
+//                         <StockIcon className={`w-4 h-4 ${stockStatus.color}`} />
+//                         <span className="text-sm text-gray-600">Stock</span>
+//                       </div>
+//                       <span className={`font-bold ${stockStatus.color}`}>
+//                         {medicine.stock}
+//                       </span>
+//                     </div>
+
+//                     <div className="flex items-center justify-between">
+//                       <div className="flex items-center space-x-2">
+//                         <Calendar className="w-4 h-4 text-blue-600" />
+//                         <span className="text-sm text-gray-600">Expiry</span>
+//                       </div>
+//                       <span className={`text-sm font-medium px-2 py-1 rounded-full ${expiryStatus.bg} ${expiryStatus.color}`}>
+//                         {expiryStatus.text}
+//                       </span>
+//                     </div>
+//                   </div>
+
+//                   {/* Action Buttons */}
+//                   <div className="flex justify-between items-center">
+//                     <button
+//                       onClick={() => handleView(medicine)}
+//                       className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200 hover:scale-110"
+//                       title="View Details"
+//                     >
+//                       <Eye className="w-5 h-5" />
+//                     </button>
+//                     <button
+//                       onClick={() => handleEdit(medicine)}
+//                       className="p-3 text-green-600 hover:bg-green-50 rounded-full transition-all duration-200 hover:scale-110"
+//                       title="Edit Medicine"
+//                     >
+//                       <Edit className="w-5 h-5" />
+//                     </button>
+//                     <button
+//                       onClick={() => {
+//                         setSelectedMedicine(medicine);
+//                         setShowDeleteModal(true);
+//                       }}
+//                       className="p-3 text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 hover:scale-110"
+//                       title="Delete Medicine"
+//                     >
+//                       <Trash2 className="w-5 h-5" />
+//                     </button>
+//                   </div>
+//                 </div>
+//               </div>
+//             );
+//           })}
+//         </div>
+
+//         {/* Empty State */}
+//         {medicines.length === 0 && (
+//           <div className="text-center py-20">
+//             <Package className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+//             <h3 className="text-2xl font-bold text-gray-900 mb-2">No medicines found</h3>
+//             <p className="text-gray-600 mb-6">Get started by adding your first medicine to the inventory.</p>
+//             <button 
+//               onClick={() => setShowForm(true)}
+//               className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+//             >
+//               Add Your First Medicine
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+ 
+// };
+
+
+const MedicineProductsPanel = () => {
+  const [medicines, setMedicines] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedMedicine, setSelectedMedicine] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    stock: '',
+    expiryDate: '',
+    imageUrl: '',
+    status: 'ACTIVE'
+  });
+  const [errors, setErrors] = useState({});
+  const [editingId, setEditingId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  // const [medicines, setMedicines] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch medicines on component mount
+  // useEffect(() => {
+  //   fetchMedicines();
+  // }, []);
+
+  // const fetchMedicines = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const data = await getMedicines();
+  //     setMedicines(data);
+  //   } catch (error) {
+  //     console.error('Failed to fetch medicines:', error);
+  //     // You might want to show an error notification here
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
+   useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        setLoading(true);
+        const data = await getMedicines();
+        setMedicines(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMedicines();
+  }, []);
+
+
+  const validateField = (name, value) => {
+    let error = '';
+    
+    switch (name) {
+      case 'name':
+        if (!value) error = 'Name is required';
+        else if (value.length < 2) error = 'Name must be at least 2 characters';
+        break;
+      case 'description':
+        if (!value) error = 'Description is required';
+        break;
+      case 'price':
+        if (!value) error = 'Price is required';
+        else if (isNaN(value))  error = 'Price must be a number';
+        else if (Number(value) <= 0) error = 'Price must be positive';
+        break;
+      case 'stock':
+        if (!value && value !== 0) error = 'Stock is required';
+        else if (isNaN(value)) error = 'Stock must be a number';
+        else if (Number(value) < 0) error = 'Stock must be 0 or more';
+        break;
+      case 'expiryDate':
+        if (!value) error = 'Expiry date is required';
+        else if (new Date(value) < new Date()) error = 'Expiry date must be in the future';
+        break;
+      case 'imageUrl':
+        if (value && !/^https?:\/\/.+\..+/.test(value)) error = 'Please enter a valid URL';
+        break;
+    }
+    
+    return error;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: error }));
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'price' || name === 'stock' ? 
+        (value === '' ? '' : Number(value)) : 
+        value
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    const newErrors = {};
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== 'id' && key !== 'createdBy' && key !== 'createdAt' && key !== 'imageUrl') {
+        const error = validateField(key, value);
+        if (error) newErrors[key] = error;
+      }
+    });
+    
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        setIsLoading(true);
+        if (editingId) {
+          // Update existing medicine
+          const updatedMedicine = await updateMedicine(editingId, formData, imageFile);
+          setMedicines(prev => prev.map(med => 
+            med.id === editingId ? updatedMedicine : med
+          ));
+        } else {
+          // Add new medicine
+          const newMedicine = await addMedicine(formData, imageFile);
+          setMedicines(prev => [...prev, newMedicine]);
+        }
+        
+        // Reset form
+        setShowForm(false);
+        setEditingId(null);
+        setFormData({
+          name: '',
+          description: '',
+          price: '',
+          stock: '',
+          expiryDate: '',
+          imageUrl: '',
+          status: 'ACTIVE'
+        });
+        setImageFile(null);
+      } catch (error) {
+        console.error('Error saving medicine:', error);
+        // You might want to show an error notification here
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleEdit = (medicine) => {
+    setFormData({
+      name: medicine.name,
+      description: medicine.description,
+      price: medicine.price,
+      stock: medicine.stock,
+      expiryDate: medicine.expiryDate,
+      imageUrl: medicine.imageUrl || '',
+      status: medicine.status
+    });
+    setEditingId(medicine.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      setIsLoading(true);
+      await deleteMedicine(id);
+      setMedicines(prev => prev.filter(med => med.id !== id));
+      setShowDeleteModal(false);
+      setSelectedMedicine(null);
+    } catch (error) {
+      console.error('Error deleting medicine:', error);
+      // You might want to show an error notification here
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleView = (medicine) => {
+    setSelectedMedicine(medicine);
+    setShowDetailModal(true);
+  };
+
+  const getStockStatus = (stock) => {
+    if (stock === 0) return { color: 'text-red-500', bg: 'bg-red-50', icon: AlertTriangle };
+    if (stock <= 10) return { color: 'text-yellow-500', bg: 'bg-yellow-50', icon: Clock };
+    return { color: 'text-green-500', bg: 'bg-green-50', icon: CheckCircle };
+  };
+
+  const getExpiryStatus = (expiryDate) => {
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const daysDiff = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff <= 0) return { color: 'text-red-500', bg: 'bg-red-50', text: 'Expired' };
+    if (daysDiff <= 30) return { color: 'text-orange-500', bg: 'bg-orange-50', text: 'Expiring Soon' };
+    if (daysDiff <= 90) return { color: 'text-yellow-500', bg: 'bg-yellow-50', text: 'Monitor' };
+    return { color: 'text-green-500', bg: 'bg-green-50', text: 'Good' };
+  };
+
+  // Loading state
+  if (isLoading && medicines.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Medicine Products
+            </h1>
+            <p className="text-gray-600 text-lg">
+              Manage your pharmaceutical inventory with ease
+            </p>
+          </div>
+          <button 
+            onClick={() => setShowForm(true)}
+            className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center space-x-3"
+            disabled={isLoading}
+          >
+            <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+            <span className="font-semibold">Add Medicine</span>
+          </button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Total Medicines</p>
+                <p className="text-3xl font-bold text-gray-900">{medicines.length}</p>
+              </div>
+              <div className="bg-blue-100 p-3 rounded-full">
+                <Package className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">In Stock</p>
+                <p className="text-3xl font-bold text-gray-900">{medicines.filter(m => m.stock > 0).length}</p>
+              </div>
+              <div className="bg-green-100 p-3 rounded-full">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Low Stock</p>
+                <p className="text-3xl font-bold text-gray-900">{medicines.filter(m => m.stock <= 10 && m.stock > 0).length}</p>
+              </div>
+              <div className="bg-red-100 p-3 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Add/Edit Medicine Form Modal */}
+        {showForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {editingId ? 'Edit Medicine' : 'Add New Medicine'}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setShowForm(false);
+                      setEditingId(null);
+                      setFormData({
+                        name: '',
+                        description: '',
+                        price: '',
+                        stock: '',
+                        expiryDate: '',
+                        imageUrl: '',
+                        status: 'ACTIVE'
+                      });
+                      setImageFile(null);
+                    }}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    disabled={isLoading}
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Medicine Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                        errors.name ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="Enter medicine name"
+                      disabled={isLoading}
+                    />
+                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description *
+                    </label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                        errors.description ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      rows={3}
+                      placeholder="Enter medicine description"
+                      disabled={isLoading}
+                    />
+                    {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price ($) *
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleChange}
+                      step="0.01"
+                      min="0"
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                        errors.price ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="0.00"
+                      disabled={isLoading}
+                    />
+                    {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Stock Quantity *
+                    </label>
+                    <input
+                      type="number"
+                      name="stock"
+                      value={formData.stock}
+                      onChange={handleChange}
+                      min="0"
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                        errors.stock ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="0"
+                      disabled={isLoading}
+                    />
+                    {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Expiry Date *
+                    </label>
+                    <input
+                      type="date"
+                      name="expiryDate"
+                      value={formData.expiryDate}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                        errors.expiryDate ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      disabled={isLoading}
+                    />
+                    {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Status
+                    </label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      disabled={isLoading}
+                    >
+                      <option value="ACTIVE">Active</option>
+                      <option value="INACTIVE">Inactive</option>
+                      <option value="DISCONTINUED">Discontinued</option>
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Image
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      disabled={isLoading}
+                    />
+                    {imageFile && (
+                      <p className="text-sm text-gray-500 mt-2">{imageFile.name}</p>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Image URL (alternative)
+                    </label>
+                    <input
+                      type="text"
+                      name="imageUrl"
+                      value={formData.imageUrl}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                        errors.imageUrl ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="https://example.com/image.jpg"
+                      disabled={isLoading}
+                    />
+                    {errors.imageUrl && <p className="text-red-500 text-sm mt-1">{errors.imageUrl}</p>}
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForm(false);
+                      setEditingId(null);
+                      setFormData({
+                        name: '',
+                        description: '',
+                        price: '',
+                        stock: '',
+                        expiryDate: '',
+                        imageUrl: '',
+                        status: 'ACTIVE'
+                      });
+                      setImageFile(null);
+                    }}
+                    className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 flex items-center justify-center"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {editingId ? 'Updating...' : 'Saving...'}
+                      </>
+                    ) : (
+                      editingId ? 'Update Medicine' : 'Save Medicine'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Medicine Detail Modal */}
+        {showDetailModal && selectedMedicine && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-2xl font-bold text-gray-900">Medicine Details</h3>
+                  <button
+                    onClick={() => setShowDetailModal(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                {selectedMedicine.imageUrl && (
+                  <img 
+                    src={selectedMedicine.imageUrl} 
+                    alt={selectedMedicine.name}
+                    className="w-full h-48 object-cover rounded-xl mb-6"
+                  />
+                )}
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">{selectedMedicine.name}</h4>
+                    <p className="text-gray-600">{selectedMedicine.description}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-4 rounded-xl">
+                      <p className="text-sm text-gray-600">Price</p>
+                      <p className="text-lg font-bold text-gray-900">${selectedMedicine.price.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-xl">
+                      <p className="text-sm text-gray-600">Stock</p>
+                      <p className="text-lg font-bold text-gray-900">{selectedMedicine.stock}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-4 rounded-xl">
+                    <p className="text-sm text-gray-600">Expiry Date</p>
+                    <p className="text-lg font-bold text-gray-900">{new Date(selectedMedicine.expiryDate).toLocaleDateString()}</p>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-4 rounded-xl">
+                    <p className="text-sm text-gray-600">Status</p>
+                    <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+                      selectedMedicine.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                      selectedMedicine.status === 'INACTIVE' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {selectedMedicine.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && selectedMedicine && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+              <div className="p-6 text-center">
+                <div className="bg-red-100 p-4 rounded-full w-fit mx-auto mb-4">
+                  <Trash2 className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Medicine</h3>
+                <p className="text-gray-600 mb-6">
+                  Are you sure you want to delete "{selectedMedicine.name}"? This action cannot be undone.
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleDelete(selectedMedicine.id)}
+                    className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all flex items-center justify-center"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Deleting...
+                      </>
+                    ) : (
+                      'Delete'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Medicine Products Grid */}
+        {isLoading && medicines.length > 0 ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {medicines.map((medicine) => {
+              const stockStatus = getStockStatus(medicine.stock);
+              const expiryStatus = getExpiryStatus(medicine.expiryDate);
+              const StockIcon = stockStatus.icon;
+              
+              return (
+                <div 
+                  key={medicine.id}
+                  className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 overflow-hidden transform hover:scale-105"
+                >
+                  {/* Medicine Image */}
+                  <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 overflow-hidden">
+                    {medicine.imageUrl ? (
+                      <img 
+                        src={medicine.imageUrl} 
+                        alt={medicine.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="w-16 h-16 text-gray-400" />
+                      </div>
+                    )}
+                    
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4">
+                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                        medicine.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                        medicine.status === 'INACTIVE' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {medicine.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Medicine Info */}
+                  <div className="p-6">
+                    <h4 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      {medicine.name}
+                    </h4>
+                    <p className="text-gray-600 mb-4 text-sm line-clamp-2">
+                      {medicine.description}
+                    </p>
+
+                    {/* Stats */}
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <DollarSign className="w-4 h-4 text-green-600" />
+                          <span className="text-sm text-gray-600">Price</span>
+                        </div>
+                        <span className="font-bold text-green-600">
+                          ${medicine.price.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <StockIcon className={`w-4 h-4 ${stockStatus.color}`} />
+                          <span className="text-sm text-gray-600">Stock</span>
+                        </div>
+                        <span className={`font-bold ${stockStatus.color}`}>
+                          {medicine.stock}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4 text-blue-600" />
+                          <span className="text-sm text-gray-600">Expiry</span>
+                        </div>
+                        <span className={`text-sm font-medium px-2 py-1 rounded-full ${expiryStatus.bg} ${expiryStatus.color}`}>
+                          {expiryStatus.text}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-between items-center">
+                      <button
+                        onClick={() => handleView(medicine)}
+                        className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200 hover:scale-110"
+                        title="View Details"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleEdit(medicine)}
+                        className="p-3 text-green-600 hover:bg-green-50 rounded-full transition-all duration-200 hover:scale-110"
+                        title="Edit Medicine"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedMedicine(medicine);
+                          setShowDeleteModal(true);
+                        }}
+                        className="p-3 text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 hover:scale-110"
+                        title="Delete Medicine"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && medicines.length === 0 && (
+          <div className="text-center py-20">
+            <Package className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">No medicines found</h3>
+            <p className="text-gray-600 mb-6">Get started by adding your first medicine to the inventory.</p>
+            <button 
+              onClick={() => setShowForm(true)}
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+            >
+              Add Your First Medicine
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
 const ProductsPanel = () => (
   <div className="space-y-6">
     <div className="flex justify-between items-center">
@@ -1314,7 +3095,11 @@ const AdminDashboard = () => {
     { id: "users", name: "Members", icon: Users },
     { id: "orders", name: "Claims", icon: ShoppingCart },
     { id: "products", name: "Plans", icon: Package },
+    { id: "AddMed", name: "addMedicines", icon: Pill },
+
   ];
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
@@ -1678,7 +3463,7 @@ const AdminDashboard = () => {
           )}
           {activeTab === "orders" && <OrdersPanel />}
           {activeTab === "products" && <ProductsPanel />}
-          {activeTab === "addMedicines" && <MedicinePanel/>}
+          {activeTab === "AddMed" && <MedicineProductsPanel/>}
         </main>
       </div>
     </div>

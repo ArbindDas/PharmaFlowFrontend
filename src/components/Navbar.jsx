@@ -1,5 +1,3 @@
-
-
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -60,6 +58,13 @@ const Navbar = () => {
               className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-300"
             >
               Contact
+            </Link>
+
+            <Link
+              to="/medicine"
+              className="px-4 py-2 text-blue-600 hover:text-blue-800"
+            >
+              Browse Medicines
             </Link>
 
             {user?.isAdmin && (

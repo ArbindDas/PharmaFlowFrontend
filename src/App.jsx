@@ -21,6 +21,7 @@ import ForgotPassword from "./components/ForgotPassword.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
+import PublicMedicines from "./components/PublicMedicines.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -34,6 +35,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/medicines" element={<Medicines />} />
+          <Route path="/medicine" element={<PublicMedicines />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<LoginPage />} />
