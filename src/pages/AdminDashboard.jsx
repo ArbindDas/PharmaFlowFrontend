@@ -1835,21 +1835,14 @@ const MedicineProductsPanel = () => {
               </div>
 
               <div className="p-6">
-                {selectedMedicine.imageUrl && (
-                  <img
-                    src={selectedMedicine.imageUrl}
-                    alt={selectedMedicine.name}
-                    crossOrigin="anonymous"
-                    onError={(e) => {
-                      console.error("Image load failed:", {
-                        url: e.target.src,
-                        status:
-                          e.target.naturalWidth === 0 ? "failed" : "loaded",
-                      });
-                      e.target.src = "/placeholder.jpg";
-                    }}
-                  />
-                )}
+                <img
+                  src={selectedMedicine.imageUrl} // S3 URL
+                  alt={selectedMedicine.name}
+                  onError={(e) => {
+                    e.target.src = "/placeholder.jpg"; // Fallback to local
+                    e.target.onerror = null; // Prevent infinite loop
+                  }}
+                />
 
                 <div className="space-y-4">
                   <div>
