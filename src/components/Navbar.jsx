@@ -41,12 +41,12 @@ const Navbar = () => {
             >
               Home
             </Link>
-            <Link
+            {/* <Link
               to="/medicines"
               className="text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 px-3 py-2 rounded-md text-sm font-medium"
             >
-              Medicines
-            </Link>
+              Medicines */}
+            {/* </Link> */}
             <Link
               to="/about"
               className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-300"
@@ -106,6 +106,13 @@ const Navbar = () => {
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300"
             >
               Register
+            </Link>
+
+            <Link
+              to="/openAI"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300"
+            >
+              AI
             </Link>
           </div>
         </div>

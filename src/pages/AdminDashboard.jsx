@@ -1298,6 +1298,9 @@ const MedicineProductsPanel = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+     console.log("Form status before submit:", formData.status); // Add this
+
+     
 
     // Validate form data
     const newErrors = {};
@@ -1378,7 +1381,12 @@ const MedicineProductsPanel = () => {
     }
   };
 
+
   const handleEdit = (medicine) => {
+        const validStatuses = ["PLACED", "APPROVED", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
+  const status = validStatuses.includes(medicine.status?.toUpperCase()) 
+    ? medicine.status.toUpperCase() 
+    : "PLACED";
     setFormData({
       name: medicine.name,
       description: medicine.description,
@@ -1386,7 +1394,8 @@ const MedicineProductsPanel = () => {
       stock: medicine.stock,
       expiryDate: medicine.expiryDate,
       imageUrl: medicine.imageUrl || "",
-      status: medicine.status,
+      // status: medicine.status,
+      status:status
     });
     setEditingId(medicine.id);
     setShowForm(true);
@@ -1708,9 +1717,14 @@ const MedicineProductsPanel = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       disabled={isLoading}
                     >
-                      <option value="ACTIVE">PLACED</option>
-                      <option value="INACTIVE">Inactive</option>
-                      <option value="DISCONTINUED">Discontinued</option>
+                      <option value="PLACED">PLACED</option>
+                      <option value="APPROVED">APPROVED</option>
+                      <option value="SHIPPED">SHIPPED</option>
+                      <option value="DELIVERED">DELIVERED</option>
+                      <option value="CANCELLED">CANCELLED</option>
+                      <option value="RETURNED">RETURNED</option>
+
+                      
                     </select>
                   </div>
                   <div className="md:col-span-2">
@@ -1766,7 +1780,7 @@ const MedicineProductsPanel = () => {
                         stock: "",
                         expiryDate: "",
                         imageUrl: "",
-                        status: "ACTIVE",
+                        status: "PLACED",
                       });
                       setImageFile(null);
                     }}
@@ -1829,7 +1843,7 @@ const MedicineProductsPanel = () => {
                     onClick={() => setShowDetailModal(false)}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-6 h-6 text-gray-500" />
                   </button>
                 </div>
               </div>
@@ -1882,9 +1896,9 @@ const MedicineProductsPanel = () => {
                     <p className="text-sm text-gray-600">Status</p>
                     <span
                       className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
-                        selectedMedicine.status === "ACTIVE"
+                        selectedMedicine.status === "PLACED"
                           ? "bg-green-100 text-green-800"
-                          : selectedMedicine.status === "INACTIVE"
+                          : selectedMedicine.status === "CANCELLED"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
                       }`}
@@ -1995,9 +2009,9 @@ const MedicineProductsPanel = () => {
                     <div className="absolute top-4 right-4">
                       <span
                         className={`px-3 py-1 text-xs font-medium rounded-full ${
-                          medicine.status === "ACTIVE"
+                          medicine.status === "PLACED"
                             ? "bg-green-100 text-green-800"
-                            : medicine.status === "INACTIVE"
+                            : medicine.status === "CANCELLED"
                             ? "bg-yellow-100 text-yellow-800"
                             : "bg-red-100 text-red-800"
                         }`}
@@ -2627,4 +2641,9 @@ const AdminDashboard = () => {
   );
 };
 
+// export default AdminDashboard;
+// export { AdminDashboard as default, MedicineProductsPanel };
+
+// At the bottom of AdminDashboard.jsx
 export default AdminDashboard;
+export { MedicineProductsPanel };  // Named export

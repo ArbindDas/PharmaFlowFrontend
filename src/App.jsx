@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import Medicines from "./pages/Medicines";
+// import Medicines from "./pages/Medicines";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./features/auth/Login.jsx";
 import RegisterPage from "./features/auth/Register";
@@ -22,6 +22,7 @@ import AdminRoute from "./components/AdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import PublicMedicines from "./components/PublicMedicines.jsx";
+import OpenAIPage from "./pages/openAIPage.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -34,12 +35,15 @@ function AppContent() {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/medicines" element={<Medicines />} />
-          <Route path="/medicine" element={<PublicMedicines />} />
+          {/* <Route path="/medicines" element={<Medicines />} /> */}
+          {/* <Route path="/medicine" element={<PublicMedicines />} /> */}
+          // In your router configuration (likely App.jsx or main.jsx)
+<Route path="/medicine" element={<PublicMedicines />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/openAI" element={<OpenAIPage/>}/>
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           <Route

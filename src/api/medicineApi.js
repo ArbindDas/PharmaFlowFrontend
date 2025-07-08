@@ -35,14 +35,20 @@ export const getMedicines = async () => {
 
 export const addMedicine = async (medicineData, imageFile) => {
   const formData = new FormData();
-  
+    console.log("Sending status:", medicineData.status); // Add this line
+    // Ensure status is uppercase and valid
+  const validStatuses = ["PLACED", "APPROVED", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
+  const status = validStatuses.includes(medicineData.status?.toUpperCase()) 
+    ? medicineData.status.toUpperCase() 
+    : "PLACED";
   // Only append necessary fields
   formData.append("name", medicineData.name);
   formData.append("description", medicineData.description);
   formData.append("price", medicineData.price.toString());
   formData.append("stock", medicineData.stock.toString());
   formData.append("expiryDate", medicineData.expiryDate);
-  formData.append("status", medicineData.status);
+  // formData.append("status", medicineData.status);
+   formData.append("status", status); // Use validated status
 
   if (imageFile) {
     formData.append("image", imageFile);
@@ -62,7 +68,18 @@ export const addMedicine = async (medicineData, imageFile) => {
   }
 };
 
+
+
+
 export const updateMedicine = async (id, formData, imageFile) => {
+   const token = localStorage.getItem("token");
+  
+  // Verify token exists
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+
   const formDataToSend = new FormData();
   
   // Append all required fields
@@ -82,15 +99,26 @@ export const updateMedicine = async (id, formData, imageFile) => {
     const response = await api.put(`/${id}`, formDataToSend, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        // Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Authorization": `Bearer ${token}`
       },
     });
     return response.data;
   } catch (error) {
+    
     console.error("Error updating medicine:", error);
+    // Handle token expiration
+      localStorage.removeItem("token");
+      window.location.href = "/login"; // Redirect to login
     throw error;
   }
 };
+
+
+
+
+
+
 
 export const deleteMedicine = async (id) => {
   try {
