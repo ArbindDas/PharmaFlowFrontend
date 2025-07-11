@@ -1,6 +1,6 @@
 import { Button, Badge, Tag, Tooltip, Modal, Descriptions, Image, Rate, Divider } from 'antd';
 import { ShoppingCartOutlined, HeartOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { 
   Pill, 
   CalendarDays, 
@@ -22,6 +22,7 @@ import {
   Scale,
   Heart
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 function PublicMedicineCard({ medicine }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -29,9 +30,27 @@ function PublicMedicineCard({ medicine }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const { isDarkMode } = useTheme();
 
   const isLowStock = medicine.stock <= 5 && medicine.stock > 0;
   const isExpiringSoon = new Date(medicine.expiryDate) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+  // Theme-aware colors
+  const themeColors = {
+    cardBg: isDarkMode ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+    cardBorder: isDarkMode ? 'rgba(71, 85, 105, 0.6)' : 'rgba(226, 232, 240, 0.6)',
+    titleColor: isDarkMode ? '#f8fafc' : '#1e293b',
+    descriptionColor: isDarkMode ? '#94a3b8' : '#64748b',
+    contentBg: isDarkMode ? 'rgba(15, 23, 42, 0.8)' : 'rgba(248, 250, 252, 0.8)',
+    metaBorder: isDarkMode ? 'rgba(71, 85, 105, 0.5)' : 'rgba(226, 232, 240, 0.5)',
+    quantityBg: isDarkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(241, 245, 249, 0.5)',
+    quantityColor: isDarkMode ? '#e2e8f0' : '#1e293b',
+    dividerColor: isDarkMode ? '#334155' : '#e2e8f0',
+    modalBg: isDarkMode ? '#1e293b' : '#ffffff',
+    modalText: isDarkMode ? '#f8fafc' : '#1e293b',
+    modalBorder: isDarkMode ? '#334155' : '#e2e8f0',
+    descriptionText: isDarkMode ? '#cbd5e1' : '#4b5563'
+  };
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -44,7 +63,7 @@ function PublicMedicineCard({ medicine }) {
   const handleAddToCart = (e) => {
     e.stopPropagation();
     console.log('Added to cart:', medicine.name, 'Quantity:', quantity);
-    setQuantity(1); // Reset quantity after adding to cart
+    setQuantity(1);
   };
 
   const handleWishlist = (e) => {
@@ -65,16 +84,16 @@ function PublicMedicineCard({ medicine }) {
 
   const cardStyle = {
     position: 'relative',
-    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+    background: themeColors.cardBg,
     borderRadius: '20px',
-    border: '1px solid rgba(226, 232, 240, 0.6)',
+    border: `1px solid ${themeColors.cardBorder}`,
     overflow: 'hidden',
     cursor: 'pointer',
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
     boxShadow: isHovered 
-      ? '0 25px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1)' 
-      : '0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+      ? `0 25px 50px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.15'}), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1)` 
+      : `0 4px 20px rgba(0, 0, 0, ${isDarkMode ? '0.2' : '0.08'}), 0 0 0 1px rgba(255, 255, 255, 0.05)`,
     backdropFilter: 'blur(20px)',
     width: '320px',
     height: '480px',
@@ -100,13 +119,13 @@ function PublicMedicineCard({ medicine }) {
     height: '140px',
     objectFit: 'contain',
     borderRadius: '16px',
-    background: 'rgba(255, 255, 255, 0.95)',
+    background: isDarkMode ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
     padding: '16px',
     backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    border: `1px solid ${isDarkMode ? 'rgba(71, 85, 105, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
     transition: 'all 0.4s ease',
     transform: isHovered ? 'scale(1.05) rotate(2deg)' : 'scale(1) rotate(0deg)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    boxShadow: `0 8px 32px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.1'})`,
   };
 
   const contentStyle = {
@@ -120,14 +139,14 @@ function PublicMedicineCard({ medicine }) {
   const titleStyle = {
     fontSize: '18px',
     fontWeight: '700',
-    color: '#1e293b',
+    color: themeColors.titleColor,
     marginBottom: '8px',
     lineHeight: '1.3',
     letterSpacing: '-0.025em',
   };
 
   const descriptionStyle = {
-    color: '#64748b',
+    color: themeColors.descriptionColor,
     fontSize: '14px',
     lineHeight: '1.5',
     marginBottom: '16px',
@@ -165,7 +184,7 @@ function PublicMedicineCard({ medicine }) {
     fontSize: '12px',
     fontWeight: '600',
     padding: '4px 12px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+    boxShadow: `0 2px 8px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.15'})`,
   };
 
   const metaInfoStyle = {
@@ -174,9 +193,9 @@ function PublicMedicineCard({ medicine }) {
     gap: '12px',
     marginBottom: '20px',
     padding: '12px',
-    background: 'rgba(248, 250, 252, 0.8)',
+    background: themeColors.contentBg,
     borderRadius: '12px',
-    border: '1px solid rgba(226, 232, 240, 0.5)',
+    border: `1px solid ${themeColors.metaBorder}`,
   };
 
   const metaItemStyle = {
@@ -184,7 +203,7 @@ function PublicMedicineCard({ medicine }) {
     alignItems: 'center',
     gap: '4px',
     fontSize: '12px',
-    color: '#64748b',
+    color: themeColors.descriptionColor,
     fontWeight: '500',
   };
 
@@ -200,8 +219,8 @@ function PublicMedicineCard({ medicine }) {
       : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
     color: 'white',
     boxShadow: medicine.stock > 0 
-      ? '0 4px 20px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-      : '0 4px 20px rgba(107, 114, 128, 0.3)',
+      ? `0 4px 20px rgba(59, 130, 246, ${isDarkMode ? '0.6' : '0.4'}), inset 0 1px 0 rgba(255, 255, 255, 0.2)`
+      : `0 4px 20px rgba(107, 114, 128, ${isDarkMode ? '0.5' : '0.3'})`,
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     letterSpacing: '0.025em',
     textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
@@ -227,10 +246,8 @@ function PublicMedicineCard({ medicine }) {
         onMouseLeave={() => setIsHovered(false)}
         onClick={showModal}
       >
-        {/* Hover overlay */}
         <div style={overlayStyle} />
         
-        {/* Status badges */}
         <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 3, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {isLowStock && (
             <Badge 
@@ -245,7 +262,7 @@ function PublicMedicineCard({ medicine }) {
                 fontSize: '10px',
                 fontWeight: '700',
                 borderRadius: '16px',
-                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
+                boxShadow: `0 2px 8px rgba(245, 158, 11, ${isDarkMode ? '0.5' : '0.3'})`,
                 border: '1px solid rgba(255, 255, 255, 0.2)'
               }} 
             />
@@ -263,14 +280,13 @@ function PublicMedicineCard({ medicine }) {
                 fontSize: '10px',
                 fontWeight: '700',
                 borderRadius: '16px',
-                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+                boxShadow: `0 2px 8px rgba(239, 68, 68, ${isDarkMode ? '0.5' : '0.3'})`,
                 border: '1px solid rgba(255, 255, 255, 0.2)'
               }} 
             />
           )}
         </div>
 
-        {/* Wishlist button */}
         <div style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 3 }}>
           <Button
             type="text"
@@ -279,39 +295,38 @@ function PublicMedicineCard({ medicine }) {
               <Heart 
                 size={18} 
                 fill={isLiked ? '#ef4444' : 'transparent'} 
-                color={isLiked ? '#ef4444' : '#64748b'} 
+                color={isLiked ? '#ef4444' : themeColors.descriptionColor} 
               />
             }
             onClick={handleWishlist}
             style={{
               width: '40px',
               height: '40px',
-              background: 'rgba(255, 255, 255, 0.95)',
+              background: isDarkMode ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              border: `1px solid ${isDarkMode ? 'rgba(71, 85, 105, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
+              boxShadow: `0 4px 20px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.1'})`,
               transition: 'all 0.3s ease',
               transform: isLiked ? 'scale(1.1)' : 'scale(1)',
             }}
           />
         </div>
 
-        {/* Rating badge */}
         {medicine.rating && (
           <div style={{ position: 'absolute', bottom: '16px', right: '16px', zIndex: 3 }}>
             <div style={{
-              background: 'rgba(255, 255, 255, 0.95)',
+              background: isDarkMode ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
               borderRadius: '12px',
               padding: '4px 8px',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              border: `1px solid ${isDarkMode ? 'rgba(71, 85, 105, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
+              boxShadow: `0 4px 20px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.1'})`,
               display: 'flex',
               alignItems: 'center',
               gap: '4px'
             }}>
               <Star size={14} fill="#f59e0b" color="#f59e0b" />
-              <span style={{ color: '#1e293b', fontSize: '12px', fontWeight: '600' }}>
+              <span style={{ color: themeColors.titleColor, fontSize: '12px', fontWeight: '600' }}>
                 {medicine.rating.toFixed(1)}
               </span>
             </div>
@@ -325,7 +340,7 @@ function PublicMedicineCard({ medicine }) {
             style={imageStyle}
             onLoad={() => setImageLoaded(true)}
             onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/140x140/e2e8f0/94a3b8?text=💊';
+              e.target.src = `https://via.placeholder.com/140x140/${isDarkMode ? '1e293b' : 'e2e8f0'}/${isDarkMode ? '94a3b8' : '64748b'}?text=💊`;
               setImageLoaded(true);
             }}
           />
@@ -334,16 +349,16 @@ function PublicMedicineCard({ medicine }) {
               width: '140px',
               height: '140px',
               borderRadius: '16px',
-              background: 'rgba(255, 255, 255, 0.95)',
+              background: isDarkMode ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              border: `1px solid ${isDarkMode ? 'rgba(71, 85, 105, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#94a3b8',
+              color: themeColors.descriptionColor,
               fontSize: '32px',
             }}>
-              <Pill size={48} color="#94a3b8" />
+              <Pill size={48} color={themeColors.descriptionColor} />
             </div>
           )}
         </div>
@@ -370,7 +385,7 @@ function PublicMedicineCard({ medicine }) {
                 <CalendarDays size={14} color="#6366f1" />
                 <span>Exp: {new Date(medicine.expiryDate).toLocaleDateString()}</span>
               </div>
-              <div style={{ width: '1px', height: '12px', background: '#e2e8f0' }} />
+              <div style={{ width: '1px', height: '12px', background: themeColors.dividerColor }} />
               <div style={metaItemStyle}>
                 <Shield size={14} color="#8b5cf6" />
                 <span>{medicine.manufacturer || 'Generic'}</span>
@@ -392,10 +407,10 @@ function PublicMedicineCard({ medicine }) {
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                background: 'rgba(241, 245, 249, 0.5)',
+                background: themeColors.quantityBg,
                 borderRadius: '8px',
                 fontWeight: '600',
-                color: '#1e293b'
+                color: themeColors.quantityColor
               }}>
                 {quantity}
               </div>
@@ -418,14 +433,14 @@ function PublicMedicineCard({ medicine }) {
             onMouseEnter={(e) => {
               if (medicine.stock > 0) {
                 e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 30px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+                e.target.style.boxShadow = `0 8px 30px rgba(59, 130, 246, ${isDarkMode ? '0.7' : '0.5'}), inset 0 1px 0 rgba(255, 255, 255, 0.2)`;
               }
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0)';
               e.target.style.boxShadow = medicine.stock > 0 
-                ? '0 4px 20px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-                : '0 4px 20px rgba(107, 114, 128, 0.3)';
+                ? `0 4px 20px rgba(59, 130, 246, ${isDarkMode ? '0.6' : '0.4'}), inset 0 1px 0 rgba(255, 255, 255, 0.2)`
+                : `0 4px 20px rgba(107, 114, 128, ${isDarkMode ? '0.5' : '0.3'})`;
             }}
           >
             {medicine.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
@@ -433,18 +448,17 @@ function PublicMedicineCard({ medicine }) {
         </div>
       </div>
 
-      {/* Medicine Details Modal */}
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Pill size={24} color="#3b82f6" />
-            <span style={{ fontSize: '20px', fontWeight: '700', color: '#1e293b' }}>
+            <span style={{ fontSize: '20px', fontWeight: '700', color: themeColors.titleColor }}>
               {medicine.name}
             </span>
             {medicine.rating && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Star size={16} fill="#f59e0b" color="#f59e0b" />
-                <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '600' }}>
+                <span style={{ color: themeColors.descriptionColor, fontSize: '14px', fontWeight: '600' }}>
                   {medicine.rating.toFixed(1)}
                 </span>
               </div>
@@ -480,7 +494,7 @@ function PublicMedicineCard({ medicine }) {
               fontWeight: '600',
               background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
               border: 'none',
-              boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3)',
+              boxShadow: `0 4px 20px rgba(59, 130, 246, ${isDarkMode ? '0.5' : '0.3'})`,
             }}
           >
             {medicine.stock > 0 ? `Add ${quantity} to Cart` : 'Out of Stock'}
@@ -489,6 +503,19 @@ function PublicMedicineCard({ medicine }) {
         width={800}
         centered
         style={{ borderRadius: '20px', overflow: 'hidden' }}
+        bodyStyle={{
+          background: themeColors.modalBg,
+          color: themeColors.modalText,
+          border: `1px solid ${themeColors.modalBorder}`,
+        }}
+        headerStyle={{
+          background: themeColors.modalBg,
+          borderBottom: `1px solid ${themeColors.modalBorder}`,
+        }}
+        footerStyle={{
+          background: themeColors.modalBg,
+          borderTop: `1px solid ${themeColors.modalBorder}`,
+        }}
       >
         <div style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
           <div style={{ flex: 1 }}>
@@ -500,11 +527,11 @@ function PublicMedicineCard({ medicine }) {
                 height: '300px',
                 objectFit: 'contain',
                 borderRadius: '16px',
-                background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                background: isDarkMode ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
                 padding: '20px',
-                border: '1px solid rgba(226, 232, 240, 0.5)',
+                border: `1px solid ${themeColors.modalBorder}`,
               }}
-              fallback="https://via.placeholder.com/300x300/e2e8f0/94a3b8?text=💊"
+              fallback={`https://via.placeholder.com/300x300/${isDarkMode ? '1e293b' : 'e2e8f0'}/${isDarkMode ? '94a3b8' : '64748b'}?text=💊`}
             />
             
             {medicine.stock > 0 && (
@@ -521,12 +548,12 @@ function PublicMedicineCard({ medicine }) {
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  background: 'rgba(241, 245, 249, 0.5)',
+                  background: themeColors.quantityBg,
                   borderRadius: '8px',
                   height: '36px',
                   fontWeight: '600',
                   fontSize: '16px',
-                  color: '#1e293b'
+                  color: themeColors.quantityColor
                 }}>
                   Quantity: {quantity}
                 </div>
@@ -541,7 +568,19 @@ function PublicMedicineCard({ medicine }) {
             )}
           </div>
           <div style={{ flex: 1 }}>
-            <Descriptions column={1} bordered>
+            <Descriptions 
+              column={1} 
+              bordered
+              labelStyle={{
+                color: themeColors.descriptionColor,
+                fontWeight: '600',
+                background: isDarkMode ? '#1e293b' : '#f8fafc'
+              }}
+              contentStyle={{
+                color: themeColors.modalText,
+                background: isDarkMode ? '#1e293b' : '#ffffff'
+              }}
+            >
               <Descriptions.Item label={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Pill size={16} /> Name</span>}>
                 {medicine.name}
               </Descriptions.Item>
@@ -559,7 +598,7 @@ function PublicMedicineCard({ medicine }) {
                 </span>
               </Descriptions.Item>
               <Descriptions.Item label={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CalendarDays size={16} /> Expiry Date</span>}>
-                <span style={{ color: isExpiringSoon ? '#ef4444' : '#64748b' }}>
+                <span style={{ color: isExpiringSoon ? '#ef4444' : themeColors.descriptionColor }}>
                   {new Date(medicine.expiryDate).toLocaleDateString()}
                 </span>
               </Descriptions.Item>
@@ -573,26 +612,53 @@ function PublicMedicineCard({ medicine }) {
           </div>
         </div>
 
-        <Divider orientation="left" style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Divider 
+          orientation="left" 
+          style={{ 
+            fontWeight: '600', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px',
+            color: themeColors.modalText
+          }}
+        >
           <Eye size={18} /> Description
         </Divider>
-        <p style={{ color: '#4b5563', lineHeight: '1.8' }}>{medicine.description}</p>
+        <p style={{ color: themeColors.descriptionText, lineHeight: '1.8' }}>{medicine.description}</p>
 
         {medicine.dosage && (
           <>
-            <Divider orientation="left" style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Divider 
+              orientation="left" 
+              style={{ 
+                fontWeight: '600', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                color: themeColors.modalText
+              }}
+            >
               <ClipboardList size={18} /> Dosage Information
             </Divider>
-            <p style={{ color: '#4b5563', lineHeight: '1.8' }}>{medicine.dosage}</p>
+            <p style={{ color: themeColors.descriptionText, lineHeight: '1.8' }}>{medicine.dosage}</p>
           </>
         )}
 
         {medicine.sideEffects && (
           <>
-            <Divider orientation="left" style={{ fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Divider 
+              orientation="left" 
+              style={{ 
+                fontWeight: '600', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                color: themeColors.modalText
+              }}
+            >
               <AlertTriangle size={18} /> Side Effects
             </Divider>
-            <p style={{ color: '#4b5563', lineHeight: '1.8' }}>{medicine.sideEffects}</p>
+            <p style={{ color: themeColors.descriptionText, lineHeight: '1.8' }}>{medicine.sideEffects}</p>
           </>
         )}
 
@@ -604,7 +670,7 @@ function PublicMedicineCard({ medicine }) {
               allowHalf 
               style={{ color: '#f59e0b' }} 
             />
-            <span style={{ color: '#64748b' }}>
+            <span style={{ color: themeColors.descriptionColor }}>
               ({medicine.rating.toFixed(1)})
             </span>
           </div>

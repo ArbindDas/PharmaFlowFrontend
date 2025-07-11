@@ -23,6 +23,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import PublicMedicines from "./components/PublicMedicines.jsx";
 import OpenAIPage from "./pages/openAIPage.jsx";
+import Test from "./components/Test.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -45,7 +46,7 @@ function AppContent() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/openAI" element={<OpenAIPage/>}/>
           <Route path="/forgot-password" element={<ForgotPassword />} />
-
+          <Route path="/test" element={<Test/>} />
           <Route
             path="/dashboard"
             element={
