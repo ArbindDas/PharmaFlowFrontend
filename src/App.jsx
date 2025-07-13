@@ -24,6 +24,11 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import PublicMedicines from "./components/PublicMedicines.jsx";
 import OpenAIPage from "./pages/openAIPage.jsx";
 import Test from "./components/Test.jsx";
+import CheckoutPage from "./pages/CheckoutPage.jsx";
+import OrderConfirmation from "./pages/OrderConfirmation.jsx";
+import { CartProvider } from "./context/CartContext.jsx";
+import { App as AntApp } from 'antd';
+import Cart from "./pages/Cart.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -39,14 +44,14 @@ function AppContent() {
           {/* <Route path="/medicines" element={<Medicines />} /> */}
           {/* <Route path="/medicine" element={<PublicMedicines />} /> */}
           // In your router configuration (likely App.jsx or main.jsx)
-<Route path="/medicine" element={<PublicMedicines />} />
+          <Route path="/medicine" element={<PublicMedicines />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/openAI" element={<OpenAIPage/>}/>
+          <Route path="/openAI" element={<OpenAIPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/test" element={<Test/>} />
+          <Route path="/test" element={<Test />} />
           <Route
             path="/dashboard"
             element={
@@ -55,17 +60,43 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="/admin"
+            path="/checkout"
             element={
-                <AdminRoute>
-                  <AdminDashboard/>
-                </AdminRoute>
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
             }
           />
 
+           <Route 
+    path="/cart" 
+    element={
+      <ProtectedRoute>
+        <Cart />
+      </ProtectedRoute>
+    } 
+  />
+
+          <Route
+
+            
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
+           <Route 
+          path="/order-confirmation" 
+          element={
+            <ProtectedRoute>
+              <OrderConfirmation />
+            </ProtectedRoute>
+          } 
+        />
         </Routes>
       </main>
       {!hideFooter && <Footer />}
@@ -81,13 +112,36 @@ function App() {
     //   </Router>
     // </AuthProvider>
 
-      <ThemeProvider> {/* Wrap with ThemeProvider */}
-      <AuthProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
+    // <ThemeProvider>
+    //   {" "}
+    //   {/* Wrap with ThemeProvider */}
+    //   <AuthProvider>
+    //     <Router>
+    //       <AppContent />
+    //     </Router>
+    //   </AuthProvider>
+    // </ThemeProvider>
+
+    // <ThemeProvider>
+    //   <AuthProvider>
+    //     <CartProvider>
+    //       <Router>
+    //         <AppContent />
+    //       </Router>
+    //     </CartProvider>
+    //   </AuthProvider>
+    // </ThemeProvider>
+    <AntApp>
+      <ThemeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </AntApp>
   );
 }
 

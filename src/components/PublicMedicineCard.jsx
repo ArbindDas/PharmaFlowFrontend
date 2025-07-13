@@ -1,4 +1,4 @@
-import { Button, Badge, Tag, Tooltip, Modal, Descriptions, Image, Rate, Divider } from 'antd';
+import { Button, Badge, Tag, Tooltip, Modal, Descriptions, Image, Rate, Divider ,message } from 'antd';
 import { ShoppingCartOutlined, HeartOutlined } from '@ant-design/icons';
 import { useState, useContext } from 'react';
 import { 
@@ -23,6 +23,9 @@ import {
   Heart
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useCart } from '../context/CartContext';
+import { App } from 'antd';
+
 
 function PublicMedicineCard({ medicine }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -31,6 +34,11 @@ function PublicMedicineCard({ medicine }) {
   const [isLiked, setIsLiked] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const { isDarkMode } = useTheme();
+
+  const { addToCart } = useCart();
+  const { useApp } = App;  // Destructure useApp from App
+   const { message } = useApp();
+ 
 
   const isLowStock = medicine.stock <= 5 && medicine.stock > 0;
   const isExpiringSoon = new Date(medicine.expiryDate) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -60,12 +68,24 @@ function PublicMedicineCard({ medicine }) {
     setIsModalVisible(false);
   };
 
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
-    console.log('Added to cart:', medicine.name, 'Quantity:', quantity);
-    setQuantity(1);
-  };
 
+
+const handleAddToCart = (e) => {
+  
+  
+ 
+  try {
+     e.stopPropagation();
+    addToCart(medicine, quantity);
+    message.success(`${quantity} ${medicine.name} added to cart!`);
+    setQuantity(1);
+    console.log("cart added successfully");
+    
+  } catch (error) {
+    message.error('Failed to add item to cart');
+    console.error('Add to cart error:', error);
+  }
+};
   const handleWishlist = (e) => {
     e.stopPropagation();
     setIsLiked(!isLiked);
@@ -448,7 +468,7 @@ function PublicMedicineCard({ medicine }) {
         </div>
       </div>
 
-      <Modal
+      {/* <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Pill size={24} color="#3b82f6" />
@@ -516,7 +536,81 @@ function PublicMedicineCard({ medicine }) {
           background: themeColors.modalBg,
           borderTop: `1px solid ${themeColors.modalBorder}`,
         }}
-      >
+      > */}
+      <Modal
+  title={
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <Pill size={24} color="#3b82f6" />
+      <span style={{ fontSize: '20px', fontWeight: '700', color: themeColors.titleColor }}>
+        {medicine.name}
+      </span>
+      {medicine.rating && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <Star size={16} fill="#f59e0b" color="#f59e0b" />
+          <span style={{ color: themeColors.descriptionColor, fontSize: '14px', fontWeight: '600' }}>
+            {medicine.rating.toFixed(1)}
+          </span>
+        </div>
+      )}
+    </div>
+  }
+  open={isModalVisible}
+  onCancel={handleModalClose}
+  footer={[
+    <Button 
+      key="share" 
+      icon={<Share2 size={16} />} 
+      onClick={(e) => {
+        e.stopPropagation();
+        console.log('Share medicine:', medicine.name);
+      }}
+      style={{ borderRadius: '8px' }}
+    >
+      Share
+    </Button>,
+    <Button key="close" onClick={handleModalClose} style={{ borderRadius: '8px' }}>
+      Close
+    </Button>,
+    <Button 
+      key="cart"
+      type="primary" 
+      icon={<ShoppingCartOutlined />}
+      disabled={medicine.stock <= 0}
+      onClick={handleAddToCart}
+      style={{
+        height: '40px',
+        borderRadius: '8px',
+        fontWeight: '600',
+        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+        border: 'none',
+        boxShadow: `0 4px 20px rgba(59, 130, 246, ${isDarkMode ? '0.5' : '0.3'})`,
+      }}
+    >
+      {medicine.stock > 0 ? `Add ${quantity} to Cart` : 'Out of Stock'}
+    </Button>
+  ]}
+  width={800}
+  centered
+  styles={{
+    body: {
+      background: themeColors.modalBg,
+      color: themeColors.modalText,
+      border: `1px solid ${themeColors.modalBorder}`,
+    },
+    header: {
+      background: themeColors.modalBg,
+      borderBottom: `1px solid ${themeColors.modalBorder}`,
+    },
+    footer: {
+      background: themeColors.modalBg,
+      borderTop: `1px solid ${themeColors.modalBorder}`,
+    },
+    content: {
+      borderRadius: '20px',
+      overflow: 'hidden'
+    }
+  }}
+>
         <div style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
           <div style={{ flex: 1 }}>
             <Image

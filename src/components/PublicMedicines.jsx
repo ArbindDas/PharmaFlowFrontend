@@ -245,7 +245,7 @@ function PublicMedicines() {
           </div>
 
           {/* Filters */}
-          <Card style={themeStyles.filterCard} bodyStyle={{ padding: '16px' }}>
+          {/* <Card style={themeStyles.filterCard} bodyStyle={{ padding: '16px' }}>
             <Space size="middle" wrap>
               <Search
                 placeholder="Search medicines, manufacturers..."
@@ -287,7 +287,57 @@ function PublicMedicines() {
                 </Button>
               )}
             </Space>
-          </Card>
+          </Card> */}
+          <Card 
+  style={themeStyles.filterCard}
+  styles={{
+    body: { 
+      padding: '16px' 
+    }
+  }}
+>
+  <Space size="middle" wrap>
+    <Search
+      placeholder="Search medicines, manufacturers..."
+      allowClear
+      enterButton={<SearchOutlined />}
+      size="middle"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      style={{ minWidth: "300px" }}
+    />
+    
+    <Select
+      value={statusFilter}
+      onChange={setStatusFilter}
+      style={{ minWidth: "120px" }}
+      size="middle"
+    >
+      <Option value="ALL">All Status</Option>
+      <Option value="APPROVED">Approved</Option>
+      <Option value="PLACED">Placed</Option>
+    </Select>
+
+    <Select
+      value={sortBy}
+      onChange={setSortBy}
+      style={{ minWidth: "140px" }}
+      size="middle"
+      prefix={<FilterOutlined />}
+    >
+      <Option value="name">Sort by Name</Option>
+      <Option value="price">Sort by Price</Option>
+      <Option value="stock">Sort by Stock</Option>
+      <Option value="recent">Most Recent</Option>
+    </Select>
+
+    {(searchTerm || statusFilter !== "ALL" || sortBy !== "name") && (
+      <Button onClick={handleClearFilters} type="link" style={{ color: isDarkMode ? '#3b82f6' : '#1890ff' }}>
+        Clear Filters
+      </Button>
+    )}
+  </Space>
+</Card>
         </div>
 
         {/* Results Info */}

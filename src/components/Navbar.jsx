@@ -2,10 +2,13 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { Moon, Sun } from "lucide-react";
-
+import { Badge } from 'antd';  // Add this import
+import { ShoppingCartOutlined } from '@ant-design/icons';  // Make sure this is imported
+import { useCart } from "../context/CartContext"; // Add this import
 const Navbar = () => {
   const { user } = useAuth();
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const { cart } = useCart();  // Destructure cart from useCart()
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 transition-colors duration-200">
@@ -75,6 +78,15 @@ const Navbar = () => {
               Browse Medicines
             </Link>
 
+            <Link 
+              to="/cart" 
+              className="p-2 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+            >
+              <Badge count={cart.length} showZero>
+                <ShoppingCartOutlined style={{ fontSize: '20px' }} />
+              </Badge>
+            </Link>
+
             {user?.isAdmin && (
               <Link
                 to="/admin/dashboard"
@@ -82,6 +94,8 @@ const Navbar = () => {
               >
                 Admin Dashboard
               </Link>
+
+              
             )}
           </div>
 
