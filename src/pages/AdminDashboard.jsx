@@ -23,6 +23,9 @@ import {
   MoreVertical,
   Menu,
   Pill,
+  icons,
+  Zap,
+  
 } from "lucide-react";
 import authService from "../api/auth";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
@@ -38,13 +41,836 @@ import { toast } from "react-toastify"; // or your toast library
 import "react-toastify/dist/ReactToastify.css";
 import AddMemberModal from "../components/AddMemberModal";
 import { SearchX } from "lucide-react";
-import { useTheme } from "../context/ThemeContext";
+// import { useTheme } from "../context/ThemeContext";
 import {
   addMedicine,
   updateMedicine,
   deleteMedicine,
   getMedicines,
 } from "../api/medicineApi";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
+import { Badge, Card, Typography, Empty, Spin } from "antd";
+import ErrorBoundary from "../components/ErrorBoundary";
+import { useTheme } from "../hooks/useTheme";
+
+const { Title, Text } = Typography;
+
+const ChartBar = ({ medicines = [], isLoading = false }) => {
+  const { isDarkMode } = useTheme();
+
+  // Process medicine data for the chart with fallback for undefined medicines
+  const processStockData = () => {
+    if (!medicines || !Array.isArray(medicines)) return [];
+
+    return medicines.map((medicine) => {
+      const status =
+        medicine.stock === 0
+          ? "Out of Stock"
+          : medicine.stock <= 5
+          ? "Low Stock"
+          : medicine.stock <= 15
+          ? "Medium Stock"
+          : "High Stock";
+
+      return {
+        name: medicine.name || "Unknown",
+        stock: medicine.stock || 0,
+        status,
+        price: medicine.price || 0,
+        expiryDate: medicine.expiryDate
+          ? new Date(medicine.expiryDate)
+          : new Date(),
+        isExpiringSoon: medicine.expiryDate
+          ? new Date(medicine.expiryDate) <=
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          : false,
+      };
+    });
+  };
+
+  const stockData = processStockData();
+
+  // Custom shape for the bars with enhanced styling
+  const CustomBarShape = (props) => {
+    const { x, y, width, height, status } = props;
+
+    let fill, shadowColor;
+    switch (status) {
+      case "High Stock":
+        fill = "#10b981";
+        shadowColor = "rgba(16, 185, 129, 0.3)";
+        break;
+      case "Medium Stock":
+        fill = "#f59e0b";
+        shadowColor = "rgba(245, 158, 11, 0.3)";
+        break;
+      case "Low Stock":
+        fill = "#ef4444";
+        shadowColor = "rgba(239, 68, 68, 0.3)";
+        break;
+      default:
+        fill = "#6b7280";
+        shadowColor = "rgba(107, 114, 128, 0.3)";
+    }
+
+    return (
+      <g>
+        {/* Shadow effect */}
+        <rect
+          x={x + 2}
+          y={y + 2}
+          width={width}
+          height={height}
+          rx={8}
+          ry={8}
+          fill={shadowColor}
+          style={{ filter: "blur(2px)" }}
+        />
+        {/* Main bar with gradient */}
+        <defs>
+          <linearGradient id={`gradient-${status}`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={fill} stopOpacity={0.8} />
+            <stop offset="100%" stopColor={fill} stopOpacity={1} />
+          </linearGradient>
+        </defs>
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          rx={8}
+          ry={8}
+          fill={`url(#gradient-${status})`}
+          style={{
+            transition: "all 0.3s ease",
+            filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))",
+          }}
+        />
+        {/* Shine effect */}
+        <rect
+          x={x + 4}
+          y={y + 4}
+          width={width - 8}
+          height={height * 0.25}
+          rx={4}
+          ry={4}
+          fill="white"
+          fillOpacity={0.3}
+        />
+        {/* Subtle border */}
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          rx={8}
+          ry={8}
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.2)"
+          strokeWidth={1}
+        />
+      </g>
+    );
+  };
+
+  // Enhanced custom tooltip
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const data = payload[0].payload;
+    return (
+      <div
+        className={`p-5 rounded-2xl shadow-2xl border backdrop-blur-xl transform transition-all duration-300
+        ${
+          isDarkMode
+            ? "bg-slate-800/95 border-slate-600/50 shadow-slate-900/50"
+            : "bg-white/95 border-slate-200/50 shadow-slate-800/10"
+        }`}
+        style={{
+          background: isDarkMode
+            ? "linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95))"
+            : "linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95))",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+        }}
+      >
+        <div className="space-y-3">
+          <p
+            className={`font-bold text-lg ${
+              isDarkMode ? "text-white" : "text-slate-800"
+            }`}
+          >
+            {label}
+          </p>
+          <div
+            className={`flex items-center gap-3 p-3 rounded-lg ${
+              data.status === "High Stock"
+                ? "bg-emerald-500/20"
+                : data.status === "Medium Stock"
+                ? "bg-amber-500/20"
+                : data.status === "Low Stock"
+                ? "bg-red-500/20"
+                : "bg-gray-500/20"
+            }`}
+          >
+            <div
+              className={`w-3 h-3 rounded-full ${
+                data.status === "High Stock"
+                  ? "bg-emerald-500"
+                  : data.status === "Medium Stock"
+                  ? "bg-amber-500"
+                  : data.status === "Low Stock"
+                  ? "bg-red-500"
+                  : "bg-gray-500"
+              }`}
+            ></div>
+            <span
+              className={`font-semibold ${
+                data.status === "High Stock"
+                  ? "text-emerald-600"
+                  : data.status === "Medium Stock"
+                  ? "text-amber-600"
+                  : data.status === "Low Stock"
+                  ? "text-red-600"
+                  : "text-gray-600"
+              }`}
+            >
+              {data.status} ({data.stock} units)
+            </span>
+          </div>
+          <div className="space-y-2">
+            <p
+              className={`font-medium ${
+                isDarkMode ? "text-slate-300" : "text-slate-700"
+              }`}
+            >
+              Price:{" "}
+              <span className="font-bold text-blue-500">Rs{data.price}</span>
+            </p>
+            <p
+              className={`font-medium ${
+                data.isExpiringSoon
+                  ? "text-red-500"
+                  : isDarkMode
+                  ? "text-slate-300"
+                  : "text-slate-700"
+              }`}
+            >
+              Expiry:{" "}
+              <span className="font-bold">
+                {data.expiryDate.toLocaleDateString()}
+              </span>
+              {data.isExpiringSoon && (
+                <span className="ml-2 px-2 py-1 bg-red-500 text-white text-xs rounded-full">
+                  Soon
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Stock summary statistics
+  const stockSummary = {
+    total: medicines?.length || 0,
+    high: medicines?.filter((m) => m?.stock > 15).length || 0,
+    medium:
+      medicines?.filter((m) => m?.stock > 5 && m?.stock <= 15).length || 0,
+    low: medicines?.filter((m) => m?.stock <= 5 && m?.stock > 0).length || 0,
+    out: medicines?.filter((m) => m?.stock === 0).length || 0,
+    expiringSoon:
+      medicines?.filter(
+        (m) =>
+          m?.expiryDate &&
+          new Date(m.expiryDate) <=
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      ).length || 0,
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-full p-4">
+        <div
+          className={`flex justify-center items-center h-80 rounded-2xl ${
+            isDarkMode ? "bg-slate-800/50" : "bg-white/50"
+          }`}
+          style={{ backdropFilter: "blur(10px)" }}
+        >
+          <div className="text-center space-y-4">
+            <Spin size="large" />
+            <Text
+              className={`${
+                isDarkMode ? "text-slate-300" : "text-slate-600"
+              } text-lg`}
+            >
+              Loading stock data...
+            </Text>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!medicines || medicines.length === 0) {
+    return (
+      <div className="w-full p-4">
+        <Card
+          className={`rounded-2xl border-0 shadow-xl ${
+            isDarkMode ? "bg-slate-800/80" : "bg-white/80"
+          }`}
+          style={{ backdropFilter: "blur(10px)" }}
+        >
+          <div className="py-12">
+            <Empty
+              description={
+                <Text
+                  className={`${
+                    isDarkMode ? "text-slate-300" : "text-slate-600"
+                  } text-lg`}
+                >
+                  No medicine data available
+                </Text>
+              }
+            />
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full p-4">
+      <Card
+        className={`rounded-3xl overflow-hidden border-0 shadow-2xl transition-all duration-500 hover:shadow-3xl
+          ${isDarkMode ? "shadow-slate-900/50" : "shadow-slate-200/50"}`}
+        style={{
+          background: isDarkMode
+            ? "linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.8))"
+            : "linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.8))",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+        }}
+      >
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
+          <div className="space-y-2">
+            <Title
+              level={2}
+              className={`m-0 font-bold bg-gradient-to-r ${
+                isDarkMode
+                  ? "from-blue-400 to-purple-400"
+                  : "from-blue-600 to-purple-600"
+              } bg-clip-text text-transparent`}
+            >
+              Stock Overview
+            </Title>
+            <Text
+              className={`${
+                isDarkMode ? "text-slate-300" : "text-slate-500"
+              } text-base`}
+            >
+              Visual representation of your medicine inventory
+            </Text>
+          </div>
+
+          {/* Enhanced Badge Section */}
+          <div className="flex flex-wrap gap-4">
+            {/* High Stock Badge */}
+            <div
+              className={`group relative flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer
+              ${
+                stockSummary.high > 0
+                  ? "bg-gradient-to-r from-emerald-500/20 to-emerald-400/20 border border-emerald-500/40 shadow-lg shadow-emerald-500/20"
+                  : "bg-gray-500/10 border border-gray-500/20"
+              }`}
+              style={{ backdropFilter: "blur(10px)" }}
+            >
+              <div
+                className={`relative w-4 h-4 rounded-full ${
+                  stockSummary.high > 0 ? "bg-emerald-500" : "bg-gray-400"
+                }`}
+              >
+                {stockSummary.high > 0 && (
+                  <>
+                    <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500"></div>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <Text
+                  className={`font-bold text-lg leading-none ${
+                    stockSummary.high > 0 ? "text-emerald-600" : "text-gray-500"
+                  }`}
+                >
+                  {stockSummary.high}
+                </Text>
+                <Text
+                  className={`text-xs font-medium ${
+                    stockSummary.high > 0 ? "text-emerald-700" : "text-gray-500"
+                  }`}
+                >
+                  High Stock
+                </Text>
+              </div>
+              {stockSummary.high > 0 && (
+                <div className="absolute top-0 right-0 w-2 h-2 bg-emerald-400 rounded-full transform translate-x-1 -translate-y-1"></div>
+              )}
+            </div>
+
+            {/* Medium Stock Badge */}
+            <div
+              className={`group relative flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer
+              ${
+                stockSummary.medium > 0
+                  ? "bg-gradient-to-r from-amber-500/20 to-amber-400/20 border border-amber-500/40 shadow-lg shadow-amber-500/20"
+                  : "bg-gray-500/10 border border-gray-500/20"
+              }`}
+              style={{ backdropFilter: "blur(10px)" }}
+            >
+              <div
+                className={`relative w-4 h-4 rounded-full ${
+                  stockSummary.medium > 0 ? "bg-amber-500" : "bg-gray-400"
+                }`}
+              >
+                {stockSummary.medium > 0 && (
+                  <>
+                    <div className="absolute inset-0 rounded-full bg-amber-500 animate-ping opacity-75"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500"></div>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <Text
+                  className={`font-bold text-lg leading-none ${
+                    stockSummary.medium > 0 ? "text-amber-600" : "text-gray-500"
+                  }`}
+                >
+                  {stockSummary.medium}
+                </Text>
+                <Text
+                  className={`text-xs font-medium ${
+                    stockSummary.medium > 0 ? "text-amber-700" : "text-gray-500"
+                  }`}
+                >
+                  Medium Stock
+                </Text>
+              </div>
+              {stockSummary.medium > 0 && (
+                <div className="absolute top-0 right-0 w-2 h-2 bg-amber-400 rounded-full transform translate-x-1 -translate-y-1"></div>
+              )}
+            </div>
+
+            {/* Low Stock Badge */}
+            <div
+              className={`group relative flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer
+              ${
+                stockSummary.low > 0
+                  ? "bg-gradient-to-r from-red-500/20 to-red-400/20 border border-red-500/40 shadow-lg shadow-red-500/20"
+                  : "bg-gray-500/10 border border-gray-500/20"
+              }`}
+              style={{ backdropFilter: "blur(10px)" }}
+            >
+              <div
+                className={`relative w-4 h-4 rounded-full ${
+                  stockSummary.low > 0 ? "bg-red-500" : "bg-gray-400"
+                }`}
+              >
+                {stockSummary.low > 0 && (
+                  <>
+                    <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 to-red-500"></div>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <Text
+                  className={`font-bold text-lg leading-none ${
+                    stockSummary.low > 0 ? "text-red-600" : "text-gray-500"
+                  }`}
+                >
+                  {stockSummary.low}
+                </Text>
+                <Text
+                  className={`text-xs font-medium ${
+                    stockSummary.low > 0 ? "text-red-700" : "text-gray-500"
+                  }`}
+                >
+                  Low Stock
+                </Text>
+              </div>
+              {stockSummary.low > 0 && (
+                <div className="absolute top-0 right-0 w-2 h-2 bg-red-400 rounded-full transform translate-x-1 -translate-y-1 animate-pulse"></div>
+              )}
+            </div>
+
+            {/* Out of Stock Badge */}
+            <div
+              className={`group relative flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer
+              ${
+                stockSummary.out > 0
+                  ? "bg-gradient-to-r from-gray-500/20 to-gray-400/20 border border-gray-500/40 shadow-lg shadow-gray-500/20"
+                  : "bg-gray-500/10 border border-gray-500/20"
+              }`}
+              style={{ backdropFilter: "blur(10px)" }}
+            >
+              <div
+                className={`relative w-4 h-4 rounded-full ${
+                  stockSummary.out > 0 ? "bg-gray-500" : "bg-gray-400"
+                }`}
+              >
+                {stockSummary.out > 0 && (
+                  <>
+                    <div className="absolute inset-0 rounded-full bg-gray-500 animate-ping opacity-75"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gray-400 to-gray-500"></div>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <Text
+                  className={`font-bold text-lg leading-none ${
+                    stockSummary.out > 0 ? "text-gray-600" : "text-gray-500"
+                  }`}
+                >
+                  {stockSummary.out}
+                </Text>
+                <Text
+                  className={`text-xs font-medium ${
+                    stockSummary.out > 0 ? "text-gray-700" : "text-gray-500"
+                  }`}
+                >
+                  Out of Stock
+                </Text>
+              </div>
+              {stockSummary.out > 0 && (
+                <div className="absolute top-0 right-0 w-2 h-2 bg-gray-400 rounded-full transform translate-x-1 -translate-y-1"></div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Chart Section */}
+        <div
+          className={`h-96 w-full p-6 rounded-2xl ${
+            isDarkMode ? "bg-slate-900/30" : "bg-white/30"
+          }`}
+          style={{ backdropFilter: "blur(10px)" }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={stockData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 60,
+              }}
+              layout="vertical"
+            >
+              <CartesianGrid
+                strokeDasharray="5 5"
+                stroke={isDarkMode ? "#475569" : "#cbd5e1"}
+                strokeOpacity={0.3}
+                horizontal={false}
+              />
+              <XAxis
+                type="number"
+                stroke={isDarkMode ? "#94a3b8" : "#64748b"}
+                tickLine={false}
+                axisLine={false}
+                fontSize={12}
+                fontWeight={500}
+              />
+              <YAxis
+                dataKey="name"
+                type="category"
+                width={140}
+                stroke={isDarkMode ? "#94a3b8" : "#64748b"}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 13, fontWeight: 500 }}
+              />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{
+                  fill: isDarkMode
+                    ? "rgba(255, 255, 255, 0.05)"
+                    : "rgba(0, 0, 0, 0.02)",
+                  radius: 12,
+                }}
+                wrapperStyle={{ zIndex: 1000 }}
+              />
+              <Bar
+                dataKey="stock"
+                name="Stock Level"
+                shape={<CustomBarShape />}
+                barSize={40}
+                radius={[0, 8, 8, 0]}
+              >
+                {stockData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} status={entry.status} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Enhanced Stock Insights */}
+        <div
+          className={`mt-8 p-8 rounded-2xl border transition-all duration-300
+          ${
+            isDarkMode
+              ? "bg-slate-800/40 border-slate-700/50"
+              : "bg-slate-50/40 border-slate-200/50"
+          }`}
+          style={{ backdropFilter: "blur(10px)" }}
+        >
+          <Title
+            level={3}
+            className={`mb-6 flex items-center gap-3 ${
+              isDarkMode ? "text-slate-100" : "text-slate-800"
+            }`}
+          >
+            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+            Stock Insights
+          </Title>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Critical Items Card */}
+            <div
+              className={`p-6 rounded-xl border transition-all duration-300 hover:shadow-lg hover:scale-[1.02]
+              ${
+                isDarkMode
+                  ? "bg-slate-800/50 border-slate-700/50 hover:bg-slate-800/70"
+                  : "bg-white/50 border-slate-200/50 hover:bg-white/70"
+              }`}
+              style={{ backdropFilter: "blur(10px)" }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <Text
+                  className={`font-bold text-lg ${
+                    isDarkMode ? "text-slate-200" : "text-slate-700"
+                  }`}
+                >
+                  Critical Items
+                </Text>
+                <div className="flex items-center gap-2 px-3 py-1 bg-red-500/20 rounded-full border border-red-500/30">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <Text className="text-red-600 font-bold">
+                    {stockSummary.low}
+                  </Text>
+                </div>
+              </div>
+              <div className="space-y-3 max-h-32 overflow-y-auto">
+                {stockData
+                  .filter((item) => item.status === "Low Stock")
+                  .map((item) => (
+                    <div
+                      key={item.name}
+                      className={`flex items-center justify-between p-3 rounded-lg ${
+                        isDarkMode ? "bg-slate-900/30" : "bg-slate-100/30"
+                      }`}
+                    >
+                      <Text
+                        className={`font-medium ${
+                          isDarkMode ? "text-slate-300" : "text-slate-600"
+                        }`}
+                      >
+                        {item.name}
+                      </Text>
+                      <div className="flex items-center gap-2">
+                        <Text className="text-red-500 font-bold">
+                          {item.stock}
+                        </Text>
+                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                      </div>
+                    </div>
+                  ))}
+                {stockSummary.low === 0 && (
+                  <div className="text-center py-4">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-slate-400" : "text-slate-500"
+                      } italic`}
+                    >
+                      No critical items
+                    </Text>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Expiring Soon Card */}
+            <div
+              className={`p-6 rounded-xl border transition-all duration-300 hover:shadow-lg hover:scale-[1.02]
+              ${
+                isDarkMode
+                  ? "bg-slate-800/50 border-slate-700/50 hover:bg-slate-800/70"
+                  : "bg-white/50 border-slate-200/50 hover:bg-white/70"
+              }`}
+              style={{ backdropFilter: "blur(10px)" }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <Text
+                  className={`font-bold text-lg ${
+                    isDarkMode ? "text-slate-200" : "text-slate-700"
+                  }`}
+                >
+                  Expiring Soon
+                </Text>
+                <div className="flex items-center gap-2 px-3 py-1 bg-amber-500/20 rounded-full border border-amber-500/30">
+                  <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                  <Text className="text-amber-600 font-bold">
+                    {stockSummary.expiringSoon}
+                  </Text>
+                </div>
+              </div>
+              <div className="space-y-3 max-h-32 overflow-y-auto">
+                {stockData
+                  .filter((item) => item.isExpiringSoon)
+                  .map((item) => (
+                    <div
+                      key={item.name}
+                      className={`flex items-center justify-between p-3 rounded-lg ${
+                        isDarkMode ? "bg-slate-900/30" : "bg-slate-100/30"
+                      }`}
+                    >
+                      <Text
+                        className={`font-medium ${
+                          isDarkMode ? "text-slate-300" : "text-slate-600"
+                        }`}
+                      >
+                        {item.name}
+                      </Text>
+                      <Text className="text-amber-500 font-bold text-sm">
+                        {item.expiryDate.toLocaleDateString()}
+                      </Text>
+                    </div>
+                  ))}
+                {stockSummary.expiringSoon === 0 && (
+                  <div className="text-center py-4">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-slate-400" : "text-slate-500"
+                      } italic`}
+                    >
+                      No expiring items
+                    </Text>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Stock Status Card */}
+            <div
+              className={`p-6 rounded-xl border transition-all duration-300 hover:shadow-lg hover:scale-[1.02]
+              ${
+                isDarkMode
+                  ? "bg-slate-800/50 border-slate-700/50 hover:bg-slate-800/70"
+                  : "bg-white/50 border-slate-200/50 hover:bg-white/70"
+              }`}
+              style={{ backdropFilter: "blur(10px)" }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <Text
+                  className={`font-bold text-lg ${
+                    isDarkMode ? "text-slate-200" : "text-slate-700"
+                  }`}
+                >
+                  Stock Status
+                </Text>
+                <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/20 rounded-full border border-emerald-500/30">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  <Text className="text-emerald-600 font-bold">
+                    {stockSummary.total
+                      ? Math.round(
+                          (stockSummary.high / stockSummary.total) * 100
+                        )
+                      : 0}
+                    %
+                  </Text>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Text
+                      className={`font-medium ${
+                        isDarkMode ? "text-slate-300" : "text-slate-600"
+                      }`}
+                    >
+                      High Stock
+                    </Text>
+                    <Text className="text-emerald-500 font-bold">
+                      {stockSummary.high}
+                    </Text>
+                  </div>
+                  <div
+                    className={`flex-1 rounded-full h-3 overflow-hidden ${
+                      isDarkMode ? "bg-slate-700" : "bg-slate-200"
+                    }`}
+                  >
+                    <div
+                      className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-3 rounded-full transition-all duration-1000 ease-out"
+                      style={{
+                        width: `${
+                          (stockSummary.high / (stockSummary.total || 1)) * 100
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Text
+                      className={`font-medium ${
+                        isDarkMode ? "text-slate-300" : "text-slate-600"
+                      }`}
+                    >
+                      Out of Stock
+                    </Text>
+                    <Text className="text-gray-500 font-bold">
+                      {stockSummary.out}
+                    </Text>
+                  </div>
+                  <div
+                    className={`flex-1 rounded-full h-3 overflow-hidden ${
+                      isDarkMode ? "bg-slate-700" : "bg-slate-200"
+                    }`}
+                  >
+                    <div
+                      className="bg-gradient-to-r from-gray-500 to-gray-400 h-3 rounded-full transition-all duration-1000 ease-out"
+                      style={{
+                        width: `${
+                          (stockSummary.out / (stockSummary.total || 1)) * 100
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// export default ChartBar;
 
 const AnimatedCard = ({
   children,
@@ -1298,9 +2124,7 @@ const MedicineProductsPanel = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-     console.log("Form status before submit:", formData.status); // Add this
-
-     
+    console.log("Form status before submit:", formData.status); // Add this
 
     // Validate form data
     const newErrors = {};
@@ -1381,12 +2205,18 @@ const MedicineProductsPanel = () => {
     }
   };
 
-
   const handleEdit = (medicine) => {
-        const validStatuses = ["PLACED", "APPROVED", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
-  const status = validStatuses.includes(medicine.status?.toUpperCase()) 
-    ? medicine.status.toUpperCase() 
-    : "PLACED";
+    const validStatuses = [
+      "PLACED",
+      "APPROVED",
+      "SHIPPED",
+      "DELIVERED",
+      "CANCELLED",
+      "RETURNED",
+    ];
+    const status = validStatuses.includes(medicine.status?.toUpperCase())
+      ? medicine.status.toUpperCase()
+      : "PLACED";
     setFormData({
       name: medicine.name,
       description: medicine.description,
@@ -1395,7 +2225,7 @@ const MedicineProductsPanel = () => {
       expiryDate: medicine.expiryDate,
       imageUrl: medicine.imageUrl || "",
       // status: medicine.status,
-      status:status
+      status: status,
     });
     setEditingId(medicine.id);
     setShowForm(true);
@@ -1723,8 +2553,6 @@ const MedicineProductsPanel = () => {
                       <option value="DELIVERED">DELIVERED</option>
                       <option value="CANCELLED">CANCELLED</option>
                       <option value="RETURNED">RETURNED</option>
-
-                      
                     </select>
                   </div>
                   <div className="md:col-span-2">
@@ -2238,13 +3066,16 @@ const ProductsPanel = () => (
 
 const AdminDashboard = () => {
   const { isDarkMode } = useTheme();
+
   // const { user, logout } = useAuth();
-  const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [medicines, setMedicines] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchMembers = async () => {
     try {
@@ -2263,12 +3094,34 @@ const AdminDashboard = () => {
     fetchMembers();
   }, []);
 
+  // Fetch medicines data
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getMedicines();
+        setMedicines(data);
+        console.log("Fetched medicines:", data); // Debug log
+      } catch (error) {
+        console.error("Error fetching medicines:", error);
+        // Optional: show error to user
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (activeTab === "chart") {
+      fetchMedicines();
+    }
+  }, [activeTab]);
+
   const navigation = [
     { id: "dashboard", name: "Overview", icon: Activity },
     { id: "users", name: "Members", icon: Users },
     { id: "orders", name: "Claims", icon: ShoppingCart },
     { id: "products", name: "Plans", icon: Package },
     { id: "AddMed", name: "addMedicines", icon: Pill },
+    { id: "chart", name: "ChartBar", icon: BarChart },
   ];
 
   return (
@@ -2635,6 +3488,25 @@ const AdminDashboard = () => {
           {activeTab === "orders" && <OrdersPanel />}
           {activeTab === "products" && <ProductsPanel />}
           {activeTab === "AddMed" && <MedicineProductsPanel />}
+          {/* {activeTab === "chart" && <ChartBar/>} */}
+          {activeTab === "chart" && (
+            <ErrorBoundary
+              fallback={
+                <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                  <h3 className="text-red-800 font-medium">Chart Error</h3>
+                  <p className="text-red-700">Could not display the chart</p>
+                </div>
+              }
+            >
+              {isLoading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+              ) : (
+                <ChartBar medicines={medicines} />
+              )}
+            </ErrorBoundary>
+          )}
         </main>
       </div>
     </div>
@@ -2646,4 +3518,4 @@ const AdminDashboard = () => {
 
 // At the bottom of AdminDashboard.jsx
 export default AdminDashboard;
-export { MedicineProductsPanel };  // Named export
+export { MedicineProductsPanel }; // Named export

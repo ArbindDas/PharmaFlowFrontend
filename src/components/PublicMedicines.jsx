@@ -1,25 +1,25 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { 
-  Row, 
-  Col, 
-  Spin, 
-  message, 
-  Input, 
-  Select, 
-  Button, 
-  Empty, 
+import {
+  Row,
+  Col,
+  Spin,
+  message,
+  Input,
+  Select,
+  Button,
+  Empty,
   Alert,
   Card,
   Space,
   Badge,
-  ConfigProvider
+  ConfigProvider,
 } from "antd";
-import { 
-  SearchOutlined, 
-  ReloadOutlined, 
+import {
+  SearchOutlined,
+  ReloadOutlined,
   FilterOutlined,
-  MedicineBoxOutlined 
+  MedicineBoxOutlined,
 } from "@ant-design/icons";
 import { getPublicMedicines } from "../api/publicApi";
 import PublicMedicineCard from "../components/PublicMedicineCard";
@@ -38,49 +38,20 @@ function PublicMedicines() {
   const [refreshing, setRefreshing] = useState(false);
   const { isDarkMode } = useTheme();
 
-  // Theme-aware styles matching PublicMedicineCard
-  const themeStyles = {
-    container: {
-      background: isDarkMode ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-      color: isDarkMode ? '#f8fafc' : '#1e293b',
-      minHeight: '100vh',
-      padding: '24px'
-    },
-    header: {
-      color: isDarkMode ? '#f8fafc' : '#1e293b'
-    },
-    card: {
-      background: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
-      borderColor: isDarkMode ? 'rgba(71, 85, 105, 0.6)' : 'rgba(226, 232, 240, 0.6)',
-      backdropFilter: 'blur(20px)'
-    },
-    filterCard: {
-      background: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : 'rgba(248, 250, 252, 0.8)',
-      borderColor: isDarkMode ? 'rgba(71, 85, 105, 0.5)' : 'rgba(226, 232, 240, 0.5)',
-      backdropFilter: 'blur(20px)'
-    },
-    textMuted: {
-      color: isDarkMode ? '#94a3b8' : '#64748b'
-    },
-    divider: {
-      backgroundColor: isDarkMode ? '#334155' : '#e2e8f0'
-    }
-  };
-
   const fetchMedicines = async (showRefreshIndicator = false) => {
     try {
       if (showRefreshIndicator) setRefreshing(true);
       else setLoading(true);
-      
+
       setError(null);
-      
+
       const data = await getPublicMedicines();
       const approvedMedicines = data.filter(
         (med) => med.status === "APPROVED" || med.status === "PLACED"
       );
-      
+
       setMedicines(approvedMedicines);
-      
+
       if (showRefreshIndicator) {
         message.success("Medicines refreshed successfully");
       }
@@ -104,16 +75,23 @@ function PublicMedicines() {
 
     // Apply search filter
     if (searchTerm) {
-      filtered = filtered.filter(medicine =>
-        medicine.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        medicine.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        medicine.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (medicine) =>
+          medicine.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          medicine.description
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          medicine.manufacturer
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase())
       );
     }
 
     // Apply status filter
     if (statusFilter !== "ALL") {
-      filtered = filtered.filter(medicine => medicine.status === statusFilter);
+      filtered = filtered.filter(
+        (medicine) => medicine.status === statusFilter
+      );
     }
 
     // Apply sorting
@@ -147,16 +125,12 @@ function PublicMedicines() {
 
   if (loading && !refreshing) {
     return (
-      <div style={themeStyles.container}>
-        <div style={{ 
-          display: "flex", 
-          justifyContent: "center", 
-          alignItems: "center", 
-          minHeight: "50vh",
-          flexDirection: "column"
-        }}>
+      <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gradient-to-br from-slate-800 to-slate-900" : "bg-gradient-to-br from-white to-slate-50"}`}>
+        <div className="flex justify-center items-center min-h-[50vh] flex-col">
           <Spin size="large" />
-          <p style={{ marginTop: "16px", ...themeStyles.textMuted }}>Loading medicines...</p>
+          <p className={`mt-4 ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+            Loading medicines...
+          </p>
         </div>
       </div>
     );
@@ -164,7 +138,7 @@ function PublicMedicines() {
 
   if (error && !medicines.length) {
     return (
-      <div style={themeStyles.container}>
+      <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gradient-to-br from-slate-800 to-slate-900" : "bg-gradient-to-br from-white to-slate-50"}`}>
         <Alert
           message="Error Loading Medicines"
           description={error}
@@ -184,54 +158,60 @@ function PublicMedicines() {
     <ConfigProvider
       theme={{
         token: {
-          colorBgContainer: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
-          colorText: isDarkMode ? '#f8fafc' : '#1e293b',
-          colorBorder: isDarkMode ? 'rgba(71, 85, 105, 0.6)' : 'rgba(226, 232, 240, 0.6)',
-          colorPrimary: '#3b82f6',
-          colorTextPlaceholder: isDarkMode ? '#64748b' : '#94a3b8',
-          colorBgElevated: isDarkMode ? '#1e293b' : '#ffffff',
-          colorTextQuaternary: isDarkMode ? '#94a3b8' : '#64748b',
+          colorBgContainer: isDarkMode
+            ? "rgba(30, 41, 59, 0.8)"
+            : "rgba(255, 255, 255, 0.95)",
+          colorText: isDarkMode ? "#f8fafc" : "#1e293b",
+          colorBorder: isDarkMode
+            ? "rgba(71, 85, 105, 0.6)"
+            : "rgba(226, 232, 240, 0.6)",
+          colorPrimary: "#3b82f6",
+          colorTextPlaceholder: isDarkMode ? "#64748b" : "#94a3b8",
+          colorBgElevated: isDarkMode ? "#1e293b" : "#ffffff",
+          colorTextQuaternary: isDarkMode ? "#94a3b8" : "#64748b",
         },
         components: {
           Card: {
-            colorBgContainer: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
-            colorBorderSecondary: isDarkMode ? 'rgba(71, 85, 105, 0.5)' : 'rgba(226, 232, 240, 0.5)',
+            colorBgContainer: isDarkMode
+              ? "rgba(30, 41, 59, 0.8)"
+              : "rgba(255, 255, 255, 0.95)",
+            colorBorderSecondary: isDarkMode
+              ? "rgba(71, 85, 105, 0.5)"
+              : "rgba(226, 232, 240, 0.5)",
           },
           Select: {
-            optionSelectedBg: isDarkMode ? 'rgba(59, 130, 246, 0.2)' : '#e6f7ff',
-            optionActiveBg: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : '#f5f5f5',
+            optionSelectedBg: isDarkMode
+              ? "rgba(59, 130, 246, 0.2)"
+              : "#e6f7ff",
+            optionActiveBg: isDarkMode ? "rgba(59, 130, 246, 0.1)" : "#f5f5f5",
           },
           Input: {
-            colorBgContainer: isDarkMode ? 'rgba(15, 23, 42, 0.5)' : '#ffffff',
-            colorBorder: isDarkMode ? 'rgba(71, 85, 105, 0.6)' : '#d9d9d9',
-            hoverBorderColor: isDarkMode ? '#3b82f6' : '#40a9ff',
+            colorBgContainer: isDarkMode ? "rgba(15, 23, 42, 0.5)" : "#ffffff",
+            colorBorder: isDarkMode ? "rgba(71, 85, 105, 0.6)" : "#d9d9d9",
+            hoverBorderColor: isDarkMode ? "#3b82f6" : "#40a9ff",
           },
           Button: {
-            defaultBg: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : '#ffffff',
-            defaultBorderColor: isDarkMode ? 'rgba(71, 85, 105, 0.6)' : '#d9d9d9',
-            defaultColor: isDarkMode ? '#f8fafc' : '#1e293b',
-          }
-        }
+            defaultBg: isDarkMode ? "rgba(30, 41, 59, 0.8)" : "#ffffff",
+            defaultBorderColor: isDarkMode
+              ? "rgba(71, 85, 105, 0.6)"
+              : "#d9d9d9",
+            defaultColor: isDarkMode ? "#f8fafc" : "#1e293b",
+          },
+        },
       }}
     >
-      <div style={themeStyles.container}>
+      <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gradient-to-br from-slate-800 to-slate-900 text-slate-100" : "bg-gradient-to-br from-white to-slate-50 text-slate-900"}`}>
         {/* Header */}
-        <div style={{ marginBottom: "24px" }}>
-          <div style={{ 
-            display: "flex", 
-            justifyContent: "space-between", 
-            alignItems: "center",
-            marginBottom: "16px"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <MedicineBoxOutlined style={{ fontSize: "24px", color: "#3b82f6" }} />
-              <h1 style={{ margin: 0, color: themeStyles.header.color }}>Available Medicines</h1>
-              <Badge 
-                count={medicines.length} 
-                style={{ 
-                  backgroundColor: isDarkMode ? '#10b981' : '#52c41a',
-                  color: '#fff'
-                }} 
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <MedicineBoxOutlined className="text-2xl text-blue-500" />
+              <h1 className={`m-0 ${isDarkMode ? "text-slate-100" : "text-slate-900"}`}>
+                Available Medicines
+              </h1>
+              <Badge
+                count={medicines.length}
+                className={`${isDarkMode ? "bg-emerald-500" : "bg-green-500"} text-white`}
               />
             </div>
             <Button
@@ -244,8 +224,10 @@ function PublicMedicines() {
             </Button>
           </div>
 
-          {/* Filters */}
-          {/* <Card style={themeStyles.filterCard} bodyStyle={{ padding: '16px' }}>
+          <Card
+            className={`${isDarkMode ? "bg-slate-800/80 border-slate-600/50" : "bg-slate-50/80 border-slate-200/50"} backdrop-blur-md`}
+            bodyStyle={{ padding: "16px" }}
+          >
             <Space size="middle" wrap>
               <Search
                 placeholder="Search medicines, manufacturers..."
@@ -254,13 +236,13 @@ function PublicMedicines() {
                 size="middle"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ minWidth: "300px" }}
+                className="min-w-[300px]"
               />
-              
+
               <Select
                 value={statusFilter}
                 onChange={setStatusFilter}
-                style={{ minWidth: "120px" }}
+                className="min-w-[120px]"
                 size="middle"
               >
                 <Option value="ALL">All Status</Option>
@@ -271,7 +253,7 @@ function PublicMedicines() {
               <Select
                 value={sortBy}
                 onChange={setSortBy}
-                style={{ minWidth: "140px" }}
+                className="min-w-[140px]"
                 size="middle"
                 prefix={<FilterOutlined />}
               >
@@ -282,71 +264,24 @@ function PublicMedicines() {
               </Select>
 
               {(searchTerm || statusFilter !== "ALL" || sortBy !== "name") && (
-                <Button onClick={handleClearFilters} type="link" style={{ color: isDarkMode ? '#3b82f6' : '#1890ff' }}>
+                <Button
+                  onClick={handleClearFilters}
+                  type="link"
+                  className={isDarkMode ? "text-blue-500" : "text-blue-600"}
+                >
                   Clear Filters
                 </Button>
               )}
             </Space>
-          </Card> */}
-          <Card 
-  style={themeStyles.filterCard}
-  styles={{
-    body: { 
-      padding: '16px' 
-    }
-  }}
->
-  <Space size="middle" wrap>
-    <Search
-      placeholder="Search medicines, manufacturers..."
-      allowClear
-      enterButton={<SearchOutlined />}
-      size="middle"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      style={{ minWidth: "300px" }}
-    />
-    
-    <Select
-      value={statusFilter}
-      onChange={setStatusFilter}
-      style={{ minWidth: "120px" }}
-      size="middle"
-    >
-      <Option value="ALL">All Status</Option>
-      <Option value="APPROVED">Approved</Option>
-      <Option value="PLACED">Placed</Option>
-    </Select>
-
-    <Select
-      value={sortBy}
-      onChange={setSortBy}
-      style={{ minWidth: "140px" }}
-      size="middle"
-      prefix={<FilterOutlined />}
-    >
-      <Option value="name">Sort by Name</Option>
-      <Option value="price">Sort by Price</Option>
-      <Option value="stock">Sort by Stock</Option>
-      <Option value="recent">Most Recent</Option>
-    </Select>
-
-    {(searchTerm || statusFilter !== "ALL" || sortBy !== "name") && (
-      <Button onClick={handleClearFilters} type="link" style={{ color: isDarkMode ? '#3b82f6' : '#1890ff' }}>
-        Clear Filters
-      </Button>
-    )}
-  </Space>
-</Card>
+          </Card>
         </div>
 
         {/* Results Info */}
-        <div style={{ marginBottom: "16px" }}>
-          <p style={{ ...themeStyles.textMuted, margin: 0 }}>
+        <div className="mb-4">
+          <p className={`m-0 ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
             {filteredAndSortedMedicines.length === medicines.length
               ? `Showing all ${medicines.length} medicines`
-              : `Showing ${filteredAndSortedMedicines.length} of ${medicines.length} medicines`
-            }
+              : `Showing ${filteredAndSortedMedicines.length} of ${medicines.length} medicines`}
           </p>
         </div>
 
@@ -359,7 +294,10 @@ function PublicMedicines() {
                 ? "No medicines found matching your filters"
                 : "No medicines available at the moment"
             }
-            imageStyle={{ height: 60, filter: isDarkMode ? 'invert(0.8)' : 'none' }}
+            imageStyle={{
+              height: 60,
+              filter: isDarkMode ? "invert(0.8)" : "none",
+            }}
           >
             {(searchTerm || statusFilter !== "ALL") && (
               <Button type="primary" onClick={handleClearFilters}>
@@ -379,19 +317,7 @@ function PublicMedicines() {
 
         {/* Loading overlay for refresh */}
         {refreshing && (
-          <div style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: isDarkMode ? "rgba(15, 23, 42, 0.8)" : "rgba(255, 255, 255, 0.8)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-            backdropFilter: 'blur(8px)'
-          }}>
+          <div className={`fixed inset-0 flex justify-center items-center z-50 backdrop-blur-sm ${isDarkMode ? "bg-slate-900/80" : "bg-white/80"}`}>
             <Spin size="large" />
           </div>
         )}
