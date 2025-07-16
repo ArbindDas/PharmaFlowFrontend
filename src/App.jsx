@@ -27,9 +27,13 @@ import Test from "./components/Test.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrderConfirmation from "./pages/OrderConfirmation.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
-import { App as AntApp } from 'antd';
+import { App as AntApp } from "antd";
 import Cart from "./pages/Cart.jsx";
-
+import DashboardDefaultContent from "./components/DashboardDefaultContent.jsx";
+import ProfileInfo from "./pages/ ProfileInfo.jsx";
+import UserAddresses from "./pages/UserAddresses.jsx";
+import UserOrders from "./pages/UserOrders.jsx";
+import Wishlist from "./pages/ Wishlist.jsx";
 function AppContent() {
   const location = useLocation();
   const hideFooter = location.pathname === "/dashboard";
@@ -52,6 +56,8 @@ function AppContent() {
           <Route path="/openAI" element={<OpenAIPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/test" element={<Test />} />
+
+{/* 
           <Route
             path="/dashboard"
             element={
@@ -60,6 +66,28 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route index element={<DashboardDefaultContent />} />
+          <Route path="profile" element={<ProfileInfo />} />
+          <Route path="orders" element={<UserOrders />} />
+          <Route path="addresses" element={<UserAddresses />} />
+          <Route path="wishlist" element={<Wishlist />} /> */}
+
+
+        <Route 
+  path="/dashboard" 
+  element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+>
+  <Route index element={<DashboardDefaultContent />} />
+  <Route path="profile" element={<ProfileInfo />} />
+  <Route path="orders" element={<UserOrders />} />
+  <Route path="addresses" element={<UserAddresses />} />
+  <Route path="wishlist" element={<Wishlist />} />
+</Route>
+
           <Route
             path="/checkout"
             element={
@@ -68,19 +96,15 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-
-           <Route 
-    path="/cart" 
-    element={
-      <ProtectedRoute>
-        <Cart />
-      </ProtectedRoute>
-    } 
-  />
-
           <Route
-
-            
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin"
             element={
               <AdminRoute>
@@ -89,14 +113,14 @@ function AppContent() {
             }
           />
           <Route path="*" element={<NotFound />} />
-           <Route 
-          path="/order-confirmation" 
-          element={
-            <ProtectedRoute>
-              <OrderConfirmation />
-            </ProtectedRoute>
-          } 
-        />
+          <Route
+            path="/order-confirmation"
+            element={
+              <ProtectedRoute>
+                <OrderConfirmation />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
       {!hideFooter && <Footer />}
