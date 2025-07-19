@@ -247,6 +247,7 @@ const getUserProfile = async () => {
 
   return response.data;
 };
+
 const forgotPassword = async (email) => {
   try {
     const response = await axiosInstance.post(

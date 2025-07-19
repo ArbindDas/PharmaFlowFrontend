@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -9,18 +9,46 @@ import {
   Clock,
   CheckCircle,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const ProfileInfo = () => {
-  // Mock user data - replace with your actual user data source
-  const user = {
-    id: "user_123456789",
-    full_name: "John Doe",
-    email: "john.doe@example.com",
-    auth_provider: "Google",
-    created_at: "2023-01-15T10:30:00Z",
-  };
-
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const { fetchUserDetails } = useAuth();
+
+  // Load data only once on mount
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadUserData = async () => {
+      try {
+        setLoading(true);
+        const userData = await fetchUserDetails();
+        if (isMounted) {
+          setUser(userData);
+          setError(null);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err.message || "Failed to load user profile");
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    loadUserData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array means this runs only once on mount
+
 
   const formatDate = (dateString) => {
     if (!dateString) return "Unknown";
@@ -86,6 +114,68 @@ const ProfileInfo = () => {
     </div>
   );
 
+  const handleRefresh = async () => {
+    try {
+      setLoading(true);
+      const userData = await fetchUserDetails();
+      setUser(userData);
+      setError(null);
+    } catch (err) {
+      setError(err.message || "Failed to refresh user profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile information...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-red-100 p-3 rounded-full">
+              <Shield className="w-6 h-6 text-red-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-800">Profile Error</h2>
+          </div>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={handleRefresh}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">No user data available</p>
+          <button
+            onClick={handleRefresh}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            Refresh Profile
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -113,6 +203,29 @@ const ProfileInfo = () => {
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={handleRefresh}
+              className="flex items-center gap-2 text-sm bg-white hover:bg-gray-50 text-blue-600 px-4 py-2 rounded-lg border border-blue-100 shadow-sm"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Refresh Profile
+            </button>
+          </div>
+
           <div className="space-y-6 sm:space-y-8">
             {/* User Identification Section */}
             <ProfileCard index={0}>

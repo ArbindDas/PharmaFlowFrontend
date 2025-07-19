@@ -56,8 +56,7 @@ function AppContent() {
           <Route path="/openAI" element={<OpenAIPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/test" element={<Test />} />
-
-{/* 
+          {/* 
           <Route
             path="/dashboard"
             element={
@@ -71,23 +70,20 @@ function AppContent() {
           <Route path="orders" element={<UserOrders />} />
           <Route path="addresses" element={<UserAddresses />} />
           <Route path="wishlist" element={<Wishlist />} /> */}
-
-
-        <Route 
-  path="/dashboard" 
-  element={
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  }
->
-  <Route index element={<DashboardDefaultContent />} />
-  <Route path="profile" element={<ProfileInfo />} />
-  <Route path="orders" element={<UserOrders />} />
-  <Route path="addresses" element={<UserAddresses />} />
-  <Route path="wishlist" element={<Wishlist />} />
-</Route>
-
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<DashboardDefaultContent />} />
+            <Route path="profile" element={<ProfileInfo />} />
+            <Route path="orders" element={<UserOrders />} />
+            <Route path="addresses" element={<UserAddresses />} />
+            <Route path="wishlist" element={<Wishlist />} />
+          </Route>
           <Route
             path="/checkout"
             element={
@@ -129,32 +125,9 @@ function AppContent() {
 }
 
 function App() {
-  return (
-    // <AuthProvider>
-    //   <Router>
-    //     <AppContent />
-    //   </Router>
-    // </AuthProvider>
 
-    // <ThemeProvider>
-    //   {" "}
-    //   {/* Wrap with ThemeProvider */}
-    //   <AuthProvider>
-    //     <Router>
-    //       <AppContent />
-    //     </Router>
-    //   </AuthProvider>
-    // </ThemeProvider>
 
-    // <ThemeProvider>
-    //   <AuthProvider>
-    //     <CartProvider>
-    //       <Router>
-    //         <AppContent />
-    //       </Router>
-    //     </CartProvider>
-    //   </AuthProvider>
-    // </ThemeProvider>
+  return(
     <AntApp>
       <ThemeProvider>
         <AuthProvider>
@@ -166,7 +139,9 @@ function App() {
         </AuthProvider>
       </ThemeProvider>
     </AntApp>
-  );
+  )
+  
+    
 }
 
 export default App;

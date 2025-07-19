@@ -21,15 +21,15 @@ if (!token) {
   // Instead, the API calls will fail with 401 which can be handled
 }
 
-export const getMedicines = async () => {
-  try {
-    const response = await api.get("/getMedicines");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching medicines:", error);
-    throw error;
-  }
-};
+  export const getMedicines = async () => {
+    try {
+      const response = await api.get("/getMedicines");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching medicines:", error);
+      throw error;
+    }
+  };
 
 
 
@@ -37,10 +37,11 @@ export const addMedicine = async (medicineData, imageFile) => {
   const formData = new FormData();
     console.log("Sending status:", medicineData.status); // Add this line
     // Ensure status is uppercase and valid
-  const validStatuses = ["PLACED", "APPROVED", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"];
+  const validStatuses = ["ADDED", "AVAILABLE", "OUT_OF_STOCK", "EXPIRED", "DISCONTINUED"];
+
   const status = validStatuses.includes(medicineData.status?.toUpperCase()) 
     ? medicineData.status.toUpperCase() 
-    : "PLACED";
+    : "ADDED";
   // Only append necessary fields
   formData.append("name", medicineData.name);
   formData.append("description", medicineData.description);
@@ -48,7 +49,8 @@ export const addMedicine = async (medicineData, imageFile) => {
   formData.append("stock", medicineData.stock.toString());
   formData.append("expiryDate", medicineData.expiryDate);
   // formData.append("status", medicineData.status);
-   formData.append("status", status); // Use validated status
+  //  formData.append("status", status); // Use validated status
+  formData.append("medicineStatus", status);  // Changed from "status" to "medicineStatus"
 
   if (imageFile) {
     formData.append("image", imageFile);
@@ -88,7 +90,7 @@ export const updateMedicine = async (id, formData, imageFile) => {
   formDataToSend.append("price", formData.price);
   formDataToSend.append("stock", formData.stock);
   formDataToSend.append("expiryDate", formData.expiryDate);
-  formDataToSend.append("status", formData.status);
+  formDataToSend.append("medicineStatus", formData.status);
 
   // Append image file if exists
   if (imageFile) {

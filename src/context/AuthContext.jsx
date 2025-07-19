@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect , useCallback } from "react";
 import authService from "../api/auth"; // your API helper
 
 
@@ -38,20 +38,23 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
-  // Optional: fetch user details from backend (refresh profile)
-  const fetchUserDetails = async () => {
-    try {
-      const userDetails = await authService.getUserProfile();
-      setUser(userDetails);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error("Fetch user details error:", error);
-      setUser(null);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false); // ✅ important!
-    }
-  };
+  const fetchUserDetails = useCallback(async () => {
+  try {
+    console.log("Fetching user profile...");
+    const userDetails = await authService.getUserProfile();
+    console.log("User profile response:", userDetails);
+    setUser(userDetails);
+    setIsAuthenticated(true);
+    return userDetails; // Important: return the data for components to use
+  } catch (error) {
+    console.error("Fetch user details error:", error);
+    setUser(null);
+    setIsAuthenticated(false);
+    throw error; // Re-throw so components can catch it
+  } finally {
+    setIsLoading(false);
+  }
+}, []); // Empty dependency array means this is created once
 
 
     const deleteUserById = async (userId, isAdmin = false) => {

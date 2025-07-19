@@ -25,7 +25,6 @@ import {
   Pill,
   icons,
   Zap,
-  
 } from "lucide-react";
 import authService from "../api/auth";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
@@ -2033,7 +2032,7 @@ const MedicineProductsPanel = () => {
     stock: "",
     expiryDate: "",
     imageUrl: "",
-    status: "PLACED",
+    status: "ADDED",
   });
 
   const [notification, setNotification] = useState({
@@ -2179,7 +2178,7 @@ const MedicineProductsPanel = () => {
           stock: "",
           expiryDate: "",
           imageUrl: "",
-          status: "PLACED",
+          status: "ADDED",
         });
         setImageFile(null);
 
@@ -2207,16 +2206,15 @@ const MedicineProductsPanel = () => {
 
   const handleEdit = (medicine) => {
     const validStatuses = [
-      "PLACED",
-      "APPROVED",
-      "SHIPPED",
-      "DELIVERED",
-      "CANCELLED",
-      "RETURNED",
+      "ADDED",
+      "AVAILABLE",
+      "OUT_OF_STOCK",
+      "EXPIRED",
+      "DISCONTINUED",
     ];
     const status = validStatuses.includes(medicine.status?.toUpperCase())
       ? medicine.status.toUpperCase()
-      : "PLACED";
+      : "ADDED";
     setFormData({
       name: medicine.name,
       description: medicine.description,
@@ -2372,7 +2370,7 @@ const MedicineProductsPanel = () => {
                         stock: "",
                         expiryDate: "",
                         imageUrl: "",
-                        status: "PLACED",
+                        status: "ADDED",
                       });
                       setImageFile(null);
                     }}
@@ -2547,12 +2545,17 @@ const MedicineProductsPanel = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       disabled={isLoading}
                     >
-                      <option value="PLACED">PLACED</option>
+                      {/* <option value="PLACED">PLACED</option>
                       <option value="APPROVED">APPROVED</option>
                       <option value="SHIPPED">SHIPPED</option>
                       <option value="DELIVERED">DELIVERED</option>
                       <option value="CANCELLED">CANCELLED</option>
-                      <option value="RETURNED">RETURNED</option>
+                      <option value="RETURNED">RETURNED</option> */}
+                      <option value="ADDED">ADDED</option>
+                      <option value="AVAILABLE">AVAILABLE</option>
+                      <option value="OUT_OF_STOCK">OUT OF STOCK</option>
+                      <option value="EXPIRED">EXPIRED</option>
+                      <option value="DISCONTINUED">DISCONTINUED</option>
                     </select>
                   </div>
                   <div className="md:col-span-2">
@@ -2608,7 +2611,7 @@ const MedicineProductsPanel = () => {
                         stock: "",
                         expiryDate: "",
                         imageUrl: "",
-                        status: "PLACED",
+                        status: "ADDED",
                       });
                       setImageFile(null);
                     }}

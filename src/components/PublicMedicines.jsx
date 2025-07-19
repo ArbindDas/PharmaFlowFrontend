@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import {
   Row,
@@ -47,7 +46,7 @@ function PublicMedicines() {
 
       const data = await getPublicMedicines();
       const approvedMedicines = data.filter(
-        (med) => med.status === "APPROVED" || med.status === "PLACED"
+        (med) => med.status === "ADDED" || med.status === "AVAILABLE"
       );
 
       setMedicines(approvedMedicines);
@@ -125,10 +124,20 @@ function PublicMedicines() {
 
   if (loading && !refreshing) {
     return (
-      <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gradient-to-br from-slate-800 to-slate-900" : "bg-gradient-to-br from-white to-slate-50"}`}>
+      <div
+        className={`min-h-screen p-6 ${
+          isDarkMode
+            ? "bg-gradient-to-br from-slate-800 to-slate-900"
+            : "bg-gradient-to-br from-white to-slate-50"
+        }`}
+      >
         <div className="flex justify-center items-center min-h-[50vh] flex-col">
           <Spin size="large" />
-          <p className={`mt-4 ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+          <p
+            className={`mt-4 ${
+              isDarkMode ? "text-slate-400" : "text-slate-500"
+            }`}
+          >
             Loading medicines...
           </p>
         </div>
@@ -138,7 +147,13 @@ function PublicMedicines() {
 
   if (error && !medicines.length) {
     return (
-      <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gradient-to-br from-slate-800 to-slate-900" : "bg-gradient-to-br from-white to-slate-50"}`}>
+      <div
+        className={`min-h-screen p-6 ${
+          isDarkMode
+            ? "bg-gradient-to-br from-slate-800 to-slate-900"
+            : "bg-gradient-to-br from-white to-slate-50"
+        }`}
+      >
         <Alert
           message="Error Loading Medicines"
           description={error}
@@ -200,18 +215,30 @@ function PublicMedicines() {
         },
       }}
     >
-      <div className={`min-h-screen p-6 ${isDarkMode ? "bg-gradient-to-br from-slate-800 to-slate-900 text-slate-100" : "bg-gradient-to-br from-white to-slate-50 text-slate-900"}`}>
+      <div
+        className={`min-h-screen p-6 ${
+          isDarkMode
+            ? "bg-gradient-to-br from-slate-800 to-slate-900 text-slate-100"
+            : "bg-gradient-to-br from-white to-slate-50 text-slate-900"
+        }`}
+      >
         {/* Header */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
               <MedicineBoxOutlined className="text-2xl text-blue-500" />
-              <h1 className={`m-0 ${isDarkMode ? "text-slate-100" : "text-slate-900"}`}>
+              <h1
+                className={`m-0 ${
+                  isDarkMode ? "text-slate-100" : "text-slate-900"
+                }`}
+              >
                 Available Medicines
               </h1>
               <Badge
                 count={medicines.length}
-                className={`${isDarkMode ? "bg-emerald-500" : "bg-green-500"} text-white`}
+                className={`${
+                  isDarkMode ? "bg-emerald-500" : "bg-green-500"
+                } text-white`}
               />
             </div>
             <Button
@@ -225,7 +252,11 @@ function PublicMedicines() {
           </div>
 
           <Card
-            className={`${isDarkMode ? "bg-slate-800/80 border-slate-600/50" : "bg-slate-50/80 border-slate-200/50"} backdrop-blur-md`}
+            className={`${
+              isDarkMode
+                ? "bg-slate-800/80 border-slate-600/50"
+                : "bg-slate-50/80 border-slate-200/50"
+            } backdrop-blur-md`}
             bodyStyle={{ padding: "16px" }}
           >
             <Space size="middle" wrap>
@@ -246,8 +277,8 @@ function PublicMedicines() {
                 size="middle"
               >
                 <Option value="ALL">All Status</Option>
-                <Option value="APPROVED">Approved</Option>
-                <Option value="PLACED">Placed</Option>
+                <Option value="ADDED">ADDED</Option>
+                <Option value="AVAILABLE">AVAILABLE</Option>
               </Select>
 
               <Select
@@ -278,7 +309,11 @@ function PublicMedicines() {
 
         {/* Results Info */}
         <div className="mb-4">
-          <p className={`m-0 ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+          <p
+            className={`m-0 ${
+              isDarkMode ? "text-slate-400" : "text-slate-500"
+            }`}
+          >
             {filteredAndSortedMedicines.length === medicines.length
               ? `Showing all ${medicines.length} medicines`
               : `Showing ${filteredAndSortedMedicines.length} of ${medicines.length} medicines`}
@@ -287,6 +322,24 @@ function PublicMedicines() {
 
         {/* Medicine Grid */}
         {filteredAndSortedMedicines.length === 0 ? (
+          // <Empty
+          //   image={Empty.PRESENTED_IMAGE_SIMPLE}
+          //   description={
+          //     searchTerm || statusFilter !== "ALL"
+          //       ? "No medicines found matching your filters"
+          //       : "No medicines available at the moment"
+          //   }
+          //   imageStyle={{
+          //     height: 60,
+          //     filter: isDarkMode ? "invert(0.8)" : "none",
+          //   }}
+          // >
+          //   {(searchTerm || statusFilter !== "ALL") && (
+          //     <Button type="primary" onClick={handleClearFilters}>
+          //       Clear Filters
+          //     </Button>
+          //   )}
+          // </Empty>
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
@@ -294,9 +347,11 @@ function PublicMedicines() {
                 ? "No medicines found matching your filters"
                 : "No medicines available at the moment"
             }
-            imageStyle={{
-              height: 60,
-              filter: isDarkMode ? "invert(0.8)" : "none",
+            styles={{
+              image: {
+                height: 60,
+                filter: isDarkMode ? "invert(0.8)" : "none",
+              },
             }}
           >
             {(searchTerm || statusFilter !== "ALL") && (
@@ -317,7 +372,11 @@ function PublicMedicines() {
 
         {/* Loading overlay for refresh */}
         {refreshing && (
-          <div className={`fixed inset-0 flex justify-center items-center z-50 backdrop-blur-sm ${isDarkMode ? "bg-slate-900/80" : "bg-white/80"}`}>
+          <div
+            className={`fixed inset-0 flex justify-center items-center z-50 backdrop-blur-sm ${
+              isDarkMode ? "bg-slate-900/80" : "bg-white/80"
+            }`}
+          >
             <Spin size="large" />
           </div>
         )}
