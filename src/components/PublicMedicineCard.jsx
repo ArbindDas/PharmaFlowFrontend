@@ -19,7 +19,7 @@ import {
   ClipboardList
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
+import { useFirebaseCart } from '../context/FirebaseCartContext';
 
 function PublicMedicineCard({ medicine }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -27,7 +27,23 @@ function PublicMedicineCard({ medicine }) {
   const [isLiked, setIsLiked] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const { isDarkMode } = useTheme();
-  const { addToCart } = useCart();
+  // const { addToCart } = useCart();
+   const { addToCart } = useFirebaseCart();
+
+  const handleAddToCart = async (e) => {
+  e.stopPropagation(); // Prevent modal from opening when clicking the button
+  try {
+    await addToCart({
+      ...medicine,
+      quantity: quantity // Include the selected quantity
+    });
+    message.success(`${quantity} ${medicine.name} added to cart!`);
+  } catch (error) {
+    message.error('Failed to add to cart');
+    console.error('Add to cart error:', error);
+  }
+};
+
 
   const isLowStock = medicine.stock <= 5 && medicine.stock > 0;
   const isExpiringSoon = new Date(medicine.expiryDate) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -35,12 +51,6 @@ function PublicMedicineCard({ medicine }) {
   const showModal = () => setIsModalVisible(true);
   const handleModalClose = () => setIsModalVisible(false);
 
-  const handleAddToCart = (e) => {
-    e?.stopPropagation();
-    addToCart(medicine, quantity);
-    message.success(`${quantity} ${medicine.name} added to cart!`);
-    setQuantity(1);
-  };
 
   const handleWishlist = (e) => {
     e.stopPropagation();
@@ -255,6 +265,7 @@ function PublicMedicineCard({ medicine }) {
             icon={<ShoppingCartOutlined />}
             disabled={medicine.stock <= 0}
             onClick={handleAddToCart}
+            // onClick={() => addToCart(medicine)}
             className={`w-full h-12 rounded-2xl text-sm font-bold border-none transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] tracking-wide text-white
               ${medicine.stock > 0 ? 
                 'bg-gradient-to-br from-blue-500 to-blue-700  py-1.5 shadow-[0_4px_20px_rgba(59,130,246,0.4),inset_0_1px_0_rgba(255,255,255,0.2)]' : 
@@ -313,6 +324,7 @@ function PublicMedicineCard({ medicine }) {
             icon={<ShoppingCartOutlined />}
             disabled={medicine.stock <= 0}
             onClick={handleAddToCart}
+            // onClick={() => addToCart(medicine)}
             className="h-10 rounded-lg font-semibold border-none bg-gradient-to-br from-blue-500 to-blue-700 shadow-[0_4px_20px_rgba(59,130,246,0.3)]"
           >
             {medicine.stock > 0 ? `Add ${quantity} to Cart` : 'Out of Stock'}

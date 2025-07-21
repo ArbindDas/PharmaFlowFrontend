@@ -52,6 +52,9 @@ const Navbar = () => {
             >
               Home
             </Link>
+
+            
+
             <Link
               to="/about"
               className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-300"
@@ -86,7 +89,7 @@ const Navbar = () => {
             </Link>
             {user?.isAdmin && (
               <Link
-                to="/admin/dashboard"
+                to="/admin"
                 className="text-sm font-medium text-blue-600 dark:text-blue-400"
               >
                 Admin Dashboard
@@ -203,7 +206,7 @@ const Navbar = () => {
           </Link>
           {user?.isAdmin && (
             <Link
-              to="/admin/dashboard"
+              to="/admin"
               className="block px-3 py-2 rounded-md text-base font-medium text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={toggleMenu}
             >
