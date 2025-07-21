@@ -9,7 +9,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-// import Medicines from "./pages/Medicines";
+
 import NotFound from "./pages/NotFound";
 import LoginPage from "./features/auth/Login.jsx";
 import RegisterPage from "./features/auth/Register";
@@ -32,8 +32,13 @@ import Cart from "./pages/Cart.jsx";
 import DashboardDefaultContent from "./components/DashboardDefaultContent.jsx";
 import ProfileInfo from "./pages/ ProfileInfo.jsx";
 import UserAddresses from "./pages/UserAddresses.jsx";
-import UserOrders from "./pages/UserOrders.jsx";
+// import UserOrders from "./pages/UserOrders.jsx";
 import Wishlist from "./pages/ Wishlist.jsx";
+import { FirebaseCartProvider } from "./context/FirebaseCartContext.jsx";
+import Orders from "./pages/Orders.jsx";
+import OrderHistory from "./pages/OrderHistory.jsx";
+import { PlaceOrder } from "./pages/PlaceOrder.jsx";
+import { OrderDetail } from "./pages/OrderDetail.jsx";
 function AppContent() {
   const location = useLocation();
   const hideFooter = location.pathname === "/dashboard";
@@ -56,20 +61,34 @@ function AppContent() {
           <Route path="/openAI" element={<OpenAIPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/test" element={<Test />} />
-          {/* 
-          <Route
+          {/* <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
             }
-          />
-          <Route index element={<DashboardDefaultContent />} />
-          <Route path="profile" element={<ProfileInfo />} />
-          <Route path="orders" element={<UserOrders />} />
-          <Route path="addresses" element={<UserAddresses />} />
-          <Route path="wishlist" element={<Wishlist />} /> */}
+          >
+            <Route index element={<DashboardDefaultContent />} />
+            <Route path="profile" element={<ProfileInfo />} />
+
+            {/* <Route path="orders" element={<Orders />} /> */}
+          {/* Order-related routes */}
+          {/* <Route path="orders">
+              <Route index element={<OrderHistory />} /> // GET
+              /dashboard/orders
+
+              <Route path="new" element={<PlaceOrder />} /> // POST
+              /dashboard/orders/new
+
+              <Route path=":orderId" element={<OrderDetail />} /> // GET
+              /dashboard/orders/123
+
+            </Route>
+
+            <Route path="addresses" element={<UserAddresses />} />
+            <Route path="wishlist" element={<Wishlist />} />
+          </Route> */}
           <Route
             path="/dashboard"
             element={
@@ -80,7 +99,17 @@ function AppContent() {
           >
             <Route index element={<DashboardDefaultContent />} />
             <Route path="profile" element={<ProfileInfo />} />
-            <Route path="orders" element={<UserOrders />} />
+
+            {/* Order-related routes */}
+            <Route path="orders">
+              <Route index element={<OrderHistory />} /> // GET
+              /dashboard/orders
+              <Route path="new" element={<PlaceOrder />} /> // POST
+              /dashboard/orders/new
+              <Route path=":orderId" element={<OrderDetail />} /> // GET
+              /dashboard/orders/123
+            </Route>
+
             <Route path="addresses" element={<UserAddresses />} />
             <Route path="wishlist" element={<Wishlist />} />
           </Route>
@@ -125,9 +154,7 @@ function AppContent() {
 }
 
 function App() {
-
-
-  return(
+  return (
     <AntApp>
       <ThemeProvider>
         <AuthProvider>
@@ -139,9 +166,7 @@ function App() {
         </AuthProvider>
       </ThemeProvider>
     </AntApp>
-  )
-  
-    
+  );
 }
 
 export default App;

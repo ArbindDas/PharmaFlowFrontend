@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Plus, Minus, Trash2, Calendar, Package, User, LogIn, AlertCircle, X, CheckCircle, ArrowRight, Heart } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+// import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import "../styles/animations.css";
+import { useFirebaseCart } from '../context/FirebaseCartContext';
 
 function Cart() {
-  const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
+  const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useFirebaseCart();
   const { isAuthenticated } = useAuth();
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
@@ -17,20 +18,70 @@ function Cart() {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  const handlePlaceOrder = () => {
-    if (!isAuthenticated) {
-      alert('Please login to place your order');
-      navigate('/login', { state: { from: '/cart' } });
-      return;
-    }
+
+  // Add these debug logs
+  console.log('Cart items from context:', cart);
+  console.log('Total items:', totalItems);
+  console.log('Total price:', totalPrice);
+
+  // const handlePlaceOrder = () => {
+  //   if (!isAuthenticated) {
+  //     alert('Please login to place your order');
+  //     navigate('/login', { state: { from: '/cart' } });
+  //     return;
+  //   }
     
+  //   setShowSuccess(true);
+  //   setTimeout(() => {
+  //     setShowSuccess(false);
+  //     clearCart();
+  //     navigate('/orders');
+  //   }, 2000);
+  // };
+
+  const handlePlaceOrder = async () => {
+  if (!isAuthenticated) {
+    alert('Please login to place your order');
+    navigate('/login', { state: { from: '/cart' } });
+    return;
+  }
+
+  try {
+    const orderData = {
+      totalPrice: totalPrice,
+      orderItems: cart.map(item => ({
+        medicineId: item.id,
+        quantity: item.quantity,
+        unitPrice: item.price
+      }))
+    };
+
+    const response = await fetch('http://localhost:8080/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(orderData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json(); // Get more error details
+      throw new Error(errorData.message || 'Failed to place order');
+    }
+
     setShowSuccess(true);
     setTimeout(() => {
       setShowSuccess(false);
       clearCart();
-      navigate('/orders');
+      navigate('/dashboard/orders');
     }, 2000);
-  };
+
+  } catch (error) {
+    console.error('Order placement error:', error);
+    alert(error.message || 'Failed to place order. Please try again.');
+  }
+};
 
   const handleRemoveItem = (id) => {
     setShowDeleteConfirm(null);

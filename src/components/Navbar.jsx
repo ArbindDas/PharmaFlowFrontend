@@ -1,12 +1,12 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { Moon, Sun, Menu, X } from "lucide-react";
-import { Badge } from 'antd';
-import { ShoppingCartOutlined } from '@ant-design/icons';
+import { Badge } from "antd";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useCart } from "../context/CartContext";
+import { CartIconCounter } from "./CartIconCounter";
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -53,8 +53,6 @@ const Navbar = () => {
               Home
             </Link>
 
-            
-
             <Link
               to="/about"
               className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-300"
@@ -79,14 +77,10 @@ const Navbar = () => {
             >
               Browse Medicines
             </Link>
-            <Link 
-              to="/cart" 
-              className="p-2 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
-            >
-              <Badge count={cart.length} showZero>
-                <ShoppingCartOutlined style={{ fontSize: '20px' }} />
-              </Badge>
+            <Link to="/cart" className="p-2">
+              <CartIconCounter />
             </Link>
+
             {user?.isAdmin && (
               <Link
                 to="/admin"
@@ -113,7 +107,7 @@ const Navbar = () => {
                 <Moon className="w-5 h-5" />
               )}
             </button>
-            
+
             {/* Auth Buttons - Hidden on mobile */}
             <div className="hidden md:flex space-x-2">
               <Link
@@ -135,7 +129,7 @@ const Navbar = () => {
                 AI
               </Link>
             </div>
-            
+
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center">
               <button
@@ -155,7 +149,7 @@ const Navbar = () => {
       </div>
 
       {/* Mobile menu - show/hide based on menu state */}
-      <div className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
+      <div className={`md:hidden ${isMenuOpen ? "block" : "hidden"}`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-800">
           <Link
             to="/"
@@ -200,7 +194,7 @@ const Navbar = () => {
             <div className="flex items-center">
               <span className="mr-2">Cart</span>
               <Badge count={cart.length} showZero>
-                <ShoppingCartOutlined style={{ fontSize: '20px' }} />
+                <ShoppingCartOutlined style={{ fontSize: "20px" }} />
               </Badge>
             </div>
           </Link>
