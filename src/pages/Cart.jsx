@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import "../styles/animations.css";
 
 function Cart() {
   const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
@@ -327,22 +328,7 @@ function Cart() {
         )}
       </div>
 
-      <style jsx>{`
-        @keyframes scale-up {
-          0% {
-            transform: scale(0.9) translateY(20px);
-            opacity: 0;
-          }
-          100% {
-            transform: scale(1) translateY(0);
-            opacity: 1;
-          }
-        }
-        
-        .animate-scale-up {
-          animation: scale-up 0.3s ease-out;
-        }
-      `}</style>
+      
     </div>
   );
 }

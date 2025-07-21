@@ -45,11 +45,16 @@ function PublicMedicines() {
       setError(null);
 
       const data = await getPublicMedicines();
-      const approvedMedicines = data.filter(
-        (med) => med.status === "ADDED" || med.status === "AVAILABLE"
-      );
+      setMedicines(data);
+      console.log("All medicines:", data);
 
-      setMedicines(approvedMedicines);
+      const approved = data.filter((med) => {
+        const status = med.medicineStatus; // Check both variants
+        return status === "ADDED" || status === "AVAILABLE";
+      });
+
+      console.log("Filterd medicines: ", approved);
+      setMedicines(approved);
 
       if (showRefreshIndicator) {
         message.success("Medicines refreshed successfully");
@@ -65,6 +70,7 @@ function PublicMedicines() {
   };
 
   useEffect(() => {
+    console.log("Fetching medicines..."); // 👈 Track when fetch starts
     fetchMedicines();
   }, []);
 
@@ -78,9 +84,6 @@ function PublicMedicines() {
         (medicine) =>
           medicine.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           medicine.description
-            ?.toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          medicine.manufacturer
             ?.toLowerCase()
             .includes(searchTerm.toLowerCase())
       );
@@ -257,19 +260,11 @@ function PublicMedicines() {
                 ? "bg-slate-800/80 border-slate-600/50"
                 : "bg-slate-50/80 border-slate-200/50"
             } backdrop-blur-md`}
-            bodyStyle={{ padding: "16px" }}
+            styles={{
+              body: { padding: "16px" },
+            }}
           >
             <Space size="middle" wrap>
-              <Search
-                placeholder="Search medicines, manufacturers..."
-                allowClear
-                enterButton={<SearchOutlined />}
-                size="middle"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="min-w-[300px]"
-              />
-
               <Select
                 value={statusFilter}
                 onChange={setStatusFilter}
@@ -322,24 +317,6 @@ function PublicMedicines() {
 
         {/* Medicine Grid */}
         {filteredAndSortedMedicines.length === 0 ? (
-          // <Empty
-          //   image={Empty.PRESENTED_IMAGE_SIMPLE}
-          //   description={
-          //     searchTerm || statusFilter !== "ALL"
-          //       ? "No medicines found matching your filters"
-          //       : "No medicines available at the moment"
-          //   }
-          //   imageStyle={{
-          //     height: 60,
-          //     filter: isDarkMode ? "invert(0.8)" : "none",
-          //   }}
-          // >
-          //   {(searchTerm || statusFilter !== "ALL") && (
-          //     <Button type="primary" onClick={handleClearFilters}>
-          //       Clear Filters
-          //     </Button>
-          //   )}
-          // </Empty>
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={

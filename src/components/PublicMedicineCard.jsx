@@ -217,7 +217,7 @@ function PublicMedicineCard({ medicine }) {
               <div className={`flex items-center gap-1 text-xs font-medium
                 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                 <Shield size={14} color="#8b5cf6" />
-                <span>{medicine.manufacturer || 'Generic'}</span>
+                {/* <span>{medicine.manufacturer || 'Generic'}</span> */}
               </div>
             </div>
           </div>
@@ -411,13 +411,7 @@ function PublicMedicineCard({ medicine }) {
                   {new Date(medicine.expiryDate).toLocaleDateString()}
                 </span>
               </Descriptions.Item>
-              <Descriptions.Item label={<span className="flex items-center gap-2"><Shield size={16} /> Manufacturer</span>}>
-                {medicine.manufacturer || 'Not specified'}
-              </Descriptions.Item>
-              <Descriptions.Item label={<span className="flex items-center gap-2"><FlaskConical size={16} /> Ingredients</span>}>
-                {medicine.ingredients?.join(', ') || 'Not specified'}
-              </Descriptions.Item>
-            </Descriptions>
+            </Descriptions> 
           </div>
         </div>
 
