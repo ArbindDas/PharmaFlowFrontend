@@ -50,9 +50,6 @@ function AppContent() {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* <Route path="/medicines" element={<Medicines />} /> */}
-          {/* <Route path="/medicine" element={<PublicMedicines />} /> */}
-          // In your router configuration (likely App.jsx or main.jsx)
           <Route path="/medicine" element={<PublicMedicines />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
@@ -61,34 +58,6 @@ function AppContent() {
           <Route path="/openAI" element={<OpenAIPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/test" element={<Test />} />
-          {/* <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<DashboardDefaultContent />} />
-            <Route path="profile" element={<ProfileInfo />} />
-
-            {/* <Route path="orders" element={<Orders />} /> */}
-          {/* Order-related routes */}
-          {/* <Route path="orders">
-              <Route index element={<OrderHistory />} /> // GET
-              /dashboard/orders
-
-              <Route path="new" element={<PlaceOrder />} /> // POST
-              /dashboard/orders/new
-
-              <Route path=":orderId" element={<OrderDetail />} /> // GET
-              /dashboard/orders/123
-
-            </Route>
-
-            <Route path="addresses" element={<UserAddresses />} />
-            <Route path="wishlist" element={<Wishlist />} />
-          </Route> */}
           <Route
             path="/dashboard"
             element={
@@ -102,12 +71,9 @@ function AppContent() {
 
             {/* Order-related routes */}
             <Route path="orders">
-              <Route index element={<OrderHistory />} /> // GET
-              /dashboard/orders
-              <Route path="new" element={<PlaceOrder />} /> // POST
-              /dashboard/orders/new
-              <Route path=":orderId" element={<OrderDetail />} /> // GET
-              /dashboard/orders/123
+              <Route index element={<OrderHistory />} />
+              <Route path="new" element={<PlaceOrder />} />
+              <Route path=":orderId" element={<OrderDetail />} />
             </Route>
 
             <Route path="addresses" element={<UserAddresses />} />
@@ -170,3 +136,17 @@ function App() {
 }
 
 export default App;
+
+{
+  /* Order-related routes */
+}
+{
+  /* <Route path="orders">
+              <Route index element={<OrderHistory />} /> // GET
+              /dashboard/orders
+              <Route path="new" element={<PlaceOrder />} /> // POST
+              /dashboard/orders/new
+              <Route path=":orderId" element={<OrderDetail />} /> // GET
+              /dashboard/orders/123
+            </Route> */
+}

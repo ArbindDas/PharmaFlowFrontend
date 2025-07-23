@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-
+import { useCart } from "../context/CartContext";
 export function PlaceOrder() {
   const { cartItems, clearCart } = useCart();
   const navigate = useNavigate();
