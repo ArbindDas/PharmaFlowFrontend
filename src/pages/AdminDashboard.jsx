@@ -2696,6 +2696,7 @@ const MedicineProductsPanel = () => {
                     </h4>
                     <p className="text-gray-600">
                       {selectedMedicine.description}
+
                     </p>
                   </div>
 
@@ -3516,9 +3517,5 @@ const AdminDashboard = () => {
   );
 };
 
-// export default AdminDashboard;
-// export { AdminDashboard as default, MedicineProductsPanel };
-
-// At the bottom of AdminDashboard.jsx
 export default AdminDashboard;
 export { MedicineProductsPanel }; // Named export

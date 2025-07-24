@@ -39,6 +39,7 @@ import Orders from "./pages/Orders.jsx";
 import OrderHistory from "./pages/OrderHistory.jsx";
 import { PlaceOrder } from "./pages/PlaceOrder.jsx";
 import { OrderDetail } from "./pages/OrderDetail.jsx";
+
 function AppContent() {
   const location = useLocation();
   const hideFooter = location.pathname === "/dashboard";
@@ -120,8 +121,13 @@ function AppContent() {
 }
 
 function App() {
+
+
   return (
-    <AntApp>
+
+   
+
+         <AntApp>
       <ThemeProvider>
         <AuthProvider>
           <CartProvider>
@@ -132,6 +138,8 @@ function App() {
         </AuthProvider>
       </ThemeProvider>
     </AntApp>
+     
+   
   );
 }
 
