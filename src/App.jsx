@@ -76,9 +76,6 @@ function AppContent() {
               <Route path="new" element={<PlaceOrder />} />
               <Route path=":orderId" element={<OrderDetail />} />
             </Route>
-
-            <Route path="addresses" element={<UserAddresses />} />
-            <Route path="wishlist" element={<Wishlist />} />
           </Route>
           <Route
             path="/checkout"
@@ -121,13 +118,8 @@ function AppContent() {
 }
 
 function App() {
-
-
   return (
-
-   
-
-         <AntApp>
+    <AntApp>
       <ThemeProvider>
         <AuthProvider>
           <CartProvider>
@@ -138,8 +130,6 @@ function App() {
         </AuthProvider>
       </ThemeProvider>
     </AntApp>
-     
-   
   );
 }
 

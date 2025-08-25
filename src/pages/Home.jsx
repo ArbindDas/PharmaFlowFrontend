@@ -227,7 +227,7 @@ const Home = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <a
-                  href="/medicines"
+                  href="/medicine"
                   className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center gap-2"
                 >
                   Browse Medicines

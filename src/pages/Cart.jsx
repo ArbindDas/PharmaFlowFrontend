@@ -31,6 +31,7 @@ function Cart() {
     totalItems,
     totalPrice,
   } = useFirebaseCart();
+  
   const { isAuthenticated } = useAuth();
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();

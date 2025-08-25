@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from 'axios';
 import {
   Users,
   ShoppingCart,
@@ -1840,171 +1841,338 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
   );
 };
 
-const OrdersPanel = () => (
-  <div className="space-y-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-    <div className="flex justify-between items-center">
-      <div>
-        <h3 className="text-2xl font-bold text-gray-900">Claims & Requests</h3>
-        <p className="text-gray-600 mt-1">
-          Monitor and process Medicare claims
-        </p>
+const Status = {
+  PLACED: 'PLACED',
+  APPROVED: 'APPROVED',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  PENDING: 'PENDING'
+};
+
+const statusDescriptions = {
+  PLACED: "Order has been placed",
+  APPROVED: "Order has been approved",
+  SHIPPED: "Order has been shipped",
+  DELIVERED: "Order has been delivered",
+  CANCELLED: "Order has been cancelled",
+  PENDING: "Order has been pending"
+};
+
+const statusColors = {
+  PLACED: "bg-blue-100 text-blue-800",
+  APPROVED: "bg-green-100 text-green-800",
+  SHIPPED: "bg-purple-100 text-purple-800",
+  DELIVERED: "bg-teal-100 text-teal-800",
+  CANCELLED: "bg-red-100 text-red-800",
+  PENDING: "bg-yellow-100 text-yellow-800"
+};
+
+const statusIcons = {
+  PLACED: "📝",
+  APPROVED: "✅",
+  SHIPPED: "🚚",
+  DELIVERED: "📦",
+  CANCELLED: "❌",
+  PENDING: "⏳"
+};
+
+const OrdersPanel = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [statusUpdate, setStatusUpdate] = useState('');
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/orders/admin', {
+        withCredentials: true
+      });
+      
+      // Debug the response
+      console.log('Orders API Response:', response.data);
+      
+      // Ensure we have an array and transform data if needed
+      const ordersData = Array.isArray(response.data) ? response.data : [];
+      
+      // Transform data to match frontend expectations
+      const transformedOrders = ordersData.map(order => ({
+        id: order.id,
+        totalPrice: order.totalPrice,
+        status: order.status,
+        orderDate: order.orderDate || order.createdAt, // Handle both field names
+        userName: order.userName || order.user?.fullName || 'Unknown User',
+        items: order.items || []
+      }));
+      
+      setOrders(transformedOrders);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to fetch orders');
+      setLoading(false);
+      console.error('Error fetching orders:', err);
+    }
+  };
+
+
+
+  // Count orders by status - fixed implementation
+  const orderCounts = Object.values(Status).reduce((counts, status) => {
+    // Ensure orders is treated as an array
+    const ordersArray = Array.isArray(orders) ? orders : [];
+    counts[status] = ordersArray.filter(order => order.status === status).length;
+    return counts;
+  }, {});
+
+  // Update order status
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      await axios.put(`/api/orders/${orderId}/status`, { status: newStatus }, {
+        withCredentials: true
+      });
+      
+      // Update local state
+      setOrders(prevOrders => 
+        Array.isArray(prevOrders) 
+          ? prevOrders.map(order => 
+              order.id === orderId ? { ...order, status: newStatus } : order
+            )
+          : []
+      );
+      
+      setShowModal(false);
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      alert('Failed to update order status');
+    }
+  };
+
+  // Open status update modal
+  const openStatusModal = (order, newStatus) => {
+    setSelectedOrder(order);
+    setStatusUpdate(newStatus);
+    setShowModal(true);
+  };
+
+  // Refresh orders
+  const refreshOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/orders/admin', {
+        withCredentials: true
+      });
+      setOrders(Array.isArray(response.data) ? response.data : []);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to refresh orders');
+      setLoading(false);
+      console.error('Error refreshing orders:', err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-xl text-gray-600">Loading orders...</div>
       </div>
-      <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 flex items-center space-x-2">
-        <Plus className="w-4 h-4" />
-        <span>Process Claim</span>
-      </button>
-    </div>
+    );
+  }
 
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-      {[
-        {
-          label: "Pending Claims",
-          value: "47",
-          color: "from-orange-500 to-orange-600",
-          icon: AlertCircle,
-          trend: "+12%",
-        },
-        {
-          label: "Approved Today",
-          value: "23",
-          color: "from-green-500 to-green-600",
-          icon: Shield,
-          trend: "+5%",
-        },
-        {
-          label: "Under Review",
-          value: "12",
-          color: "from-blue-500 to-blue-600",
-          icon: Activity,
-          trend: "-2%",
-        },
-        {
-          label: "Rejected",
-          value: "3",
-          color: "from-red-500 to-red-600",
-          icon: AlertCircle,
-          trend: "-8%",
-        },
-      ].map((stat, i) => {
-        const Icon = stat.icon;
-        return (
-          <AnimatedCard
-            key={i}
-            className="p-6 group cursor-pointer  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
-          >
-            <div className="flex items-center justify-between  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                  {stat.value}
-                </p>
-                <p
-                  className={`text-sm font-medium mt-1 ${
-                    stat.trend.startsWith("+")
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
-                >
-                  {stat.trend} vs yesterday
-                </p>
-              </div>
-              <div
-                className={`p-4 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3`}
-              >
-                <Icon className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div className="mt-4 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden ">
-              <div
-                className={`h-1.5 bg-gradient-to-r ${stat.color} rounded-full transition-all duration-1000 ease-out transform origin-left`}
-                style={{ width: `${Math.random() * 80 + 20}%` }}
-              ></div>
-            </div>
-          </AnimatedCard>
-        );
-      })}
-    </div>
-
-    <AnimatedCard className="p-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-      <div className="flex justify-between items-center mb-6  from-blue-50 via-white to-purple-50 ">
-        <h4 className="text-lg font-semibold text-gray-900">Recent Claims</h4>
-        <button className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center space-x-1 hover:underline">
-          <span>View All</span>
-          <ArrowUpRight className="w-4 h-4" />
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-xl text-red-600">{error}</div>
+        <button 
+          onClick={refreshOrders}
+          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+        >
+          Try Again
         </button>
       </div>
-      <div className="space-y-3 ">
-        {[
-          {
-            member: "John Smith",
-            type: "Prescription",
-            amount: "$245",
-            status: "Approved",
-            priority: "Normal",
-          },
-          {
-            member: "Mary Johnson",
-            type: "Hospital Visit",
-            amount: "$1,850",
-            status: "Under Review",
-            priority: "High",
-          },
-          {
-            member: "Robert Brown",
-            type: "Lab Work",
-            amount: "$120",
-            status: "Pending",
-            priority: "Low",
-          },
-        ].map((claim, i) => (
+    );
+  }
+
+  // Ensure orders is an array for rendering
+  const ordersArray = Array.isArray(orders) ? orders : [];
+
+  return (
+    <div className="space-y-6 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 p-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">PharmaFlow Orders</h3>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
+            Manage and process customer orders
+          </p>
+        </div>
+        <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 flex items-center space-x-2">
+          <span>+</span>
+          <span>Export Data</span>
+        </button>
+      </div>
+
+      {/* Order Statistics */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        {Object.entries(orderCounts).map(([status, count]) => (
           <div
-            key={i}
-            className="flex items-center justify-between p-4 bg-gradient-to-r rounded-xl hover:from-blue-50 hover:shadow-md  group cursor-pointer  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
+            key={status}
+            className="p-4 group cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
           >
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200">
-                {claim.member
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </div>
+            <div className="flex items-center justify-between">
               <div>
-                <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                  {claim.member}
-                </div>
-                <div className="text-sm text-gray-500">{claim.type}</div>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                  {status}
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-200">
+                  {count}
+                </p>
+              </div>
+              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3">
+                <span className="text-white text-xl">{statusIcons[status]}</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <div className="font-bold text-gray-900">{claim.amount}</div>
-                <div
-                  className={`text-xs px-2 py-1 rounded-full transition-all duration-200 ${
-                    claim.status === "Approved"
-                      ? "bg-green-100 text-green-800 hover:bg-green-200"
-                      : claim.status === "Under Review"
-                      ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                      : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
-                  }`}
-                >
-                  {claim.status}
-                </div>
-              </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <TooltipWrapper tooltip="More Actions">
-                  <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors duration-200">
-                    <MoreVertical className="w-4 h-4 text-gray-500" />
-                  </button>
-                </TooltipWrapper>
-              </div>
+            <div className="mt-3 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="h-1.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000 ease-out transform origin-left"
+                style={{ width: `${ordersArray.length > 0 ? (count / ordersArray.length) * 100 : 0}%` }}
+              ></div>
             </div>
           </div>
         ))}
       </div>
-    </AnimatedCard>
-  </div>
-);
 
+      {/* Orders List */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h4 className="text-lg font-semibold text-gray-900 dark:text-white">All Orders</h4>
+          <div className="flex space-x-2">
+            <select className="px-3 py-2 border border-gray-300 rounded-md text-sm">
+              <option>Filter by Status</option>
+              {Object.keys(Status).map(status => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </select>
+            <button 
+              onClick={refreshOrders}
+              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium flex items-center space-x-1 hover:underline"
+            >
+              <span>Refresh</span>
+              <span>↻</span>
+            </button>
+          </div>
+        </div>
+        
+        {ordersArray.length === 0 ? (
+          <div className="text-center py-10 text-gray-500">
+            No orders found
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {ordersArray.map((order) => (
+              <div
+                key={order.id}
+                className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-xl hover:shadow-md group cursor-pointer transition-all duration-300"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200">
+                    {order.userName
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-200">
+                      {order.userName}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      Order #{order.id} • {new Date(order.orderDate).toLocaleDateString()}
+                    </div>
+                    <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                      {order.items && order.items.length} item(s) • Total: ${order.totalPrice}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <div className="font-bold text-gray-900 dark:text-white">${order.totalPrice}</div>
+                    <div
+                      className={`text-xs px-2 py-1 rounded-full transition-all duration-200 ${statusColors[order.status]}`}
+                    >
+                      {order.status}
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    {order.status === Status.PLACED && (
+                      <button 
+                        onClick={() => openStatusModal(order, Status.APPROVED)}
+                        className="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full hover:bg-green-200 transition-colors"
+                      >
+                        Approve
+                      </button>
+                    )}
+                    {order.status === Status.APPROVED && (
+                      <button 
+                        onClick={() => openStatusModal(order, Status.SHIPPED)}
+                        className="px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full hover:bg-purple-200 transition-colors"
+                      >
+                        Ship
+                      </button>
+                    )}
+                    {order.status !== Status.CANCELLED && order.status !== Status.DELIVERED && (
+                      <button 
+                        onClick={() => openStatusModal(order, Status.CANCELLED)}
+                        className="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full hover:bg-red-200 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Status Update Modal */}
+      {showModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Update Order Status</h3>
+            <p className="mb-4">
+              Are you sure you want to change order #{selectedOrder.id} from {selectedOrder.status} to {statusUpdate}?
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button 
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => updateOrderStatus(selectedOrder.id, statusUpdate)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+
+// export default OrdersPanel;
 const MedicineProductsPanel = () => {
   // At the top of your component
   const [currentUser, setCurrentUser] = useState(null);
@@ -3519,3 +3687,4 @@ const AdminDashboard = () => {
 
 export default AdminDashboard;
 export { MedicineProductsPanel }; // Named export
+export {OrdersPanel}
