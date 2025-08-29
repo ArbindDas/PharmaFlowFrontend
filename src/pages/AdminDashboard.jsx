@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import {
   Users,
   ShoppingCart,
@@ -42,6 +42,14 @@ import "react-toastify/dist/ReactToastify.css";
 import AddMemberModal from "../components/AddMemberModal";
 import { SearchX } from "lucide-react";
 // import { useTheme } from "../context/ThemeContext";
+
+import {
+  ChartBarIcon,
+  ArrowPathIcon,
+  ArrowTrendingUpIcon,
+  ClipboardDocumentListIcon
+} from '@heroicons/react/24/outline';
+
 import {
   addMedicine,
   updateMedicine,
@@ -1841,32 +1849,8 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
   );
 };
 
-const Status = {
-  PLACED: 'PLACED',
-  APPROVED: 'APPROVED',
-  SHIPPED: 'SHIPPED',
-  DELIVERED: 'DELIVERED',
-  CANCELLED: 'CANCELLED',
-  PENDING: 'PENDING'
-};
 
-const statusDescriptions = {
-  PLACED: "Order has been placed",
-  APPROVED: "Order has been approved",
-  SHIPPED: "Order has been shipped",
-  DELIVERED: "Order has been delivered",
-  CANCELLED: "Order has been cancelled",
-  PENDING: "Order has been pending"
-};
 
-const statusColors = {
-  PLACED: "bg-blue-100 text-blue-800",
-  APPROVED: "bg-green-100 text-green-800",
-  SHIPPED: "bg-purple-100 text-purple-800",
-  DELIVERED: "bg-teal-100 text-teal-800",
-  CANCELLED: "bg-red-100 text-red-800",
-  PENDING: "bg-yellow-100 text-yellow-800"
-};
 
 const statusIcons = {
   PLACED: "📝",
@@ -1874,7 +1858,26 @@ const statusIcons = {
   SHIPPED: "🚚",
   DELIVERED: "📦",
   CANCELLED: "❌",
-  PENDING: "⏳"
+  PENDING: "⏳",
+};
+
+// Define the order status flow
+const Status = {
+  PLACED: "PLACED",
+  APPROVED: "APPROVED",
+  SHIPPED: "SHIPPED",
+  DELIVERED: "DELIVERED",
+  CANCELLED: "CANCELLED",
+  PENDING: "PENDING",
+};
+
+const statusColors = {
+  PLACED: "bg-blue-100/70 text-blue-800 border border-blue-200/50 backdrop-blur-md shadow-lg shadow-blue-500/10",
+  APPROVED: "bg-emerald-100/70 text-emerald-800 border border-emerald-200/50 backdrop-blur-md shadow-lg shadow-emerald-500/10",
+  SHIPPED: "bg-purple-100/70 text-purple-800 border border-purple-200/50 backdrop-blur-md shadow-lg shadow-purple-500/10", 
+  DELIVERED: "bg-gray-100/70 text-gray-800 border border-gray-200/50 backdrop-blur-md shadow-lg shadow-gray-500/10",
+  CANCELLED: "bg-red-100/70 text-red-800 border border-red-200/50 backdrop-blur-md shadow-lg shadow-red-500/10",
+  PENDING: "bg-amber-100/70 text-amber-800 border border-amber-200/50 backdrop-blur-md shadow-lg shadow-amber-500/10",
 };
 
 const OrdersPanel = () => {
@@ -1883,7 +1886,8 @@ const OrdersPanel = () => {
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [statusUpdate, setStatusUpdate] = useState('');
+  const [statusUpdate, setStatusUpdate] = useState("");
+  const [activeFilter, setActiveFilter] = useState("ALL");
 
   useEffect(() => {
     fetchOrders();
@@ -1892,65 +1896,96 @@ const OrdersPanel = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/orders/admin', {
-        withCredentials: true
+      
+      // Get token from localStorage
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        setError("No authentication token found. Please login again.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.get("http://localhost:8080/api/orders/admin", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        }
       });
-      
+
       // Debug the response
-      console.log('Orders API Response:', response.data);
-      
+      console.log("Orders API Response:", response.data);
+
       // Ensure we have an array and transform data if needed
       const ordersData = Array.isArray(response.data) ? response.data : [];
-      
+
       // Transform data to match frontend expectations
-      const transformedOrders = ordersData.map(order => ({
+      const transformedOrders = ordersData.map((order) => ({
         id: order.id,
         totalPrice: order.totalPrice,
         status: order.status,
-        orderDate: order.orderDate || order.createdAt, // Handle both field names
-        userName: order.userName || order.user?.fullName || 'Unknown User',
-        items: order.items || []
+        orderDate: order.createdAt, // Use the actual field name from API
+        userName: order.userName,
+        items: order.items || [],
       }));
-      
+
       setOrders(transformedOrders);
       setLoading(false);
     } catch (err) {
-      setError('Failed to fetch orders');
+      if (err.response?.status === 401) {
+        setError("Session expired. Please login again.");
+      } else {
+        setError("Failed to fetch orders");
+      }
       setLoading(false);
-      console.error('Error fetching orders:', err);
+      console.error("Error fetching orders:", err);
     }
   };
 
-
-
-  // Count orders by status - fixed implementation
+  // Count orders by status
   const orderCounts = Object.values(Status).reduce((counts, status) => {
-    // Ensure orders is treated as an array
     const ordersArray = Array.isArray(orders) ? orders : [];
-    counts[status] = ordersArray.filter(order => order.status === status).length;
+    counts[status] = ordersArray.filter(
+      (order) => order.status === status
+    ).length;
     return counts;
   }, {});
 
   // Update order status
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await axios.put(`/api/orders/${orderId}/status`, { status: newStatus }, {
-        withCredentials: true
-      });
+      const token = localStorage.getItem("token");
       
+      if (!token) {
+        alert("No authentication token found. Please login again.");
+        return;
+      }
+
+      await axios.put(
+        `http://localhost:8080/api/orders/${orderId}/status`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+        }
+      );
+
       // Update local state
-      setOrders(prevOrders => 
-        Array.isArray(prevOrders) 
-          ? prevOrders.map(order => 
+      setOrders((prevOrders) =>
+        Array.isArray(prevOrders)
+          ? prevOrders.map((order) =>
               order.id === orderId ? { ...order, status: newStatus } : order
             )
           : []
       );
-      
+
       setShowModal(false);
     } catch (err) {
-      console.error('Error updating order status:', err);
-      alert('Failed to update order status');
+      console.error("Error updating order status:", err);
+      alert("Failed to update order status");
     }
   };
 
@@ -1965,57 +2000,93 @@ const OrdersPanel = () => {
   const refreshOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/orders/admin', {
-        withCredentials: true
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        setError("No authentication token found. Please login again.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.get("http://localhost:8080/api/orders/admin", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        }
       });
+      
       setOrders(Array.isArray(response.data) ? response.data : []);
       setLoading(false);
     } catch (err) {
-      setError('Failed to refresh orders');
+      setError("Failed to refresh orders");
       setLoading(false);
-      console.error('Error refreshing orders:', err);
+      console.error("Error refreshing orders:", err);
     }
   };
 
+  // Get available status transitions for an order
+  const getAvailableStatusTransitions = (currentStatus) => {
+    const allStatuses = Object.values(Status);
+    
+    // Admin can transition to any status except the current one
+    return allStatuses.filter(status => status !== currentStatus);
+  };
+
+  // Filter orders based on active filter
+  const filteredOrders = Array.isArray(orders) 
+    ? activeFilter === "ALL" 
+      ? orders 
+      : orders.filter(order => order.status === activeFilter)
+    : [];
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-xl text-gray-600">Loading orders...</div>
+      <div className="flex flex-col justify-center items-center h-96 space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="text-lg text-gray-600 dark:text-gray-300">Loading orders...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-xl text-red-600">{error}</div>
-        <button 
+      <div className="flex flex-col justify-center items-center h-96 space-y-4">
+        <div className="text-xl text-red-600 dark:text-red-400">{error}</div>
+        <button
           onClick={refreshOrders}
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
         >
-          Try Again
+          <ArrowPathIcon className="w-5 h-5" />
+          <span>Try Again</span>
         </button>
       </div>
     );
   }
 
-  // Ensure orders is an array for rendering
-  const ordersArray = Array.isArray(orders) ? orders : [];
-
   return (
-    <div className="space-y-6 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 p-6">
+    <div className="space-y-6 bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6 min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">PharmaFlow Orders</h3>
+          <h3 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <ClipboardDocumentListIcon className="w-8 h-8 text-blue-600" />
+            PharmaFlow Orders
+          </h3>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Manage and process customer orders
+            Manage and process customer medication orders
           </p>
         </div>
-        <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 flex items-center space-x-2">
-          <span>+</span>
-          <span>Export Data</span>
-        </button>
+        <div className="flex gap-3">
+          <button className="px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-300 flex items-center space-x-2 shadow-sm hover:shadow-md">
+            <ChartBarIcon className="w-5 h-5" />
+            <span>Reports</span>
+          </button>
+          <button className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-green-500/25">
+            <ArrowTrendingUpIcon className="w-5 h-5" />
+            <span>Export Data</span>
+          </button>
+        </div>
       </div>
 
       {/* Order Statistics */}
@@ -2023,25 +2094,33 @@ const OrdersPanel = () => {
         {Object.entries(orderCounts).map(([status, count]) => (
           <div
             key={status}
-            className="p-4 group cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
+            className="p-4 group cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/50 dark:border-gray-700/50 hover:-translate-y-1"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 uppercase tracking-wider">
                   {status}
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-200">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
                   {count}
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3">
-                <span className="text-white text-xl">{statusIcons[status]}</span>
+                <span className="text-white text-xl">
+                  {statusIcons[status]}
+                </span>
               </div>
             </div>
-            <div className="mt-3 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+            <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
               <div
                 className="h-1.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000 ease-out transform origin-left"
-                style={{ width: `${ordersArray.length > 0 ? (count / ordersArray.length) * 100 : 0}%` }}
+                style={{
+                  width: `${
+                    orders.length > 0
+                      ? (count / orders.length) * 100
+                      : 0
+                  }%`,
+                }}
               ></div>
             </div>
           </div>
@@ -2049,90 +2128,125 @@ const OrdersPanel = () => {
       </div>
 
       {/* Orders List */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white">All Orders</h4>
-          <div className="flex space-x-2">
-            <select className="px-3 py-2 border border-gray-300 rounded-md text-sm">
-              <option>Filter by Status</option>
-              {Object.keys(Status).map(status => (
-                <option key={status} value={status}>{status}</option>
-              ))}
-            </select>
-            <button 
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm p-6 border border-gray-100/50 dark:border-gray-700/50">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            All Orders
+            <span className="text-sm font-normal bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2.5 py-0.5 rounded-full">
+              {filteredOrders.length}
+            </span>
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveFilter("ALL")}
+              className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+                activeFilter === "ALL"
+                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700"
+                  : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+              }`}
+            >
+              All Orders
+            </button>
+            {Object.keys(Status).map((status) => (
+              <button
+                key={status}
+                onClick={() => setActiveFilter(status)}
+                className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+                  activeFilter === status
+                    ? `${statusColors[status]} border`
+                    : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+                }`}
+              >
+                {status}
+              </button>
+            ))}
+            <button
               onClick={refreshOrders}
-              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium flex items-center space-x-1 hover:underline"
+              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium flex items-center space-x-1 px-3 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 transition-colors"
             >
               <span>Refresh</span>
-              <span>↻</span>
+              <ArrowPathIcon className="w-4 h-4" />
             </button>
           </div>
         </div>
-        
-        {ordersArray.length === 0 ? (
-          <div className="text-center py-10 text-gray-500">
-            No orders found
+
+        {filteredOrders.length === 0 ? (
+          <div className="text-center py-16 text-gray-500 dark:text-gray-400 flex flex-col items-center">
+            <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+              <ClipboardDocumentListIcon className="w-12 h-12 text-gray-400" />
+            </div>
+            <p className="text-lg font-medium">No orders found</p>
+            <p className="text-sm mt-1">
+              {activeFilter !== "ALL" ? `No orders with status "${activeFilter}"` : "No orders available"}
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {ordersArray.map((order) => (
+            {filteredOrders.map((order) => (
               <div
                 key={order.id}
-                className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-xl hover:shadow-md group cursor-pointer transition-all duration-300"
+                className="flex flex-col md:flex-row items-start md:items-center justify-between p-5 bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-gray-700/50 rounded-xl hover:shadow-md group cursor-pointer transition-all duration-300 border border-gray-100/50 dark:border-gray-700/50 hover:-translate-y-0.5"
               >
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200">
+                <div className="flex items-start space-x-4 mb-4 md:mb-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200 flex-shrink-0">
                     {order.userName
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors duration-200">
+                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
                       {order.userName}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Order #{order.id} • {new Date(order.orderDate).toLocaleDateString()}
+                      Order #{order.id} •{" "}
+                      {new Date(order.orderDate).toLocaleDateString()}
                     </div>
                     <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      {order.items && order.items.length} item(s) • Total: ${order.totalPrice}
+                      {order.items && order.items.length} item(s) • Total: $
+                      {order.totalPrice}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <div className="font-bold text-gray-900 dark:text-white">${order.totalPrice}</div>
+                <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto gap-4">
+                  <div className="text-left md:text-right">
+                    <div className="font-bold text-gray-900 dark:text-white text-lg">
+                      ${order.totalPrice}
+                    </div>
                     <div
-                      className={`text-xs px-2 py-1 rounded-full transition-all duration-200 ${statusColors[order.status]}`}
+                      className={`text-xs px-3 py-1.5 rounded-full inline-block mt-1 ${
+                        statusColors[order.status]
+                      }`}
                     >
                       {order.status}
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    {order.status === Status.PLACED && (
-                      <button 
-                        onClick={() => openStatusModal(order, Status.APPROVED)}
-                        className="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full hover:bg-green-200 transition-colors"
+                  <div className="flex flex-wrap gap-2">
+                    {/* Show all available status transitions */}
+                    {getAvailableStatusTransitions(order.status).map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => openStatusModal(order, status)}
+                        className={`px-3 py-1.5 text-xs rounded-full transition-all ${
+                          status === Status.CANCELLED 
+                            ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50" 
+                            : status === Status.DELIVERED
+                            ? "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                            : status === Status.SHIPPED
+                            ? "bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                            : status === Status.APPROVED
+                            ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
+                            : "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                        }`}
                       >
-                        Approve
+                        {status === Status.CANCELLED ? "Cancel" : 
+                         status === Status.DELIVERED ? "Mark Delivered" :
+                         status === Status.SHIPPED ? "Ship" :
+                         status === Status.APPROVED ? "Approve" :
+                         status === Status.PLACED ? "Revert to Placed" :
+                         status}
                       </button>
-                    )}
-                    {order.status === Status.APPROVED && (
-                      <button 
-                        onClick={() => openStatusModal(order, Status.SHIPPED)}
-                        className="px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full hover:bg-purple-200 transition-colors"
-                      >
-                        Ship
-                      </button>
-                    )}
-                    {order.status !== Status.CANCELLED && order.status !== Status.DELIVERED && (
-                      <button 
-                        onClick={() => openStatusModal(order, Status.CANCELLED)}
-                        className="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full hover:bg-red-200 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    )}
+                    ))}
                   </div>
                 </div>
               </div>
@@ -2143,24 +2257,32 @@ const OrdersPanel = () => {
 
       {/* Status Update Modal */}
       {showModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Update Order Status</h3>
-            <p className="mb-4">
-              Are you sure you want to change order #{selectedOrder.id} from {selectedOrder.status} to {statusUpdate}?
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md border border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Update Order Status</h3>
+            <p className="mb-4 text-gray-600 dark:text-gray-300">
+              Change order <span className="font-medium">#{selectedOrder.id}</span> from{" "}
+              <span className={`font-semibold ${statusColors[selectedOrder.status].split(' ')[1]}`}>
+                {selectedOrder.status}
+              </span> to{" "}
+              <span className={`font-semibold ${statusColors[statusUpdate]?.split(' ')[1] || 'text-gray-900 dark:text-white'}`}>
+                {statusUpdate}
+              </span>?
             </p>
             <div className="flex justify-end space-x-3">
-              <button 
+              <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Cancel
               </button>
-              <button 
-                onClick={() => updateOrderStatus(selectedOrder.id, statusUpdate)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+              <button
+                onClick={() =>
+                  updateOrderStatus(selectedOrder.id, statusUpdate)
+                }
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
               >
-                Confirm
+                Confirm Update
               </button>
             </div>
           </div>
@@ -2169,6 +2291,7 @@ const OrdersPanel = () => {
     </div>
   );
 };
+
 
 
 
@@ -2864,7 +2987,6 @@ const MedicineProductsPanel = () => {
                     </h4>
                     <p className="text-gray-600">
                       {selectedMedicine.description}
-
                     </p>
                   </div>
 
@@ -3687,4 +3809,4 @@ const AdminDashboard = () => {
 
 export default AdminDashboard;
 export { MedicineProductsPanel }; // Named export
-export {OrdersPanel}
+export { OrdersPanel };

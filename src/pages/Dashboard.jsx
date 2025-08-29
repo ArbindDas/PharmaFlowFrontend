@@ -43,7 +43,7 @@ const Dashboard = () => {
   const fetchUserOrders = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8080/api/orders", {
+      const response = await fetch("http://localhost:8080/api/orders/history", {
         method: "GET",
         credentials: "include",
         headers: {
