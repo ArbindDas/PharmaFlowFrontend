@@ -315,7 +315,7 @@ function Cart() {
                   Total Value
                 </span>
                 <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-2 sm:px-6 sm:py-3 rounded-full font-bold text-sm sm:text-lg shadow-lg">
-                  ${totalPrice.toFixed(2)}
+                  Rs{totalPrice.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -441,7 +441,7 @@ function Cart() {
                             }`}
                           >
                             <span className="text-sm sm:text-xl font-bold">
-                              ${item.price}
+                              Rs{item.price}
                             </span>
                           </div>
                           <div
@@ -524,14 +524,14 @@ function Cart() {
                                 isDarkMode ? "text-gray-400" : "text-gray-500"
                               }`}
                             >
-                              ${item.price} × {item.quantity}
+                              Rs{item.price} × {item.quantity}
                             </p>
                             <p
                               className={`text-lg sm:text-2xl font-bold ${
                                 isDarkMode ? "text-white" : "text-gray-900"
                               }`}
                             >
-                              ${(item.price * item.quantity).toFixed(2)}
+                              Rs{(item.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
                         </div>
@@ -577,7 +577,7 @@ function Cart() {
                           isDarkMode ? "text-white" : "text-white"
                         }`}
                       >
-                        ${(item.price * item.quantity).toFixed(2)}
+                        Rs{(item.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
                   ))}
@@ -593,7 +593,7 @@ function Cart() {
                       Total
                     </span>
                     <span className="text-2xl sm:text-3xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                      ${totalPrice.toFixed(2)}
+                      Rs{totalPrice.toFixed(2)}
                     </span>
                   </div>
                 </div>

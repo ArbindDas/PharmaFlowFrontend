@@ -2719,7 +2719,7 @@ const MedicineProductsPanel = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price ($) *
+                      Price (Rs) *
                     </label>
                     <input
                       type="number"
@@ -2994,7 +2994,7 @@ const MedicineProductsPanel = () => {
                     <div className="bg-gray-50 p-4 rounded-xl">
                       <p className="text-sm text-gray-600">Price</p>
                       <p className="text-lg font-bold text-gray-900">
-                        ${selectedMedicine.price.toFixed(2)}
+                        Rs{selectedMedicine.price.toFixed(2)}
                       </p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-xl">
@@ -3157,21 +3157,22 @@ const MedicineProductsPanel = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <DollarSign className="w-4 h-4 text-green-600" />
+                          {/* <p className="w-4 h-4 text-green-600">Rs</p> */}
                           <span className="text-sm text-gray-600">Price</span>
                         </div>
                         <span className="font-bold text-green-600">
-                          ${medicine.price.toFixed(2)}
+                          Rs{medicine.price.toFixed(2)}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <StockIcon
-                            className={`w-4 h-4 ${stockStatus.color}`}
+                            className={`w-4 h-4 Rs{stockStatus.color}`}
                           />
                           <span className="text-sm text-gray-600">Stock</span>
                         </div>
-                        <span className={`font-bold ${stockStatus.color}`}>
+                        <span className={`font-bold Rs{stockStatus.color}`}>
                           {medicine.stock}
                         </span>
                       </div>
