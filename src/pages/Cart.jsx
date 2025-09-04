@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   ShoppingCart,
@@ -9,18 +10,111 @@ import {
   User,
   LogIn,
   AlertCircle,
-  X,
   CheckCircle,
   ArrowRight,
   Heart,
+  CreditCard,
 } from "lucide-react";
-// import { useCart } from '../context/CartContext';
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import "../styles/animations.css";
 import { useFirebaseCart } from "../context/FirebaseCartContext";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe("pk_test_51Ry1Q2PzuRUZBXUT8j8IyEsGZGr5fnaqLswgtBAe1ieDbUWiukJTSXOao1NrfTioubBssdFWWLiYGii0WrKYXhbw00U6LBslkq");
+
+// Stripe Payment Form Component
+const StripePaymentForm = ({ totalPrice, onSuccess, onError }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [processing, setProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setProcessing(true);
+    setErrorMessage("");
+
+    try {
+      // Create payment intent on your server
+      const response = await fetch("http://localhost:8080/api/payment/create-payment-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ amount: Math.round(totalPrice * 100) }), // Amount in paise
+      });
+
+      const { clientSecret } = await response.json();
+
+      // Confirm the payment with Stripe
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+        },
+      });
+
+      if (result.error) {
+        setErrorMessage(result.error.message);
+        onError(result.error.message);
+      } else {
+        // Payment succeeded
+        onSuccess(result.paymentIntent);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      setErrorMessage("Payment failed. Please try again.");
+      onError("Payment failed. Please try again.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="p-4 rounded-xl bg-gray-700">
+        <h4 className="text-lg font-semibold mb-4 text-white">Card Details</h4>
+        <div className="space-y-3">
+          <div className="p-3 rounded-lg bg-gray-600">
+            <CardElement
+              options={{
+                style: {
+                  base: {
+                    fontSize: "16px",
+                    color: "#ffffff",
+                    "::placeholder": {
+                      color: "#aab7c4",
+                    },
+                    backgroundColor: "#4b5563",
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+        {errorMessage && (
+          <div className="text-red-400 text-sm mt-2">{errorMessage}</div>
+        )}
+      </div>
+      <button
+        type="submit"
+        disabled={!stripe || processing}
+        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 sm:py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 sm:space-x-3 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {processing ? "Processing..." : `Pay Rs${totalPrice.toFixed(2)}`}
+      </button>
+    </form>
+  );
+};
 
 function Cart() {
   const {
@@ -39,13 +133,10 @@ function Cart() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentError, setPaymentError] = useState("");
 
-  // Add these debug logs
-  console.log("Cart items from context:", cart);
-  console.log("Total items:", totalItems);
-  console.log("Total price:", totalPrice);
-
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = async (paymentIntentId = null) => {
     if (!isAuthenticated) {
       alert("Please login to place your order");
       navigate("/login", { state: { from: "/cart" } });
@@ -55,6 +146,8 @@ function Cart() {
     try {
       const orderData = {
         totalPrice: totalPrice,
+        paymentMethod: paymentMethod,
+        paymentIntentId: paymentIntentId,
         orderItems: cart.map((item) => ({
           medicineId: item.id,
           quantity: item.quantity,
@@ -71,11 +164,16 @@ function Cart() {
         body: JSON.stringify(orderData),
       });
 
+      const data = await response.json().catch(async () => {
+        const text = await response.text();
+        throw new Error(text || "Unknown error occurred");
+      });
+
       if (!response.ok) {
-        const errorData = await response.json(); // Get more error details
-        throw new Error(errorData.message || "Failed to place order");
+        throw new Error(data.message || data || "Failed to place order");
       }
 
+      console.log("Order created successfully:", data);
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -86,6 +184,17 @@ function Cart() {
       console.error("Order placement error:", error);
       alert(error.message || "Failed to place order. Please try again.");
     }
+  };
+
+  const handleStripePaymentSuccess = (paymentIntent) => {
+    console.log("Payment succeeded:", paymentIntent);
+    handlePlaceOrder(paymentIntent.id);
+  };
+
+  const handleStripePaymentError = (error) => {
+    console.error("Stripe payment error:", error);
+    setPaymentError(error);
+    alert(`Payment error: ${error}`);
   };
 
   const handleRemoveItem = (id) => {
@@ -598,37 +707,83 @@ function Cart() {
                   </div>
                 </div>
 
-                <div className="space-y-3 sm:space-y-4">
-                  <button
-                    onClick={() => setShowClearConfirm(true)}
-                    className={`w-full py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 hover:scale-105 transform hover:shadow-lg ${
-                      isDarkMode
-                        ? "bg-gray-700 hover:bg-gray-600 text-white"
-                        : "bg-gray-700 hover:bg-gray-600 text-white"
-                    }`}
-                  >
-                    Clear Cart
-                  </button>
-
-                  <button
-                    onClick={handlePlaceOrder}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 sm:py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 sm:space-x-3 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl text-sm sm:text-base"
-                  >
-                    {isAuthenticated ? (
-                      <>
-                        <User className="w-5 h-5 sm:w-6 sm:h-6" />
-                        <span>Place Order</span>
-                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </>
-                    ) : (
-                      <>
-                        <LogIn className="w-5 h-5 sm:w-6 sm:h-6" />
-                        <span>Login to Place Order</span>
-                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </>
-                    )}
-                  </button>
+                {/* Payment Method Selection */}
+                <div className="mb-6 sm:mb-8">
+                  <h4 className="text-lg font-semibold mb-4">Payment Method</h4>
+                  <div className="space-y-3">
+                    <div
+                      className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+                        paymentMethod === "cod"
+                          ? "bg-blue-500 text-white"
+                          : isDarkMode
+                          ? "bg-gray-700 hover:bg-gray-600"
+                          : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      onClick={() => setPaymentMethod("cod")}
+                    >
+                      <span className="w-5 h-5 mr-3 inline-block">Rs</span>
+                      <span>Cash on Delivery (COD)</span>
+                    </div>
+                    <div
+                      className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+                        paymentMethod === "credit_card"
+                          ? "bg-blue-500 text-white"
+                          : isDarkMode
+                          ? "bg-gray-700 hover:bg-gray-600"
+                          : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      onClick={() => setPaymentMethod("credit_card")}
+                    >
+                      <CreditCard className="w-5 h-5 mr-3" />
+                      <span>Credit/Debit Card</span>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Stripe Payment Form */}
+                {paymentMethod === "credit_card" && (
+                  <Elements stripe={stripePromise}>
+                    <StripePaymentForm 
+                      totalPrice={totalPrice} 
+                      onSuccess={handleStripePaymentSuccess}
+                      onError={handleStripePaymentError}
+                    />
+                  </Elements>
+                )}
+
+                {paymentMethod === "cod" && (
+                  <div className="space-y-3 sm:space-y-4">
+                    <button
+                      onClick={() => setShowClearConfirm(true)}
+                      className={`w-full py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 hover:scale-105 transform hover:shadow-lg ${
+                        isDarkMode
+                          ? "bg-gray-700 hover:bg-gray-600 text-white"
+                          : "bg-gray-700 hover:bg-gray-600 text-white"
+                      }`}
+                    >
+                      Clear Cart
+                    </button>
+
+                    <button
+                      onClick={() => handlePlaceOrder()}
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 sm:py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 sm:space-x-3 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl text-sm sm:text-base"
+                    >
+                      {isAuthenticated ? (
+                        <>
+                          <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                          <span>Place Order</span>
+                          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </>
+                      ) : (
+                        <>
+                          <LogIn className="w-5 h-5 sm:w-6 sm:h-6" />
+                          <span>Login to Place Order</span>
+                          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

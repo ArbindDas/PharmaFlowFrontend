@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -20,6 +19,7 @@ import {
   Calendar,
   Download,
   Printer,
+  ThumbsUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip } from "react-tooltip";
@@ -95,12 +95,28 @@ const OrderHistory = () => {
         icon: <Package className="w-4 h-4" />,
         text: "Placed",
       },
+
+
       COMPLETED: {
         color:
           "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
         icon: <CheckCircle className="w-4 h-4" />,
         text: "Completed",
       },
+
+      DELIVERED: {
+        color:
+          "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400",
+        icon: <Package className="w-4 h-4" />,
+        text: "Delivered",
+      },
+
+      APPROVED :{
+          color: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+                  icon: <ThumbsUp className="w-4 h-4" />,
+                  text: "Approved",
+      },
+
       CANCELLED: {
         color: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
         icon: <XCircle className="w-4 h-4" />,
@@ -113,6 +129,7 @@ const OrderHistory = () => {
         text: "Shipped",
       },
     };
+
 
     return (
       statusMap[status?.toUpperCase()] || {

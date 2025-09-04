@@ -2,6 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { Link, useNavigate } from "react-router-dom";
+// import {
+//   Calendar,
+//   Package,
+//   Clock,
+//   CheckCircle,
+//   XCircle,
+//   Truck,
+//   ChevronRight,
+//   ArrowLeft,
+//   Loader2,
+//   AlertCircle,
+//   ThumbsUp
+// } from "lucide-react";
+
 import {
   Calendar,
   Package,
@@ -13,6 +27,7 @@ import {
   ArrowLeft,
   Loader2,
   AlertCircle,
+  ThumbsUp, // Make sure this is imported
 } from "lucide-react";
 import "../styles/animations.css";
 
@@ -126,13 +141,47 @@ function Orders() {
   }, [isAuthenticated, navigate]);
 
   const getStatusDetails = (status) => {
-    switch (status) {
+    // First, let's check what status we're actually getting
+    console.log("Status received:", status);
+
+    // Normalize the status by trimming and converting to uppercase
+    const normalizedStatus = status ? status.trim().toUpperCase() : "";
+
+    switch (normalizedStatus) {
+      case "PLACED":
+        return {
+          color:
+            "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
+          icon: <Clock className="w-4 h-4" />,
+          text: "Order Placed",
+        };
       case "PENDING":
         return {
           color:
             "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
           icon: <Clock className="w-4 h-4" />,
           text: "Processing",
+        };
+      case "APPROVED":
+        return {
+          color:
+            "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+          icon: <ThumbsUp className="w-4 h-4" />,
+          text: "Approved",
+        };
+      case "SHIPPED":
+        return {
+          color:
+            "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+          icon: <Truck className="w-4 h-4" />,
+          text: "Shipped",
+        };
+      case "DELIVERED":
+        return {
+          color:
+            "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400",
+          icon: <Package className="w-4 h-4" />,
+          text: "Delivered",
         };
       case "COMPLETED":
         return {
@@ -147,23 +196,16 @@ function Orders() {
           icon: <XCircle className="w-4 h-4" />,
           text: "Cancelled",
         };
-      case "SHIPPED":
-        return {
-          color:
-            "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-          icon: <Truck className="w-4 h-4" />,
-          text: "Shipped",
-        };
       default:
+        // Return the actual status value instead of "Unknown"
         return {
           color:
             "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
           icon: <AlertCircle className="w-4 h-4" />,
-          text: "Unknown",
+          text: status || "jai", // Show the actual status value
         };
     }
   };
-
   const formatDate = (dateString) => {
     const options = {
       year: "numeric",
@@ -261,8 +303,6 @@ function Orders() {
           >
             My Orders
           </h1>
-
-         
         </div>
 
         {orders.length === 0 ? (
@@ -336,6 +376,21 @@ function Orders() {
                             {getStatusDetails(order.status).text}
                           </span>
                         </span>
+                        {/* {(() => {
+  console.log("Order status:", order.status);
+  const statusDetails = getStatusDetails(order.status);
+  console.log("Status details:", statusDetails);
+  return (
+    <span
+      className={`text-sm font-medium px-3 py-1 rounded-full ${statusDetails.color} flex items-center`}
+    >
+      {statusDetails.icon}
+      <span className="ml-1.5">
+        {statusDetails.text}
+      </span>
+    </span>
+  );
+})()} */}
                         <span
                           className={`text-sm ${
                             isDarkMode ? "text-gray-400" : "text-gray-600"
@@ -603,4 +658,3 @@ function Orders() {
 }
 
 export default Orders;
-

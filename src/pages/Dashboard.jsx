@@ -40,66 +40,138 @@ const Dashboard = () => {
   }, [loading, user, navigate]);
 
   // Function to fetch user orders
+  // const fetchUserOrders = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await fetch("http://localhost:8080/api/orders/history", {
+  //       method: "GET",
+  //       credentials: "include",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       redirect: "manual",
+  //     });
+
+  //     // Handle 3xx redirects manually
+  //     if (response.status >= 300 && response.status < 400) {
+  //       return;
+  //     }
+
+  //     // First read the response as text
+  //     const responseText = await response.text();
+
+  //     // Try to parse as JSON
+  //     try {
+  //       const data = responseText ? JSON.parse(responseText) : [];
+  //       if (!response.ok) {
+  //         throw new Error(
+  //           data.message || `HTTP error! status: ${response.status}`
+  //         );
+  //       }
+  //       setOrders(data);
+  //       setOrdersCount(data.length);
+  //       setError(null);
+  //     } catch (jsonError) {
+  //       // If parsing fails, check if it's HTML
+  //       if (
+  //         responseText.startsWith("<!DOCTYPE html>") ||
+  //         responseText.startsWith("<html")
+  //       ) {
+  //         console.error(
+  //           "Received HTML instead of JSON:",
+  //           responseText.substring(0, 100)
+  //         );
+  //       } else {
+  //         console.error("Invalid JSON:", responseText);
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error("Fetch error:", err);
+  //     // Handle specific error cases
+  //     if (
+  //       err.message.includes("401") ||
+  //       err.message.includes("Unauthorized") ||
+  //       err.message.includes("token")
+  //     ) {
+  //       localStorage.removeItem("token");
+  //     }
+  //   }
+  // };
+
+
   const fetchUserOrders = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8080/api/orders/history", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        redirect: "manual",
-      });
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:8080/api/orders/history", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
 
-      // Handle 3xx redirects manually
-      if (response.status >= 300 && response.status < 400) {
-        return;
-      }
-
-      // First read the response as text
-      const responseText = await response.text();
-
-      // Try to parse as JSON
-      try {
-        const data = responseText ? JSON.parse(responseText) : [];
-        if (!response.ok) {
-          throw new Error(
-            data.message || `HTTP error! status: ${response.status}`
-          );
-        }
-        setOrders(data);
-        setOrdersCount(data.length);
-        setError(null);
-      } catch (jsonError) {
-        // If parsing fails, check if it's HTML
-        if (
-          responseText.startsWith("<!DOCTYPE html>") ||
-          responseText.startsWith("<html")
-        ) {
-          console.error(
-            "Received HTML instead of JSON:",
-            responseText.substring(0, 100)
-          );
-        } else {
-          console.error("Invalid JSON:", responseText);
-        }
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      // Handle specific error cases
-      if (
-        err.message.includes("401") ||
-        err.message.includes("Unauthorized") ||
-        err.message.includes("token")
-      ) {
-        localStorage.removeItem("token");
-      }
+    // Handle redirects (3xx status codes)
+    if (response.redirected) {
+      window.location.href = response.url;
+      return;
     }
-  };
 
+    // Handle unauthorized (401)
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      navigate("/login");
+      return;
+    }
+
+    // Handle other errors
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Get response as text first to check for empty response
+    const responseText = await response.text();
+    
+    // If response is empty, set empty array
+    if (!responseText.trim()) {
+      setOrders([]);
+      setOrdersCount(0);
+      return;
+    }
+
+    // Try to parse JSON
+    try {
+      const data = JSON.parse(responseText);
+      setOrders(data);
+      setOrdersCount(data.length);
+    } catch (jsonError) {
+      console.error("JSON parsing error:", jsonError);
+      console.error("Response text:", responseText);
+      
+      // Check if it's HTML content
+      if (responseText.includes('<!DOCTYPE html>') || 
+          responseText.includes('<html') || 
+          response.headers.get('content-type')?.includes('text/html')) {
+        console.error("Received HTML content instead of JSON");
+      } else {
+        console.error("Invalid JSON format received");
+      }
+      
+      setOrders([]);
+      setOrdersCount(0);
+    }
+
+  } catch (err) {
+    console.error("Fetch error:", err);
+    if (err.message.includes("401") || err.message.includes("Unauthorized")) {
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  }
+};
   // Calculate pending orders count
   const pendingOrdersCount = orders.filter(order => 
     order.status === "PENDING" || order.status === "SHIPPED"
