@@ -39,71 +39,41 @@ const Dashboard = () => {
     }
   }, [loading, user, navigate]);
 
-  // Function to fetch user orders
-  // const fetchUserOrders = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const response = await fetch("http://localhost:8080/api/orders/history", {
-  //       method: "GET",
-  //       credentials: "include",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //       },
-  //       redirect: "manual",
-  //     });
 
-  //     // Handle 3xx redirects manually
-  //     if (response.status >= 300 && response.status < 400) {
-  //       return;
-  //     }
-
-  //     // First read the response as text
-  //     const responseText = await response.text();
-
-  //     // Try to parse as JSON
-  //     try {
-  //       const data = responseText ? JSON.parse(responseText) : [];
-  //       if (!response.ok) {
-  //         throw new Error(
-  //           data.message || `HTTP error! status: ${response.status}`
-  //         );
-  //       }
-  //       setOrders(data);
-  //       setOrdersCount(data.length);
-  //       setError(null);
-  //     } catch (jsonError) {
-  //       // If parsing fails, check if it's HTML
-  //       if (
-  //         responseText.startsWith("<!DOCTYPE html>") ||
-  //         responseText.startsWith("<html")
-  //       ) {
-  //         console.error(
-  //           "Received HTML instead of JSON:",
-  //           responseText.substring(0, 100)
-  //         );
-  //       } else {
-  //         console.error("Invalid JSON:", responseText);
-  //       }
-  //     }
-  //   } catch (err) {
-  //     console.error("Fetch error:", err);
-  //     // Handle specific error cases
-  //     if (
-  //       err.message.includes("401") ||
-  //       err.message.includes("Unauthorized") ||
-  //       err.message.includes("token")
-  //     ) {
-  //       localStorage.removeItem("token");
-  //     }
-  //   }
-  // };
 
 
   const fetchUserOrders = async () => {
   try {
-    const token = localStorage.getItem("token");
+    // FIX: Get the correct token based on auth type
+    const getAuthToken = () => {
+      const userData = localStorage.getItem('user');
+      
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          if (user.authProvider === 'GOOGLE') {
+            return localStorage.getItem('accessToken');
+          }
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+        }
+      }
+      
+      // Fallback to regular token
+      return localStorage.getItem('token');
+    };
+
+    const token = getAuthToken();
+    
+    if (!token) {
+      console.error('No authentication token found');
+      setOrders([]);
+      setOrdersCount(0);
+      return;
+    }
+
+    console.log('Fetching orders with token:', token ? 'Present' : 'Missing');
+    
     const response = await fetch("http://localhost:8080/api/orders/history", {
       method: "GET",
       credentials: "include",
@@ -114,6 +84,8 @@ const Dashboard = () => {
       },
     });
 
+    console.log("Orders API response status:", response.status);
+
     // Handle redirects (3xx status codes)
     if (response.redirected) {
       window.location.href = response.url;
@@ -122,7 +94,11 @@ const Dashboard = () => {
 
     // Handle unauthorized (401)
     if (response.status === 401) {
+      console.log('Unauthorized, clearing tokens and redirecting to login');
       localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
       navigate("/login");
       return;
     }
@@ -137,6 +113,7 @@ const Dashboard = () => {
     
     // If response is empty, set empty array
     if (!responseText.trim()) {
+      console.log('Empty response received from orders API');
       setOrders([]);
       setOrdersCount(0);
       return;
@@ -145,6 +122,7 @@ const Dashboard = () => {
     // Try to parse JSON
     try {
       const data = JSON.parse(responseText);
+      console.log('Orders data received:', data);
       setOrders(data);
       setOrdersCount(data.length);
     } catch (jsonError) {
@@ -168,6 +146,9 @@ const Dashboard = () => {
     console.error("Fetch error:", err);
     if (err.message.includes("401") || err.message.includes("Unauthorized")) {
       localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
       navigate("/login");
     }
   }

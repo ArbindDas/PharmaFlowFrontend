@@ -1,11 +1,64 @@
-import axios from "axios";
-import { header } from "framer-motion/client";
+
+
+import axios from "/node_modules/.vite/deps/axios.js?v=9e72e6e5";
 const API_URL = "http://localhost:8080/api/auth";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: false,
 });
+
+
+
+
+
+const getToken = () => {
+  // First, check if we have user data to determine the current auth type
+  const userData = localStorage.getItem('user');
+  
+  if (userData) {
+    try {
+      const user = JSON.parse(userData);
+      
+      // Use the appropriate token based on the current user's auth provider
+      if (user.authProvider === 'GOOGLE') {
+        const oauthToken = localStorage.getItem('accessToken');
+        // Clear any regular token to avoid conflicts
+        if (localStorage.getItem('token')) {
+          localStorage.removeItem('token');
+        }
+        return oauthToken;
+      } else {
+        const regularToken = user.token || localStorage.getItem('token');
+        // Clear any OAuth tokens to avoid conflicts
+        if (localStorage.getItem('accessToken')) {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
+        return regularToken;
+      }
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      return null;
+    }
+  }
+  
+  // If no user data, check for any token but clean up conflicts
+  const oauthToken = localStorage.getItem('accessToken');
+  const regularToken = localStorage.getItem('token');
+  
+  // If both tokens exist, we have a conflict - clear both
+  if (oauthToken && regularToken) {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    return null;
+  }
+  
+  // Return whichever token exists (or null if neither)
+  return oauthToken || regularToken;
+};
 
 const register = async (fullname, email, password) => {
   try {
@@ -26,20 +79,17 @@ const register = async (fullname, email, password) => {
   }
 };
 
-
-
 const getAllUsers = async () => {
   try {
-    // Get the stored user data from localStorage
-    const userData = JSON.parse(localStorage.getItem("user"));
+    const token = getToken();
     
-    if (!userData?.token) {
+    if (!token) {
       throw new Error('No authentication token found - please login again');
     }
     
     const response = await axiosInstance.get("/get-all-users", {
       headers: {
-        Authorization: `Bearer ${userData.token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     
@@ -53,10 +103,6 @@ const getAllUsers = async () => {
   }
 };
 
-
-
-
-
 const deleteUser = async (userId, ROLE_ADMIN = false) => {
   const token = getToken();
 
@@ -65,12 +111,11 @@ const deleteUser = async (userId, ROLE_ADMIN = false) => {
   }
 
   try {
-
-       const endpoint = ROLE_ADMIN
+    const endpoint = ROLE_ADMIN
       ? `${API_URL}/admin/users/${(userId)}`
       : `${API_URL}/users/${(userId)}`;
 
-    console.log('Making DELETE request to:', endpoint); // Debug log
+    console.log('Making DELETE request to:', endpoint);
 
     const response = await axios.delete(endpoint, {
       headers: {
@@ -81,7 +126,6 @@ const deleteUser = async (userId, ROLE_ADMIN = false) => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      // Server responded with a status other than 2xx
       const status = error.response.status;
       let message = "Server error occurred";
       
@@ -98,18 +142,14 @@ const deleteUser = async (userId, ROLE_ADMIN = false) => {
       console.error(`HTTP ${status}: ${message}`);
       throw new Error(message);
     } else if (error.request) {
-      // Request was made but no response received
       console.error("Network error or no response from server");
       throw new Error("Network error - please check your internet connection or try again later.");
     } else {
-      // Something else caused the error
       console.error("Unexpected error:", error.message);
       throw new Error("Unexpected error - " + error.message);
     }
   }
 };
-
-
 
 const updateuser = async (userData, ROLE_ADMIN = false) => {
   const token = getToken();
@@ -132,22 +172,20 @@ const updateuser = async (userData, ROLE_ADMIN = false) => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      // Server responded with a status other than 2xx
       const status = error.response.status;
       const message = error.response.data?.message || "Server error occurred";
       console.error(`HTTP ${status}: ${message}`);
       throw new Error(message);
     } else if (error.request) {
-      // Request was made but no response received
       console.error("Network error or no response from server");
       throw new Error("Network error - please check your internet connection or try again later.");
     } else {
-      // Something else caused the error
       console.error("Unexpected error:", error.message);
       throw new Error("Unexpected error - " + error.message);
     }
   }
 };
+
 
 
 const login = async (email, password) => {
@@ -162,15 +200,17 @@ const login = async (email, password) => {
       throw new Error("Authentication error - no token received");
     }
 
-    // Store user data
-    localStorage.setItem("user", JSON.stringify(response.data));
+    // Store user data for regular login - ensure consistent format
+    const userData = {
+      ...response.data,
+      token: response.data.token // Ensure token is in the user object
+    };
     
-    // Optionally store token separately for easier access
-    localStorage.setItem("token", response.data.token);
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", response.data.token); // Also store separately for compatibility
     
-    return response.data;
+    return userData;
   } catch (error) {
-    // Clear invalid auth data on error
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     
@@ -188,41 +228,57 @@ const login = async (email, password) => {
   }
 };
 
+
 const logout = () => {
-  localStorage.removeItem("user");
-   localStorage.removeItem("token");
+  // Clear all storage items
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  
+  // Remove axios header
+  delete axios.defaults.headers.common['Authorization'];
+  
+  // Reset state
+  setUser(null);
+  setIsAuthenticated(false);
+  
+  // Redirect to login page
+  window.location.href = '/login';
 };
 
+
+
 const getCurrentUser = () => {
+  // First try to get from regular login
   const userStr = localStorage.getItem("user");
-
-  // If no user is found in localStorage
-  if (!userStr) return null;
-
-  try {
-    const user = JSON.parse(userStr);
-
-    // Optional: Validate expected fields (e.g., token)
-    if (!user || typeof user !== "object" || !user.token) {
-      console.warn("Invalid user object format in localStorage.");
-      return null;
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user && typeof user === "object" && user.token) {
+        return user;
+      }
+    } catch (err) {
+      console.error("Error parsing user from localStorage:", err);
     }
-
-    return user;
-  } catch (err) {
-    console.error("Error parsing user from localStorage:", err);
-    return null;
   }
+  
+  // Then try OAuth flow - we may need to fetch user data from server
+  const accessToken = localStorage.getItem('accessToken');
+  if (accessToken) {
+    // For OAuth users, return a minimal user object
+    return { token: accessToken, isOAuth: true };
+  }
+  
+  return null;
 };
 
 const getUserProfile = async () => {
-  const userStr = localStorage.getItem("user");
-  if (!userStr) throw new Error("User is not authenticated");
-
-  const user = JSON.parse(userStr);
-  if (!user?.token) throw new Error("User is not authenticated");
-
-  const token = user.token;
+  const token = getToken();
+  
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
 
   // Optional: Check if the token is expired
   const isTokenExpired = (token) => {
@@ -235,24 +291,32 @@ const getUserProfile = async () => {
   };
 
   if (isTokenExpired(token)) {
-    localStorage.removeItem("user");
+    logout();
     throw new Error("Token has expired");
   }
 
-  const response = await axiosInstance.get("/profile", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await axiosInstance.get("/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      logout();
+      throw new Error("Session expired. Please login again.");
+    }
+    throw new Error(error.response?.data?.message || "Failed to fetch user profile");
+  }
 };
 
 const forgotPassword = async (email) => {
   try {
     const response = await axiosInstance.post(
       "/forgot-password",
-      { email }, // Proper object format
+      { email },
       {
         headers: {
           "Content-Type": "application/json",
@@ -268,6 +332,14 @@ const forgotPassword = async (email) => {
   }
 };
 
+// Add this function for OAuth token handling
+const setOAuthTokens = (accessToken, refreshToken = null) => {
+  localStorage.setItem('accessToken', accessToken);
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+};
+
 const authService = {
   register,
   login,
@@ -276,10 +348,10 @@ const authService = {
   forgotPassword,
   getAllUsers,
   deleteUser,
-  updateuser
+  updateuser,
+  getCurrentUser,
+  getToken,
+  setOAuthTokens // Add this new function
 };
 
 export default authService;
-export const getToken = () => {
-  return localStorage.getItem("token") || null;
-};

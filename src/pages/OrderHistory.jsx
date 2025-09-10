@@ -48,35 +48,76 @@ const OrderHistory = () => {
       return;
     }
 
+ 
+
     const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          "http://localhost:8080/api/orders/history",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
+  try {
+    setLoading(true);
+    
+    // FIX: Get the correct token based on auth type
+    const getAuthToken = () => {
+      const userData = localStorage.getItem('user');
+      
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          if (user.authProvider === 'GOOGLE') {
+            return localStorage.getItem('accessToken');
           }
-        );
-
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-
-        const data = await response.json();
-        setOrders(data);
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError(err.message || "Failed to load orders");
-        if (err.message.includes("401")) navigate("/login");
-      } finally {
-        setLoading(false);
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+        }
       }
+      
+      // Fallback to regular token
+      return localStorage.getItem('token');
     };
 
+    const token = getAuthToken();
+    
+    if (!token) {
+      console.error('No authentication token found');
+      setError('No authentication token found. Please log in again.');
+      setLoading(false);
+      navigate("/login");
+      return;
+    }
+
+    console.log('Fetching orders with token type:', token === localStorage.getItem('accessToken') ? 'OAuth' : 'Regular');
+    
+    const response = await fetch(
+      "http://localhost:8080/api/orders/history",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Clear all tokens and redirect to login
+        localStorage.removeItem("token");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        navigate("/login");
+        return;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    setOrders(data);
+  } catch (err) {
+    console.error("Fetch error:", err);
+    setError(err.message || "Failed to load orders");
+  } finally {
+    setLoading(false);
+  }
+};
     fetchOrders();
   }, [isAuthenticated, navigate]);
 

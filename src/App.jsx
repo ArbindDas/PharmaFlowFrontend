@@ -39,6 +39,7 @@ import Orders from "./pages/Orders.jsx";
 import OrderHistory from "./pages/OrderHistory.jsx";
 import { PlaceOrder } from "./pages/PlaceOrder.jsx";
 import { OrderDetail } from "./pages/OrderDetail.jsx";
+import OAuthSuccessHandler from "./components/OAuthSuccessHandler";
 
 function AppContent() {
   const location = useLocation();
@@ -59,6 +60,9 @@ function AppContent() {
           <Route path="/openAI" element={<OpenAIPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/test" element={<Test />} />
+          // ✅ CORRECT - Use JSX component syntax
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/oauth-success" element={<OAuthSuccessHandler />} />
           <Route
             path="/dashboard"
             element={
