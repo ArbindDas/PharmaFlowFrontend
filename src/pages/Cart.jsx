@@ -33,52 +33,72 @@ const StripePaymentForm = ({ totalPrice, onSuccess, onError }) => {
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+
   const handleSubmit = async (event) => {
-    event.preventDefault();
+  event.preventDefault();
+  
+  if (!stripe || !elements) {
+    return;
+  }
+
+  // Convert to paise and validate minimum amount
+  const amountInPaise = Math.round(totalPrice * 100);
+  if (amountInPaise < 50) { // 50 paise = ₹0.50
+    setErrorMessage("Minimum payment amount is ₹0.50");
+    onError("Minimum payment amount is ₹0.50");
+    return;
+  }
+
+  setProcessing(true);
+  setErrorMessage("");
+
+  try {
+    // Create payment intent on your server
+    const response = await fetch("http://localhost:8080/api/payment/create-payment-intent", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ amount: amountInPaise }),
+    });
+
+    // Check if response is OK
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
     
-    if (!stripe || !elements) {
-      return;
+    // Check if clientSecret exists in response
+    if (!data.clientSecret) {
+      throw new Error("No client secret received from server");
     }
 
-    setProcessing(true);
-    setErrorMessage("");
+    // Confirm the payment with Stripe
+    const result = await stripe.confirmCardPayment(data.clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+      },
+    });
 
-    try {
-      // Create payment intent on your server
-      const response = await fetch("http://localhost:8080/api/payment/create-payment-intent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ amount: Math.round(totalPrice * 100) }), // Amount in paise
-      });
-
-      const { clientSecret } = await response.json();
-
-      // Confirm the payment with Stripe
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-        },
-      });
-
-      if (result.error) {
-        setErrorMessage(result.error.message);
-        onError(result.error.message);
-      } else {
-        // Payment succeeded
-        onSuccess(result.paymentIntent);
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      setErrorMessage("Payment failed. Please try again.");
-      onError("Payment failed. Please try again.");
-    } finally {
-      setProcessing(false);
+    if (result.error) {
+      setErrorMessage(result.error.message);
+      onError(result.error.message);
+    } else {
+      // Payment succeeded
+      onSuccess(result.paymentIntent);
     }
-  };
-
+  } catch (error) {
+    console.error("Payment error:", error);
+    const message = error.message || "Payment failed. Please try again.";
+    setErrorMessage(message);
+    onError(message);
+  } finally {
+    setProcessing(false);
+  }
+};
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="p-4 rounded-xl bg-gray-700">
@@ -136,56 +156,86 @@ function Cart() {
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [paymentError, setPaymentError] = useState("");
 
+
   const handlePlaceOrder = async (paymentIntentId = null) => {
-    if (!isAuthenticated) {
-      alert("Please login to place your order");
+  if (!isAuthenticated) {
+    alert("Please login to place your order");
+    navigate("/login", { state: { from: "/cart" } });
+    return;
+  }
+
+  try {
+    // Get the token using the same method as ProtectedRoute
+    const getToken = () => {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          if (user.authProvider === 'GOOGLE') {
+            return localStorage.getItem('accessToken');
+          } else {
+            return user.token || localStorage.getItem('token');
+          }
+        } catch (e) {
+          return null;
+        }
+      }
+      return localStorage.getItem('accessToken') || localStorage.getItem('token');
+    };
+
+    const token = getToken();
+    
+    if (!token) {
+      alert("Authentication token missing. Please login again.");
       navigate("/login", { state: { from: "/cart" } });
       return;
     }
 
+    const orderData = {
+      totalPrice: totalPrice,
+      paymentMethod: paymentMethod,
+      paymentIntentId: paymentIntentId,
+      orderItems: cart.map((item) => ({
+        medicineId: item.id,
+        quantity: item.quantity,
+        unitPrice: item.price,
+      })),
+    };
+
+    const response = await fetch("http://localhost:8080/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    // Handle response more efficiently
+    const responseText = await response.text();
+    let data;
     try {
-      const orderData = {
-        totalPrice: totalPrice,
-        paymentMethod: paymentMethod,
-        paymentIntentId: paymentIntentId,
-        orderItems: cart.map((item) => ({
-          medicineId: item.id,
-          quantity: item.quantity,
-          unitPrice: item.price,
-        })),
-      };
-
-      const response = await fetch("http://localhost:8080/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      const data = await response.json().catch(async () => {
-        const text = await response.text();
-        throw new Error(text || "Unknown error occurred");
-      });
-
-      if (!response.ok) {
-        throw new Error(data.message || data || "Failed to place order");
-      }
-
-      console.log("Order created successfully:", data);
-      setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        clearCart();
-        navigate("/dashboard/orders");
-      }, 2000);
-    } catch (error) {
-      console.error("Order placement error:", error);
-      alert(error.message || "Failed to place order. Please try again.");
+      data = JSON.parse(responseText);
+    } catch {
+      throw new Error(responseText || "Unknown error occurred");
     }
-  };
 
+    if (!response.ok) {
+      throw new Error(data.message || data || "Failed to place order");
+    }
+
+    console.log("Order created successfully:", data);
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      clearCart();
+      navigate("/dashboard/orders");
+    }, 2000);
+  } catch (error) {
+    console.error("Order placement error:", error);
+    alert(error.message || "Failed to place order. Please try again.");
+  }
+};
   const handleStripePaymentSuccess = (paymentIntent) => {
     console.log("Payment succeeded:", paymentIntent);
     handlePlaceOrder(paymentIntent.id);
