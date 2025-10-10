@@ -2520,7 +2520,7 @@ const MedicineProductsPanel = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async  (id) => {
     try {
       setIsLoading(true);
       await deleteMedicine(id);
@@ -3811,3 +3811,4 @@ const AdminDashboard = () => {
 export default AdminDashboard;
 export { MedicineProductsPanel }; // Named export
 export { OrdersPanel };
+export {ChartBar}
