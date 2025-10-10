@@ -44,7 +44,7 @@ const Footer = () => {
                 </h3>
                 <p className="text-gray-300 text-sm leading-relaxed mb-6">
                   Your trusted partner for quality medicines and healthcare products.
-                  Serving the community with care and dedication since 2004
+                  Serving the community with care and dedication since 2006
                 </p>
                 
                 {/* Trust Badges */}
