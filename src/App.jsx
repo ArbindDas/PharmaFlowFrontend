@@ -23,7 +23,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import PublicMedicines from "./components/PublicMedicines.jsx";
 import OpenAIPage from "./pages/openAIPage.jsx";
-import Test from "./components/Test.jsx";
+// import Test from "./components/Test.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrderConfirmation from "./pages/OrderConfirmation.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
@@ -59,7 +59,7 @@ function AppContent() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/openAI" element={<OpenAIPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/test" element={<Test />} />
+          {/* <Route path="/test" element={<Test />} /> */}
           // ✅ CORRECT - Use JSX component syntax
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/oauth-success" element={<OAuthSuccessHandler />} />

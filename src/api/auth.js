@@ -151,7 +151,7 @@ const deleteUser = async (userId, ROLE_ADMIN = false) => {
   }
 };
 
-const updateuser = async (userData, ROLE_ADMIN = false) => {
+const updateUser = async (userData, ROLE_ADMIN = false) => {
   const token = getToken();
 
   if (!token) {
@@ -312,6 +312,26 @@ const getUserProfile = async () => {
   }
 };
 
+// const forgotPassword = async (email) => {
+//   try {
+//     const response = await axiosInstance.post(
+//       "/forgot-password",
+//       { email },
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+//     return response.data;
+//   } catch (error) {
+//     throw new Error(
+//       error.response?.data?.message ||
+//         "Failed to send reset link. Please try again."
+//     );
+//   }
+// };
+
 const forgotPassword = async (email) => {
   try {
     const response = await axiosInstance.post(
@@ -325,10 +345,19 @@ const forgotPassword = async (email) => {
     );
     return response.data;
   } catch (error) {
-    throw new Error(
-      error.response?.data?.message ||
+    // More specific error handling
+    if (error.response?.status === 400) {
+      throw new Error("Please enter a valid email address");
+    } else if (error.response?.status === 429) {
+      throw new Error("Too many attempts. Please try again later.");
+    } else if (error.response?.status >= 500) {
+      throw new Error("Server error. Please try again later.");
+    } else {
+      throw new Error(
+        error.response?.data?.message ||
         "Failed to send reset link. Please try again."
-    );
+      );
+    }
   }
 };
 
@@ -348,7 +377,8 @@ const authService = {
   forgotPassword,
   getAllUsers,
   deleteUser,
-  updateuser,
+  // Updateuser,
+   updateUser, // <-- Alias it with proper casing
   getCurrentUser,
   getToken,
   setOAuthTokens // Add this new function

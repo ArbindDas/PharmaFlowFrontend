@@ -65,12 +65,12 @@ const Navbar = () => {
             >
               Contact
             </Link>
-            <Link
+            {/* <Link
               to="/test"
               className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-300"
             >
               Test
-            </Link>
+            </Link> */}
             <Link
               to="/medicine"
               className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-300"
