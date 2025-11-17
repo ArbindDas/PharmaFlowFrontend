@@ -43,10 +43,12 @@ import AddMemberModal from "../components/AddMemberModal";
 import { SearchX } from "lucide-react";
 
 
+import { Sun, Moon } from 'lucide-react';
 
+import DarkModeToggle from "../components/DarkModeToggle";
 
 import  {Sparkles , Star, Filter, Check  } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { color, motion } from 'framer-motion';
 
 
 import {
@@ -95,6 +97,8 @@ import {
 import { Badge, Card, Typography, Empty, Spin } from "antd";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { useTheme } from "../hooks/useTheme";
+
+
 
 
 
@@ -1281,15 +1285,612 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
     setSelectedUser(null);
   };
 
+  // return (
+  //   <div className="space-y-8  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ">
+  //     {/* Enhanced Header Section */}
+  //     <div className="flex justify-between items-start  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //       <div className="space-y-2">
+  //         <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
+  //           Medicare Members
+  //         </h3>
+  //         <p className="text-gray-600 text-base leading-relaxed">
+  //           Manage and view all Medicare beneficiaries (
+  //           {filteredAndSortedMembers?.length || 0} of {members?.length || 0}{" "}
+  //           total)
+  //         </p>
+  //       </div>
+  //       <div className="flex items-center space-x-4">
+  //         <button
+  //           onClick={onRefreshMembers}
+  //           className="group relative px-5 py-2.5 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl transition-all duration-300 flex items-center space-x-2 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+  //           disabled={loading}
+  //         >
+  //           <Activity
+  //             className={`w-4 h-4 transition-transform duration-500 ${
+  //               loading ? "animate-spin" : "group-hover:rotate-180"
+  //             }`}
+  //           />
+  //           <span className="font-medium">Refresh</span>
+  //         </button>
+
+  //         <button
+  //           onClick={() => setIsAddModalOpen(true)}
+  //           className="group relative px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white rounded-xl hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-center space-x-2 overflow-hidden"
+  //         >
+  //           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+  //           <Plus className="w-4 h-4 transition-transform duration-200 group-hover:rotate-90" />
+  //           <span className="font-semibold relative z-10">Add Member</span>
+  //         </button>
+  //       </div>
+  //     </div>
+
+  //     {/* NEW: Beautiful Search and Filter Section */}
+  //     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //       <div className="p-6 bg-gradient-to-r from-blue-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //         <div className="flex flex-col lg:flex-row gap-6">
+  //           {/* Search Bar */}
+  //           <div className="flex-1 relative group  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+  //               <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+  //             </div>
+  //             <input
+  //               type="text"
+  //               placeholder="Search members by name, email, or ID..."
+  //               value={searchTerm}
+  //               onChange={(e) => setSearchTerm(e.target.value)}
+  //               className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-lg"
+  //             />
+  //             {searchTerm && (
+  //               <button
+  //                 onClick={() => setSearchTerm("")}
+  //                 className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-50 rounded-r-xl transition-colors duration-200"
+  //               >
+  //                 <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+  //               </button>
+  //             )}
+  //           </div>
+
+  //           {/* Filter Controls */}
+  //           <div className="flex flex-wrap gap-4 items-center  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //             {/* Role Filter */}
+  //             <div className="relative">
+  //               <select
+  //                 value={filterRole}
+  //                 onChange={(e) => setFilterRole(e.target.value)}
+  //                 className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+  //               >
+  //                 <option value="all">All Roles</option>
+  //                 <option value="admin">Admin</option>
+  //                 <option value="user">User</option>
+  //                 <option value="member">Member</option>
+  //               </select>
+  //               <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+  //                 <ChevronDown className="h-4 w-4 text-gray-400" />
+  //               </div>
+  //             </div>
+
+  //             {/* Status Filter */}
+  //             <div className="relative">
+  //               <select
+  //                 value={filterStatus}
+  //                 onChange={(e) => setFilterStatus(e.target.value)}
+  //                 className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+  //               >
+  //                 <option value="all">All Status</option>
+  //                 <option value="active">Active</option>
+  //                 <option value="inactive">Inactive</option>
+  //               </select>
+  //               <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+  //                 <ChevronDown className="h-4 w-4 text-gray-400" />
+  //               </div>
+  //             </div>
+
+  //             {/* Sort Options */}
+  //             <div className="flex items-center space-x-2  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //               <div className="relative ">
+  //                 <select
+  //                   value={sortBy}
+  //                   onChange={(e) => setSortBy(e.target.value)}
+  //                   className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+  //                 >
+  //                   <option value="name">Sort by Name</option>
+  //                   <option value="email">Sort by Email</option>
+  //                   <option value="role">Sort by Role</option>
+  //                   <option value="date">Sort by Date</option>
+  //                 </select>
+  //                 <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+  //                   <ChevronDown className="h-4 w-4 text-gray-400" />
+  //                 </div>
+  //               </div>
+
+  //               <button
+  //                 onClick={() =>
+  //                   setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+  //                 }
+  //                 className="p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md"
+  //                 title={`Sort ${
+  //                   sortOrder === "asc" ? "Descending" : "Ascending"
+  //                 }`}
+  //               >
+  //                 {sortOrder === "asc" ? (
+  //                   <ArrowUp className="h-4 w-4 text-gray-600" />
+  //                 ) : (
+  //                   <ArrowDown className="h-4 w-4 text-gray-600" />
+  //                 )}
+  //               </button>
+  //             </div>
+
+  //             {/* Clear Filters */}
+  //             {(searchTerm ||
+  //               filterRole !== "all" ||
+  //               filterStatus !== "all" ||
+  //               sortBy !== "name" ||
+  //               sortOrder !== "asc") && (
+  //               <button
+  //                 onClick={clearFilters}
+  //                 className="flex items-center space-x-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+  //               >
+  //                 <RotateCcw className="h-4 w-4" />
+  //                 <span>Clear</span>
+  //               </button>
+  //             )}
+  //           </div>
+  //         </div>
+
+  //         {/* Active Filters Display */}
+  //         {(searchTerm || filterRole !== "all" || filterStatus !== "all") && (
+  //           <div className="mt-4 flex flex-wrap gap-2  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //             <span className="text-sm text-gray-600 font-medium">
+  //               Active filters:
+  //             </span>
+  //             {searchTerm && (
+  //               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+  //                 Search: "{searchTerm}"
+  //                 <button
+  //                   onClick={() => setSearchTerm("")}
+  //                   className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
+  //                 >
+  //                   <X className="h-3 w-3" />
+  //                 </button>
+  //               </span>
+  //             )}
+  //             {filterRole !== "all" && (
+  //               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+  //                 Role: {filterRole}
+  //                 <button
+  //                   onClick={() => setFilterRole("all")}
+  //                   className="ml-2 hover:bg-purple-200 rounded-full p-0.5"
+  //                 >
+  //                   <X className="h-3 w-3" />
+  //                 </button>
+  //               </span>
+  //             )}
+  //             {filterStatus !== "all" && (
+  //               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+  //                 Status: {filterStatus}
+  //                 <button
+  //                   onClick={() => setFilterStatus("all")}
+  //                   className="ml-2 hover:bg-green-200 rounded-full p-0.5"
+  //                 >
+  //                   <X className="h-3 w-3" />
+  //                 </button>
+  //               </span>
+  //             )}
+  //           </div>
+  //         )}
+  //       </div>
+  //     </div>
+
+  //     {/* Enhanced Table Container */}
+  //     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //       <div className="overflow-x-auto">
+  //         <table className="w-full  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //           {/* Sticky Enhanced Header */}
+  //           <thead className="sticky top-0 z-10 bg-gradient-to-r from-gray-50 via-blue-50/30 to-gray-50 backdrop-blur-sm border-b border-gray-200">
+  //             <tr>
+  //               <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+  //                 Member
+  //               </th>
+  //               <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+  //                 Email
+  //               </th>
+  //               <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+  //                 Roles
+  //               </th>
+  //               <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+  //                 Status
+  //               </th>
+  //               <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+  //                 Created At
+  //               </th>
+  //               <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+  //                 Actions
+  //               </th>
+  //             </tr>
+  //           </thead>
+  //           <tbody className="divide-y divide-gray-100  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //             {loading ? (
+  //               // Enhanced Loading Skeleton with shimmer effect
+  //               [...Array(3)].map((_, i) => (
+  //                 <tr
+  //                   key={i}
+  //                   className="animate-pulse bg-white even:bg-gray-50/50"
+  //                 >
+  //                   <td className="px-6 py-5">
+  //                     <div className="flex items-center space-x-4">
+  //                       <div className="relative w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
+  //                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+  //                       </div>
+  //                       <div className="space-y-3">
+  //                         <div className="relative h-4 bg-gray-200 rounded-lg w-36 overflow-hidden">
+  //                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+  //                         </div>
+  //                         <div className="relative h-3 bg-gray-200 rounded-lg w-28 overflow-hidden">
+  //                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+  //                         </div>
+  //                       </div>
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="relative h-4 bg-gray-200 rounded-lg w-44 overflow-hidden">
+  //                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="relative h-7 bg-gray-200 rounded-full w-20 overflow-hidden">
+  //                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="relative h-6 bg-gray-200 rounded-full w-16 overflow-hidden">
+  //                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="relative h-4 bg-gray-200 rounded-lg w-28 overflow-hidden">
+  //                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="flex space-x-2">
+  //                       {[...Array(3)].map((_, j) => (
+  //                         <div
+  //                           key={j}
+  //                           className="relative w-9 h-9 bg-gray-200 rounded-lg overflow-hidden"
+  //                         >
+  //                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+  //                         </div>
+  //                       ))}
+  //                     </div>
+  //                   </td>
+  //                 </tr>
+  //               ))
+  //             ) : filteredAndSortedMembers.length === 0 ? (
+  //               // Enhanced Empty State
+  //               <tr className=" from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //                 <td colSpan="6" className="px-6 py-16">
+  //                   <div className="flex flex-col items-center space-y-6 text-center">
+  //                     <div className="relative">
+  //                       <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center animate-pulse">
+  //                         {searchTerm ||
+  //                         filterRole !== "all" ||
+  //                         filterStatus !== "all" ? (
+  //                           <SearchX className="w-10 h-10 text-blue-500" />
+  //                         ) : (
+  //                           <Users className="w-10 h-10 text-blue-500 animate-bounce" />
+  //                         )}
+  //                       </div>
+  //                       <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full animate-ping opacity-20"></div>
+  //                     </div>
+  //                     <div className="space-y-3">
+  //                       <h4 className="text-xl font-semibold text-gray-800">
+  //                         {searchTerm ||
+  //                         filterRole !== "all" ||
+  //                         filterStatus !== "all"
+  //                           ? "No members match your filters"
+  //                           : "No members found"}
+  //                       </h4>
+  //                       <p className="text-gray-500 max-w-md">
+  //                         {searchTerm ||
+  //                         filterRole !== "all" ||
+  //                         filterStatus !== "all"
+  //                           ? "Try adjusting your search terms or filters to find what you're looking for"
+  //                           : "Get started by adding your first Medicare member to begin managing beneficiaries"}
+  //                       </p>
+  //                     </div>
+  //                     {searchTerm ||
+  //                     filterRole !== "all" ||
+  //                     filterStatus !== "all" ? (
+  //                       <button
+  //                         onClick={clearFilters}
+  //                         className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-semibold"
+  //                       >
+  //                         Clear All Filters
+  //                       </button>
+  //                     ) : (
+  //                       <button
+  //                         onClick={() => setIsAddModalOpen(true)}
+  //                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-semibold"
+  //                       >
+  //                         Add Your First Member
+  //                       </button>
+  //                     )}
+  //                   </div>
+  //                 </td>
+  //               </tr>
+  //             ) : (
+  //               // Enhanced Data Rows with alternating colors
+  //               filteredAndSortedMembers.map((member, index) => (
+  //                 <tr
+  //                   key={member.id}
+  //                   className={`group  hover:bg-gradient-to-r hover:from-blue-50/70 hover:via-blue-50/40 hover:to-transparent hover:shadow-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ${
+  //                     index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
+  //                   }`}
+  //                 >
+  //                   <td className="px-6 py-5 ">
+  //                     <div className="flex items-center space-x-4 ">
+  //                       <div className="relative ">
+  //                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-bold shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+  //                           {getInitials(member.fullName)}
+  //                         </div>
+  //                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+  //                       </div>
+  //                       <div className="space-y-1">
+  //                         <div className="font-semibold text-gray-900 group-hover:text-blue-900 transition-colors duration-200">
+  //                           {member.fullName}
+  //                         </div>
+  //                         <div className="text-sm text-gray-500 font-mono">
+  //                           ID: {member.id}
+  //                         </div>
+  //                       </div>
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors duration-200">
+  //                       {member.email}
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <span className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-200">
+  //                       {member.roles}
+  //                     </span>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="flex items-center space-x-2">
+  //                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+  //                       <span className="inline-flex px-3 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
+  //                         Active
+  //                       </span>
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="text-sm text-gray-700 font-medium">
+  //                       {formatDate(member.createdAt)}
+  //                     </div>
+  //                   </td>
+  //                   <td className="px-6 py-5">
+  //                     <div className="flex space-x-2 opacity-70 group-hover:opacity-100 transition-all duration-300 transform translate-x-1 group-hover:translate-x-0">
+  //                       <div className="relative group/tooltip">
+  //                         <ActionButton
+  //                           onClick={() => handleViewUser(member)}
+  //                           icon={Eye}
+  //                           variant="secondary"
+  //                           className="hover:bg-blue-100 hover:text-blue-700 hover:scale-110 transition-all duration-200"
+  //                         />
+  //                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+  //                           View Details
+  //                           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+  //                         </div>
+  //                       </div>
+
+  //                       <div className="relative group/tooltip">
+  //                         <ActionButton
+  //                           onClick={() => handleEditUser(member)}
+  //                           icon={Edit}
+  //                           variant="primary"
+  //                           className="hover:bg-green-100 hover:text-green-700 hover:scale-110 transition-all duration-200"
+  //                         />
+  //                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+  //                           Edit Member
+  //                           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+  //                         </div>
+  //                       </div>
+
+  //                       <div className="relative group/tooltip">
+  //                         <ActionButton
+  //                           onClick={() => handleDeleteClick(member)}
+  //                           icon={Trash2}
+  //                           variant="danger"
+  //                           className="hover:bg-red-100 hover:text-red-700 hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg"
+  //                         />
+  //                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+  //                           Remove Member
+  //                           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+  //                         </div>
+  //                       </div>
+  //                     </div>
+  //                   </td>
+  //                 </tr>
+  //               ))
+  //             )}
+  //           </tbody>
+  //         </table>
+  //       </div>
+  //     </div>
+
+  //     {/* Modals - unchanged functionality */}
+  //     <UserDetailsModal
+  //       user={selectedUser}
+  //       isOpen={isModalOpen}
+  //       onClose={handleCloseModal}
+  //     />
+
+  //     <UserEditModal
+  //       user={selectedUser}
+  //       isOpen={isEditModalOpen}
+  //       onClose={() => {
+  //         setIsEditModalOpen(false);
+  //         setSelectedUser(null);
+  //       }}
+  //       onUpdate={(updatedUser) => {
+  //         console.log("Saving user data:", updatedUser);
+  //         handleUpdateUser(updatedUser);
+  //         setIsEditModalOpen(false);
+  //         setSelectedUser(null);
+  //       }}
+  //     />
+
+  //     <AddMemberModal
+  //       isOpen={isAddModalOpen}
+  //       onClose={() => setIsAddModalOpen(false)}
+  //       onAddMember={handleAddMember}
+  //     />
+
+  //     <ConfirmationModal
+  //       isOpen={isDeleteModalOpen}
+  //       onClose={handleCancelDelete}
+  //       onConfirm={handleConfirmDelete}
+  //       title="Confirm Deletion"
+  //     >
+  //       <p>Are you sure you want to delete {userToDelete?.name}?</p>
+  //       <p className="text-sm text-gray-500">This action cannot be undone.</p>
+  //     </ConfirmationModal>
+
+  //     {/* Enhanced Collapsible Debug Section */}
+  //     <div className="mt-8 ">
+  //       <details className="group ">
+  //         <summary className="cursor-pointer flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //           <div className="flex items-center space-x-3">
+  //             <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+  //             <span className="font-semibold text-amber-800">
+  //               Debug Information
+  //             </span>
+  //           </div>
+  //           <div className="transform group-open:rotate-180 transition-transform duration-200">
+  //             <svg
+  //               className="w-5 h-5 text-amber-600"
+  //               fill="none"
+  //               stroke="currentColor"
+  //               viewBox="0 0 24 24"
+  //             >
+  //               <path
+  //                 strokeLinecap="round"
+  //                 strokeLinejoin="round"
+  //                 strokeWidth={2}
+  //                 d="M19 9l-7 7-7-7"
+  //               />
+  //             </svg>
+  //           </div>
+  //         </summary>
+
+  //         <div className="mt-3 p-5 bg-white border border-amber-200 rounded-xl shadow-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  //           <h4 className="font-bold text-gray-800 text-lg mb-4">
+  //             System Status
+  //           </h4>
+
+  //           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ">
+  //             <div className="p-3 bg-gray-50 rounded-lg">
+  //               <div className="font-semibold text-gray-700 mb-1">
+  //                 Loading State
+  //               </div>
+  //               <div
+  //                 className={`font-mono ${
+  //                   loading ? "text-orange-600" : "text-green-600"
+  //                 }`}
+  //               >
+  //                 {loading?.toString() ?? "undefined"}
+  //               </div>
+  //             </div>
+
+  //             <div className="p-3 bg-gray-50 rounded-lg">
+  //               <div className="font-semibold text-gray-700 mb-1 ">
+  //                 Total Members
+  //               </div>
+  //               <div className="font-mono text-blue-600 text-lg font-bold">
+  //                 {members?.length || 0}
+  //               </div>
+  //             </div>
+
+  //             <div className="p-3 bg-gray-50 rounded-lg">
+  //               <div className="font-semibold text-gray-700 mb-1">
+  //                 Filtered Members
+  //               </div>
+  //               <div className="font-mono text-purple-600 text-lg font-bold">
+  //                 {filteredAndSortedMembers?.length || 0}
+  //               </div>
+  //             </div>
+
+  //             <div className="p-3 bg-gray-50 rounded-lg">
+  //               <div className="font-semibold text-gray-700 mb-1">
+  //                 Search Term
+  //               </div>
+  //               <div
+  //                 className={`font-mono ${
+  //                   searchTerm ? "text-blue-600" : "text-gray-500"
+  //                 }`}
+  //               >
+  //                 {searchTerm || "None"}
+  //               </div>
+  //             </div>
+
+  //             <div className="p-3 bg-gray-50 rounded-lg">
+  //               <div className="font-semibold text-gray-700 mb-1">
+  //                 Active Filters
+  //               </div>
+  //               <div className="font-mono text-purple-600">
+  //                 {[
+  //                   filterRole !== "all" ? `Role: ${filterRole}` : null,
+  //                   filterStatus !== "all" ? `Status: ${filterStatus}` : null,
+  //                   sortBy !== "name" ? `Sort: ${sortBy}` : null,
+  //                 ].filter(Boolean).length || "None"}
+  //               </div>
+  //             </div>
+
+  //             <div className="p-3 bg-gray-50 rounded-lg">
+  //               <div className="font-semibold text-gray-700 mb-1">
+  //                 Data Status
+  //               </div>
+  //               <div
+  //                 className={`font-mono ${
+  //                   members.length > 0 ? "text-green-600" : "text-gray-500"
+  //                 }`}
+  //               >
+  //                 {members.length > 0 ? "Loaded" : "Empty"}
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </details>
+  //     </div>
+
+  //     <style jsx>{`
+  //       @keyframes shimmer {
+  //         0% {
+  //           transform: translateX(-100%);
+  //         }
+  //         100% {
+  //           transform: translateX(100%);
+  //         }
+  //       }
+
+  //       .animate-shimmer {
+  //         animation: shimmer 2s infinite;
+  //       }
+  //     `}</style>
+  //   </div>
+  // );
+
+
+
   return (
-    <div className="space-y-8  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ">
+    <div className="space-y-8 from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {/* Enhanced Header Section */}
-      <div className="flex justify-between items-start  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      <div className="flex justify-between items-start from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
         <div className="space-y-2">
-          <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent dark:from-blue-400 dark:via-blue-500 dark:to-blue-600">
             Medicare Members
           </h3>
-          <p className="text-gray-600 text-base leading-relaxed">
+          <p className="text-gray-600 dark:text-gray-400 text-base leading-relaxed">
             Manage and view all Medicare beneficiaries (
             {filteredAndSortedMembers?.length || 0} of {members?.length || 0}{" "}
             total)
@@ -1298,7 +1899,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
         <div className="flex items-center space-x-4">
           <button
             onClick={onRefreshMembers}
-            className="group relative px-5 py-2.5 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl transition-all duration-300 flex items-center space-x-2 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="group relative px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl transition-all duration-300 flex items-center space-x-2 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             disabled={loading}
           >
             <Activity
@@ -1321,39 +1922,39 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       </div>
 
       {/* NEW: Beautiful Search and Filter Section */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-        <div className="p-6 bg-gradient-to-r from-blue-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+        <div className="p-6 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-gray-900/50 dark:to-gray-800/50">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Search Bar */}
-            <div className="flex-1 relative group  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+            <div className="flex-1 relative group from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+                <Search className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
               <input
                 type="text"
                 placeholder="Search members by name, email, or ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-500 shadow-sm hover:shadow-md focus:shadow-lg"
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm hover:shadow-md focus:shadow-lg"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-50 rounded-r-xl transition-colors duration-200"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-50 dark:hover:bg-gray-600 rounded-r-xl transition-colors duration-200"
                 >
-                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                  <X className="h-4 w-4 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" />
                 </button>
               )}
             </div>
 
             {/* Filter Controls */}
-            <div className="flex flex-wrap gap-4 items-center  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+            <div className="flex flex-wrap gap-4 items-center from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
               {/* Role Filter */}
               <div className="relative">
                 <select
                   value={filterRole}
                   onChange={(e) => setFilterRole(e.target.value)}
-                  className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+                  className="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 dark:text-gray-300 font-medium shadow-sm hover:shadow-md cursor-pointer"
                 >
                   <option value="all">All Roles</option>
                   <option value="admin">Admin</option>
@@ -1361,7 +1962,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                   <option value="member">Member</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
               </div>
 
@@ -1370,24 +1971,24 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+                  className="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 dark:text-gray-300 font-medium shadow-sm hover:shadow-md cursor-pointer"
                 >
                   <option value="all">All Status</option>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                 </div>
               </div>
 
               {/* Sort Options */}
-              <div className="flex items-center space-x-2  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                <div className="relative ">
+              <div className="flex items-center space-x-2 from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+                <div className="relative">
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 font-medium shadow-sm hover:shadow-md cursor-pointer"
+                    className="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-gray-700 dark:text-gray-300 font-medium shadow-sm hover:shadow-md cursor-pointer"
                   >
                     <option value="name">Sort by Name</option>
                     <option value="email">Sort by Email</option>
@@ -1395,7 +1996,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                     <option value="date">Sort by Date</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                    <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   </div>
                 </div>
 
@@ -1403,15 +2004,15 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                   onClick={() =>
                     setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                   }
-                  className="p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md"
                   title={`Sort ${
                     sortOrder === "asc" ? "Descending" : "Ascending"
                   }`}
                 >
                   {sortOrder === "asc" ? (
-                    <ArrowUp className="h-4 w-4 text-gray-600" />
+                    <ArrowUp className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                   ) : (
-                    <ArrowDown className="h-4 w-4 text-gray-600" />
+                    <ArrowDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                   )}
                 </button>
               </div>
@@ -1424,7 +2025,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 sortOrder !== "asc") && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center space-x-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-300 font-medium shadow-sm hover:shadow-md"
+                  className="flex items-center space-x-2 px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl transition-all duration-300 font-medium shadow-sm hover:shadow-md"
                 >
                   <RotateCcw className="h-4 w-4" />
                   <span>Clear</span>
@@ -1435,38 +2036,38 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
 
           {/* Active Filters Display */}
           {(searchTerm || filterRole !== "all" || filterStatus !== "all") && (
-            <div className="mt-4 flex flex-wrap gap-2  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-              <span className="text-sm text-gray-600 font-medium">
+            <div className="mt-4 flex flex-wrap gap-2 from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                 Active filters:
               </span>
               {searchTerm && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                   Search: "{searchTerm}"
                   <button
                     onClick={() => setSearchTerm("")}
-                    className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
+                    className="ml-2 hover:bg-blue-200 dark:hover:bg-blue-800 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
               )}
               {filterRole !== "all" && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
                   Role: {filterRole}
                   <button
                     onClick={() => setFilterRole("all")}
-                    className="ml-2 hover:bg-purple-200 rounded-full p-0.5"
+                    className="ml-2 hover:bg-purple-200 dark:hover:bg-purple-800 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
               )}
               {filterStatus !== "all" && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                   Status: {filterStatus}
                   <button
                     onClick={() => setFilterStatus("all")}
-                    className="ml-2 hover:bg-green-200 rounded-full p-0.5"
+                    className="ml-2 hover:bg-green-200 dark:hover:bg-green-800 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -1478,73 +2079,73 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       </div>
 
       {/* Enhanced Table Container */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
         <div className="overflow-x-auto">
-          <table className="w-full  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+          <table className="w-full from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
             {/* Sticky Enhanced Header */}
-            <thead className="sticky top-0 z-10 bg-gradient-to-r from-gray-50 via-blue-50/30 to-gray-50 backdrop-blur-sm border-b border-gray-200">
+            <thead className="sticky top-0 z-10 bg-gradient-to-r from-gray-50 via-blue-50/30 to-gray-50 dark:from-gray-800 dark:via-gray-700/30 dark:to-gray-800 backdrop-blur-sm border-b border-gray-200 dark:border-gray-600">
               <tr>
-                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 dark:text-gray-200 tracking-wide">
                   Member
                 </th>
-                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 dark:text-gray-200 tracking-wide">
                   Email
                 </th>
-                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 dark:text-gray-200 tracking-wide">
                   Roles
                 </th>
-                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 dark:text-gray-200 tracking-wide">
                   Status
                 </th>
-                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 dark:text-gray-200 tracking-wide">
                   Created At
                 </th>
-                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 tracking-wide">
+                <th className="px-6 py-5 text-left text-sm font-bold text-gray-800 dark:text-gray-200 tracking-wide">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700 from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
               {loading ? (
                 // Enhanced Loading Skeleton with shimmer effect
                 [...Array(3)].map((_, i) => (
                   <tr
                     key={i}
-                    className="animate-pulse bg-white even:bg-gray-50/50"
+                    className="animate-pulse bg-white dark:bg-gray-800 even:bg-gray-50/50 dark:even:bg-gray-700/50"
                   >
                     <td className="px-6 py-5">
                       <div className="flex items-center space-x-4">
-                        <div className="relative w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                        <div className="relative w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-gray-500/60 to-transparent animate-shimmer"></div>
                         </div>
                         <div className="space-y-3">
-                          <div className="relative h-4 bg-gray-200 rounded-lg w-36 overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                          <div className="relative h-4 bg-gray-200 dark:bg-gray-600 rounded-lg w-36 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-gray-500/60 to-transparent animate-shimmer"></div>
                           </div>
-                          <div className="relative h-3 bg-gray-200 rounded-lg w-28 overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                          <div className="relative h-3 bg-gray-200 dark:bg-gray-600 rounded-lg w-28 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-gray-500/60 to-transparent animate-shimmer"></div>
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="relative h-4 bg-gray-200 rounded-lg w-44 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                      <div className="relative h-4 bg-gray-200 dark:bg-gray-600 rounded-lg w-44 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-gray-500/60 to-transparent animate-shimmer"></div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="relative h-7 bg-gray-200 rounded-full w-20 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                      <div className="relative h-7 bg-gray-200 dark:bg-gray-600 rounded-full w-20 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-gray-500/60 to-transparent animate-shimmer"></div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="relative h-6 bg-gray-200 rounded-full w-16 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                      <div className="relative h-6 bg-gray-200 dark:bg-gray-600 rounded-full w-16 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-gray-500/60 to-transparent animate-shimmer"></div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="relative h-4 bg-gray-200 rounded-lg w-28 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                      <div className="relative h-4 bg-gray-200 dark:bg-gray-600 rounded-lg w-28 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-gray-500/60 to-transparent animate-shimmer"></div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
@@ -1552,9 +2153,9 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                         {[...Array(3)].map((_, j) => (
                           <div
                             key={j}
-                            className="relative w-9 h-9 bg-gray-200 rounded-lg overflow-hidden"
+                            className="relative w-9 h-9 bg-gray-200 dark:bg-gray-600 rounded-lg overflow-hidden"
                           >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-gray-500/60 to-transparent animate-shimmer"></div>
                           </div>
                         ))}
                       </div>
@@ -1563,30 +2164,30 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 ))
               ) : filteredAndSortedMembers.length === 0 ? (
                 // Enhanced Empty State
-                <tr className=" from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+                <tr className="from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                   <td colSpan="6" className="px-6 py-16">
                     <div className="flex flex-col items-center space-y-6 text-center">
                       <div className="relative">
-                        <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center animate-pulse">
+                        <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-full flex items-center justify-center animate-pulse">
                           {searchTerm ||
                           filterRole !== "all" ||
                           filterStatus !== "all" ? (
-                            <SearchX className="w-10 h-10 text-blue-500" />
+                            <SearchX className="w-10 h-10 text-blue-500 dark:text-blue-400" />
                           ) : (
-                            <Users className="w-10 h-10 text-blue-500 animate-bounce" />
+                            <Users className="w-10 h-10 text-blue-500 dark:text-blue-400 animate-bounce" />
                           )}
                         </div>
                         <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full animate-ping opacity-20"></div>
                       </div>
                       <div className="space-y-3">
-                        <h4 className="text-xl font-semibold text-gray-800">
+                        <h4 className="text-xl font-semibold text-gray-800 dark:text-white">
                           {searchTerm ||
                           filterRole !== "all" ||
                           filterStatus !== "all"
                             ? "No members match your filters"
                             : "No members found"}
                         </h4>
-                        <p className="text-gray-500 max-w-md">
+                        <p className="text-gray-500 dark:text-gray-400 max-w-md">
                           {searchTerm ||
                           filterRole !== "all" ||
                           filterStatus !== "all"
@@ -1619,48 +2220,48 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 filteredAndSortedMembers.map((member, index) => (
                   <tr
                     key={member.id}
-                    className={`group  hover:bg-gradient-to-r hover:from-blue-50/70 hover:via-blue-50/40 hover:to-transparent hover:shadow-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
+                    className={`group hover:bg-gradient-to-r hover:from-blue-50/70 hover:via-blue-50/40 hover:to-transparent hover:shadow-sm dark:hover:from-blue-900/20 dark:hover:via-blue-900/10 dark:hover:to-transparent from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ${
+                      index % 2 === 0 ? "bg-white dark:bg-gray-800" : "bg-gray-50/30 dark:bg-gray-700/30"
                     }`}
                   >
-                    <td className="px-6 py-5 ">
-                      <div className="flex items-center space-x-4 ">
-                        <div className="relative ">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center space-x-4">
+                        <div className="relative">
                           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-bold shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                             {getInitials(member.fullName)}
                           </div>
-                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
                         </div>
                         <div className="space-y-1">
-                          <div className="font-semibold text-gray-900 group-hover:text-blue-900 transition-colors duration-200">
+                          <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-900 dark:group-hover:text-blue-400 transition-colors duration-200">
                             {member.fullName}
                           </div>
-                          <div className="text-sm text-gray-500 font-mono">
+                          <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
                             ID: {member.id}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors duration-200">
+                      <div className="text-sm text-gray-700 dark:text-gray-300 font-medium group-hover:text-gray-900 dark:group-hover:text-white transition-colors duration-200">
                         {member.email}
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <span className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-200">
+                      <span className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 text-purple-800 dark:text-purple-200 border border-purple-200 dark:border-purple-700">
                         {member.roles}
                       </span>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="inline-flex px-3 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
+                        <span className="inline-flex px-3 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700 shadow-sm">
                           Active
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="text-sm text-gray-700 font-medium">
+                      <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">
                         {formatDate(member.createdAt)}
                       </div>
                     </td>
@@ -1671,11 +2272,11 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                             onClick={() => handleViewUser(member)}
                             icon={Eye}
                             variant="secondary"
-                            className="hover:bg-blue-100 hover:text-blue-700 hover:scale-110 transition-all duration-200"
+                            className="hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300 hover:scale-110 transition-all duration-200"
                           />
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
                             View Details
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
                           </div>
                         </div>
 
@@ -1684,11 +2285,11 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                             onClick={() => handleEditUser(member)}
                             icon={Edit}
                             variant="primary"
-                            className="hover:bg-green-100 hover:text-green-700 hover:scale-110 transition-all duration-200"
+                            className="hover:bg-green-100 dark:hover:bg-green-900 hover:text-green-700 dark:hover:text-green-300 hover:scale-110 transition-all duration-200"
                           />
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
                             Edit Member
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
                           </div>
                         </div>
 
@@ -1697,11 +2298,11 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                             onClick={() => handleDeleteClick(member)}
                             icon={Trash2}
                             variant="danger"
-                            className="hover:bg-red-100 hover:text-red-700 hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg"
+                            className="hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-700 dark:hover:text-red-300 hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg"
                           />
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
                             Remove Member
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
                           </div>
                         </div>
                       </div>
@@ -1748,23 +2349,23 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
         onConfirm={handleConfirmDelete}
         title="Confirm Deletion"
       >
-        <p>Are you sure you want to delete {userToDelete?.name}?</p>
-        <p className="text-sm text-gray-500">This action cannot be undone.</p>
+        <p className="text-gray-700 dark:text-gray-300">Are you sure you want to delete {userToDelete?.name}?</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">This action cannot be undone.</p>
       </ConfirmationModal>
 
       {/* Enhanced Collapsible Debug Section */}
-      <div className="mt-8 ">
-        <details className="group ">
-          <summary className="cursor-pointer flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      <div className="mt-8">
+        <details className="group">
+          <summary className="cursor-pointer flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900/30 from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
-              <span className="font-semibold text-amber-800">
+              <span className="font-semibold text-amber-800 dark:text-amber-400">
                 Debug Information
               </span>
             </div>
             <div className="transform group-open:rotate-180 transition-transform duration-200">
               <svg
-                className="w-5 h-5 text-amber-600"
+                className="w-5 h-5 text-amber-600 dark:text-amber-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -1779,61 +2380,61 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
             </div>
           </summary>
 
-          <div className="mt-3 p-5 bg-white border border-amber-200 rounded-xl shadow-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-            <h4 className="font-bold text-gray-800 text-lg mb-4">
+          <div className="mt-3 p-5 bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-700 rounded-xl shadow-sm from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+            <h4 className="font-bold text-gray-800 dark:text-white text-lg mb-4">
               System Status
             </h4>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ">
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="font-semibold text-gray-700 mb-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Loading State
                 </div>
                 <div
                   className={`font-mono ${
-                    loading ? "text-orange-600" : "text-green-600"
+                    loading ? "text-orange-600 dark:text-orange-400" : "text-green-600 dark:text-green-400"
                   }`}
                 >
                   {loading?.toString() ?? "undefined"}
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="font-semibold text-gray-700 mb-1 ">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Total Members
                 </div>
-                <div className="font-mono text-blue-600 text-lg font-bold">
+                <div className="font-mono text-blue-600 dark:text-blue-400 text-lg font-bold">
                   {members?.length || 0}
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="font-semibold text-gray-700 mb-1">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Filtered Members
                 </div>
-                <div className="font-mono text-purple-600 text-lg font-bold">
+                <div className="font-mono text-purple-600 dark:text-purple-400 text-lg font-bold">
                   {filteredAndSortedMembers?.length || 0}
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="font-semibold text-gray-700 mb-1">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Search Term
                 </div>
                 <div
                   className={`font-mono ${
-                    searchTerm ? "text-blue-600" : "text-gray-500"
+                    searchTerm ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
                   }`}
                 >
                   {searchTerm || "None"}
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="font-semibold text-gray-700 mb-1">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Active Filters
                 </div>
-                <div className="font-mono text-purple-600">
+                <div className="font-mono text-purple-600 dark:text-purple-400">
                   {[
                     filterRole !== "all" ? `Role: ${filterRole}` : null,
                     filterStatus !== "all" ? `Status: ${filterStatus}` : null,
@@ -1842,13 +2443,13 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
                 </div>
               </div>
 
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="font-semibold text-gray-700 mb-1">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Data Status
                 </div>
                 <div
                   className={`font-mono ${
-                    members.length > 0 ? "text-green-600" : "text-gray-500"
+                    members.length > 0 ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"
                   }`}
                 >
                   {members.length > 0 ? "Loaded" : "Empty"}
@@ -1875,6 +2476,7 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
       `}</style>
     </div>
   );
+
 };
 
 
@@ -2910,6 +3512,959 @@ const OrdersPanel = () => {
 
 
 // export default OrdersPanel;
+// const MedicineProductsPanel = () => {
+//   // At the top of your component
+//   const [currentUser, setCurrentUser] = useState(null);
+
+//   useEffect(() => {
+//     const userData = localStorage.getItem("user");
+//     if (userData) {
+//       const user = JSON.parse(userData);
+//       console.log("Loaded user:", user); // Debug log
+//       setCurrentUser(user);
+//     } else {
+//       console.error("No user data found in localStorage");
+//     }
+//   }, []);
+
+//   const [medicines, setMedicines] = useState([]);
+//   const [showForm, setShowForm] = useState(false);
+//   const [showDetailModal, setShowDetailModal] = useState(false);
+//   const [selectedMedicine, setSelectedMedicine] = useState(null);
+//   const [showDeleteModal, setShowDeleteModal] = useState(false);
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     description: "",
+//     price: "",
+//     stock: "",
+//     expiryDate: "",
+//     imageUrl: "",
+//     status: "ADDED",
+//   });
+
+//   const [notification, setNotification] = useState({
+//     show: false,
+//     type: "", // 'success' or 'error'
+//     message: "",
+//   });
+//   const [errors, setErrors] = useState({});
+//   const [editingId, setEditingId] = useState(null);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [imageFile, setImageFile] = useState(null);
+//   // const [medicines, setMedicines] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchMedicines = async () => {
+//       try {
+//         setLoading(true);
+//         const data = await getMedicines();
+//         setMedicines(data);
+//       } catch (err) {
+//         setError(err.message);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchMedicines();
+//   }, []);
+
+//   const validateField = (name, value) => {
+//     let error = "";
+
+//     switch (name) {
+//       case "name":
+//         if (!value) error = "Name is required";
+//         else if (value.length < 2) error = "Name must be at least 2 characters";
+//         break;
+//       case "description":
+//         if (!value) error = "Description is required";
+//         break;
+//       case "price":
+//         if (!value) error = "Price is required";
+//         else if (isNaN(value)) error = "Price must be a number";
+//         else if (Number(value) <= 0) error = "Price must be positive";
+//         break;
+//       case "stock":
+//         if (!value && value !== 0) error = "Stock is required";
+//         else if (isNaN(value)) error = "Stock must be a number";
+//         else if (Number(value) < 0) error = "Stock must be 0 or more";
+//         break;
+//       case "expiryDate":
+//         if (!value) error = "Expiry date is required";
+//         else if (new Date(value) < new Date())
+//           error = "Expiry date must be in the future";
+//         break;
+//       case "imageUrl":
+//         if (value && !/^https?:\/\/.+\..+/.test(value))
+//           error = "Please enter a valid URL";
+//         break;
+//     }
+
+//     return error;
+//   };
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     const error = validateField(name, value);
+//     setErrors((prev) => ({ ...prev, [name]: error }));
+
+//     setFormData((prev) => ({
+//       ...prev,
+//       [name]:
+//         name === "price" || name === "stock"
+//           ? value === ""
+//             ? ""
+//             : Number(value)
+//           : value,
+//     }));
+//   };
+
+//   const handleImageChange = (e) => {
+//     if (e.target.files && e.target.files[0]) {
+//       setImageFile(e.target.files[0]);
+//     }
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     console.log("Form status before submit:", formData.status); // Add this
+
+//     // Validate form data
+//     const newErrors = {};
+//     Object.entries(formData).forEach(([key, value]) => {
+//       if (
+//         key !== "id" &&
+//         key !== "createdAt" && // Removed createdBy from exclusion list
+//         key !== "imageUrl"
+//       ) {
+//         const error = validateField(key, value);
+//         if (error) newErrors[key] = error;
+//       }
+//     });
+
+//     setErrors(newErrors);
+
+//     if (Object.keys(newErrors).length === 0) {
+//       try {
+//         setIsLoading(true);
+
+//         // Prepare the data to send (simplified without createdBy)
+//         const medicineData = {
+//           ...formData,
+//           price: parseFloat(formData.price),
+//           stock: parseInt(formData.stock),
+//           // Removed the createdBy logic completely
+//         };
+
+//         if (editingId) {
+//           // Update existing medicine
+//           const updatedMedicine = await updateMedicine(
+//             editingId,
+//             medicineData,
+//             imageFile
+//           );
+//           setMedicines((prev) =>
+//             prev.map((med) => (med.id === editingId ? updatedMedicine : med))
+//           );
+//         } else {
+//           // Add new medicine
+//           const newMedicine = await addMedicine(medicineData, imageFile);
+//           setMedicines((prev) => [...prev, newMedicine]);
+//         }
+
+//         // Reset form
+//         setShowForm(false);
+//         setEditingId(null);
+//         setFormData({
+//           name: "",
+//           description: "",
+//           price: "",
+//           stock: "",
+//           expiryDate: "",
+//           imageUrl: "",
+//           status: "ADDED",
+//         });
+//         setImageFile(null);
+
+//         // Show success message
+//         setNotification({
+//           show: true,
+//           type: "success",
+//           message: `Medicine ${editingId ? "updated" : "added"} successfully!`,
+//         });
+//       } catch (error) {
+//         console.error("Error saving medicine:", error);
+//         setNotification({
+//           show: true,
+//           type: "error",
+//           message:
+//             error.response?.data?.message ||
+//             error.message ||
+//             `Failed to ${editingId ? "update" : "add"} medicine`,
+//         });
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     }
+//   };
+
+//   const handleEdit = (medicine) => {
+//     const validStatuses = [
+//       "ADDED",
+//       "AVAILABLE",
+//       "OUT_OF_STOCK",
+//       "EXPIRED",
+//       "DISCONTINUED",
+//     ];
+//     const status = validStatuses.includes(medicine.status?.toUpperCase())
+//       ? medicine.status.toUpperCase()
+//       : "ADDED";
+//     setFormData({
+//       name: medicine.name,
+//       description: medicine.description,
+//       price: medicine.price,
+//       stock: medicine.stock,
+//       expiryDate: medicine.expiryDate,
+//       imageUrl: medicine.imageUrl || "",
+//       // status: medicine.status,
+//       status: status,
+//     });
+//     setEditingId(medicine.id);
+//     setShowForm(true);
+//   };
+
+//   const handleDelete = async  (id) => {
+//     try {
+//       setIsLoading(true);
+//       await deleteMedicine(id);
+//       setMedicines((prev) => prev.filter((med) => med.id !== id));
+//       setShowDeleteModal(false);
+//       setSelectedMedicine(null);
+//     } catch (error) {
+//       console.error("Error deleting medicine:", error);
+//       // You might want to show an error notification here
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleView = (medicine) => {
+//     setSelectedMedicine(medicine);
+//     setShowDetailModal(true);
+//   };
+
+//   const getStockStatus = (stock) => {
+//     if (stock === 0)
+//       return { color: "text-red-500", bg: "bg-red-50", icon: AlertTriangle };
+//     if (stock <= 10)
+//       return { color: "text-yellow-500", bg: "bg-yellow-50", icon: Clock };
+//     return { color: "text-green-500", bg: "bg-green-50", icon: CheckCircle };
+//   };
+
+//   const getExpiryStatus = (expiryDate) => {
+//     const today = new Date();
+//     const expiry = new Date(expiryDate);
+//     const daysDiff = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+
+//     if (daysDiff <= 0)
+//       return { color: "text-red-500", bg: "bg-red-50", text: "Expired" };
+//     if (daysDiff <= 30)
+//       return {
+//         color: "text-orange-500",
+//         bg: "bg-orange-50",
+//         text: "Expiring Soon",
+//       };
+//     if (daysDiff <= 90)
+//       return { color: "text-yellow-500", bg: "bg-yellow-50", text: "Monitor" };
+//     return { color: "text-green-500", bg: "bg-green-50", text: "Good" };
+//   };
+
+//   // Loading state
+//   if (isLoading && medicines.length === 0) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center">
+//         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+//       <div className="max-w-7xl mx-auto space-y-8">
+//         {/* Header */}
+//         <div className="flex justify-between items-center">
+//           <div className="space-y-2">
+//             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+//               Medicine Products
+//             </h1>
+//             <p className="text-gray-600 text-lg">
+//               Manage your pharmaceutical inventory with ease
+//             </p>
+//           </div>
+//           <button
+//             onClick={() => setShowForm(true)}
+//             className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center space-x-3"
+//             disabled={isLoading}
+//           >
+//             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+//             <span className="font-semibold">Add Medicine</span>
+//           </button>
+//         </div>
+
+//         {/* Stats Cards */}
+//         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+//           <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 text-sm">Total Medicines</p>
+//                 <p className="text-3xl font-bold text-gray-900">
+//                   {medicines.length}
+//                 </p>
+//               </div>
+//               <div className="bg-blue-100 p-3 rounded-full">
+//                 <Package className="w-6 h-6 text-blue-600" />
+//               </div>
+//             </div>
+//           </div>
+//           <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 text-sm">In Stock</p>
+//                 <p className="text-3xl font-bold text-gray-900">
+//                   {medicines.filter((m) => m.stock > 0).length}
+//                 </p>
+//               </div>
+//               <div className="bg-green-100 p-3 rounded-full">
+//                 <CheckCircle className="w-6 h-6 text-green-600" />
+//               </div>
+//             </div>
+//           </div>
+//           <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-200">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 text-sm">Low Stock</p>
+//                 <p className="text-3xl font-bold text-gray-900">
+//                   {medicines.filter((m) => m.stock <= 10 && m.stock > 0).length}
+//                 </p>
+//               </div>
+//               <div className="bg-red-100 p-3 rounded-full">
+//                 <AlertTriangle className="w-6 h-6 text-red-600" />
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Add/Edit Medicine Form Modal */}
+//         {showForm && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+//               <div className="p-6 border-b border-gray-200">
+//                 <div className="flex justify-between items-center">
+//                   <h3 className="text-2xl font-bold text-gray-900">
+//                     {editingId ? "Edit Medicine" : "Add New Medicine"}
+//                   </h3>
+//                   <button
+//                     onClick={() => {
+//                       setShowForm(false);
+//                       setEditingId(null);
+//                       setFormData({
+//                         name: "",
+//                         description: "",
+//                         price: "",
+//                         stock: "",
+//                         expiryDate: "",
+//                         imageUrl: "",
+//                         status: "ADDED",
+//                       });
+//                       setImageFile(null);
+//                     }}
+//                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+//                     disabled={isLoading}
+//                   >
+//                     <X className="w-6 h-6" />
+//                   </button>
+//                 </div>
+//               </div>
+
+//               <form onSubmit={handleSubmit} className="p-6 space-y-6">
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Medicine Name *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="name"
+//                       value={formData.name}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.name ? "border-red-500" : "border-gray-300"
+//                       }`}
+//                       placeholder="Enter medicine name"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.name && (
+//                       <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+//                     )}
+//                   </div>
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Description *
+//                     </label>
+//                     <textarea
+//                       name="description"
+//                       value={formData.description}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.description
+//                           ? "border-red-500"
+//                           : "border-gray-300"
+//                       }`}
+//                       rows={3}
+//                       placeholder="Enter medicine description"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.description && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.description}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Price (Rs) *
+//                     </label>
+//                     <input
+//                       type="number"
+//                       name="price"
+//                       value={formData.price}
+//                       onChange={handleChange}
+//                       step="0.01"
+//                       min="0"
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.price ? "border-red-500" : "border-gray-300"
+//                       }`}
+//                       placeholder="0.00"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.price && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.price}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Stock Quantity *
+//                     </label>
+//                     <input
+//                       type="number"
+//                       name="stock"
+//                       value={formData.stock}
+//                       onChange={handleChange}
+//                       min="0"
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.stock ? "border-red-500" : "border-gray-300"
+//                       }`}
+//                       placeholder="0"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.stock && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.stock}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Expiry Date *
+//                     </label>
+//                     <input
+//                       type="date"
+//                       name="expiryDate"
+//                       value={formData.expiryDate}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.expiryDate ? "border-red-500" : "border-gray-300"
+//                       }`}
+//                       disabled={isLoading}
+//                     />
+//                     {errors.expiryDate && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.expiryDate}
+//                       </p>
+//                     )}
+//                   </div>
+//                   // Notification component (add this to your render/return)
+//                   {notification.show && (
+//                     <div
+//                       className={`notification ${notification.type}`}
+//                       style={{
+//                         position: "fixed",
+//                         top: "20px",
+//                         right: "20px",
+//                         padding: "15px",
+//                         borderRadius: "4px",
+//                         zIndex: 1000,
+//                         backgroundColor:
+//                           notification.type === "success"
+//                             ? "#dff0d8"
+//                             : "#f2dede",
+//                         color:
+//                           notification.type === "success"
+//                             ? "#3c763d"
+//                             : "#a94442",
+//                         border: `1px solid ${
+//                           notification.type === "success"
+//                             ? "#d6e9c6"
+//                             : "#ebccd1"
+//                         }`,
+//                       }}
+//                     >
+//                       {notification.message}
+//                       <button
+//                         onClick={() =>
+//                           setNotification({ ...notification, show: false })
+//                         }
+//                         style={{
+//                           marginLeft: "15px",
+//                           background: "none",
+//                           border: "none",
+//                           cursor: "pointer",
+//                           fontWeight: "bold",
+//                         }}
+//                       >
+//                         ×
+//                       </button>
+//                     </div>
+//                   )}
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Status
+//                     </label>
+//                     <select
+//                       name="status"
+//                       value={formData.status}
+//                       onChange={handleChange}
+//                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+//                       disabled={isLoading}
+//                     >
+//                       {/* <option value="PLACED">PLACED</option>
+//                       <option value="APPROVED">APPROVED</option>
+//                       <option value="SHIPPED">SHIPPED</option>
+//                       <option value="DELIVERED">DELIVERED</option>
+//                       <option value="CANCELLED">CANCELLED</option>
+//                       <option value="RETURNED">RETURNED</option> */}
+//                       <option value="ADDED">ADDED</option>
+//                       <option value="AVAILABLE">AVAILABLE</option>
+//                       <option value="OUT_OF_STOCK">OUT OF STOCK</option>
+//                       <option value="EXPIRED">EXPIRED</option>
+//                       <option value="DISCONTINUED">DISCONTINUED</option>
+//                     </select>
+//                   </div>
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Image
+//                     </label>
+//                     <input
+//                       type="file"
+//                       accept="image/*"
+//                       onChange={handleImageChange}
+//                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+//                       disabled={isLoading}
+//                     />
+//                     {imageFile && (
+//                       <p className="text-sm text-gray-500 mt-2">
+//                         {imageFile.name}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Image URL (alternative)
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="imageUrl"
+//                       value={formData.imageUrl}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+//                         errors.imageUrl ? "border-red-500" : "border-gray-300"
+//                       }`}
+//                       placeholder="https://example.com/image.jpg"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.imageUrl && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.imageUrl}
+//                       </p>
+//                     )}
+//                   </div>
+//                 </div>
+
+//                 <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+//                   <button
+//                     type="button"
+//                     onClick={() => {
+//                       setShowForm(false);
+//                       setEditingId(null);
+//                       setFormData({
+//                         name: "",
+//                         description: "",
+//                         price: "",
+//                         stock: "",
+//                         expiryDate: "",
+//                         imageUrl: "",
+//                         status: "ADDED",
+//                       });
+//                       setImageFile(null);
+//                     }}
+//                     className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+//                     disabled={isLoading}
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     type="submit"
+//                     className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 flex items-center justify-center"
+//                     disabled={isLoading}
+//                   >
+//                     {isLoading ? (
+//                       <>
+//                         <svg
+//                           className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+//                           xmlns="http://www.w3.org/2000/svg"
+//                           fill="none"
+//                           viewBox="0 0 24 24"
+//                         >
+//                           <circle
+//                             className="opacity-25"
+//                             cx="12"
+//                             cy="12"
+//                             r="10"
+//                             stroke="currentColor"
+//                             strokeWidth="4"
+//                           ></circle>
+//                           <path
+//                             className="opacity-75"
+//                             fill="currentColor"
+//                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+//                           ></path>
+//                         </svg>
+//                         {editingId ? "Updating..." : "Saving..."}
+//                       </>
+//                     ) : editingId ? (
+//                       "Update Medicine"
+//                     ) : (
+//                       "Save Medicine"
+//                     )}
+//                   </button>
+//                 </div>
+//               </form>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Medicine Detail Modal */}
+//         {showDetailModal && selectedMedicine && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+//               <div className="p-6 border-b border-gray-200">
+//                 <div className="flex justify-between items-center">
+//                   <h3 className="text-2xl font-bold text-gray-900">
+//                     Medicine Details
+//                   </h3>
+//                   <button
+//                     onClick={() => setShowDetailModal(false)}
+//                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+//                   >
+//                     <X className="w-6 h-6 text-gray-500" />
+//                   </button>
+//                 </div>
+//               </div>
+
+//               <div className="p-6">
+//                 <img
+//                   src={selectedMedicine.imageUrl} // S3 URL
+//                   alt={selectedMedicine.name}
+//                   onError={(e) => {
+//                     e.target.src = "/placeholder.jpg"; // Fallback to local
+//                     e.target.onerror = null; // Prevent infinite loop
+//                   }}
+//                 />
+
+//                 <div className="space-y-4">
+//                   <div>
+//                     <h4 className="text-xl font-bold text-gray-900 mb-2">
+//                       {selectedMedicine.name}
+//                     </h4>
+//                     <p className="text-gray-600">
+//                       {selectedMedicine.description}
+//                     </p>
+//                   </div>
+
+//                   <div className="grid grid-cols-2 gap-4">
+//                     <div className="bg-gray-50 p-4 rounded-xl">
+//                       <p className="text-sm text-gray-600">Price</p>
+//                       <p className="text-lg font-bold text-gray-900">
+//                         Rs{selectedMedicine.price.toFixed(2)}
+//                       </p>
+//                     </div>
+//                     <div className="bg-gray-50 p-4 rounded-xl">
+//                       <p className="text-sm text-gray-600">Stock</p>
+//                       <p className="text-lg font-bold text-gray-900">
+//                         {selectedMedicine.stock}
+//                       </p>
+//                     </div>
+//                   </div>
+
+//                   <div className="bg-gray-50 p-4 rounded-xl">
+//                     <p className="text-sm text-gray-600">Expiry Date</p>
+//                     <p className="text-lg font-bold text-gray-900">
+//                       {new Date(
+//                         selectedMedicine.expiryDate
+//                       ).toLocaleDateString()}
+//                     </p>
+//                   </div>
+
+//                   <div className="bg-gray-50 p-4 rounded-xl">
+//                     <p className="text-sm text-gray-600">Status</p>
+//                     <span
+//                       className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+//                         selectedMedicine.status === "PLACED"
+//                           ? "bg-green-100 text-green-800"
+//                           : selectedMedicine.status === "CANCELLED"
+//                           ? "bg-yellow-100 text-yellow-800"
+//                           : "bg-red-100 text-red-800"
+//                       }`}
+//                     >
+//                       {selectedMedicine.status}
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Delete Confirmation Modal */}
+//         {showDeleteModal && selectedMedicine && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+//               <div className="p-6 text-center">
+//                 <div className="bg-red-100 p-4 rounded-full w-fit mx-auto mb-4">
+//                   <Trash2 className="w-8 h-8 text-red-600" />
+//                 </div>
+//                 <h3 className="text-xl font-bold text-gray-900 mb-2">
+//                   Delete Medicine
+//                 </h3>
+//                 <p className="text-gray-600 mb-6">
+//                   Are you sure you want to delete "{selectedMedicine.name}"?
+//                   This action cannot be undone.
+//                 </p>
+//                 <div className="flex justify-center space-x-4">
+//                   <button
+//                     onClick={() => setShowDeleteModal(false)}
+//                     className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+//                     disabled={isLoading}
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     onClick={() => handleDelete(selectedMedicine.id)}
+//                     className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all flex items-center justify-center"
+//                     disabled={isLoading}
+//                   >
+//                     {isLoading ? (
+//                       <>
+//                         <svg
+//                           className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+//                           xmlns="http://www.w3.org/2000/svg"
+//                           fill="none"
+//                           viewBox="0 0 24 24"
+//                         >
+//                           <circle
+//                             className="opacity-25"
+//                             cx="12"
+//                             cy="12"
+//                             r="10"
+//                             stroke="currentColor"
+//                             strokeWidth="4"
+//                           ></circle>
+//                           <path
+//                             className="opacity-75"
+//                             fill="currentColor"
+//                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+//                           ></path>
+//                         </svg>
+//                         Deleting...
+//                       </>
+//                     ) : (
+//                       "Delete"
+//                     )}
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Medicine Products Grid */}
+//         {isLoading && medicines.length > 0 ? (
+//           <div className="flex justify-center py-20">
+//             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+//           </div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+//             {medicines.map((medicine) => {
+//               const stockStatus = getStockStatus(medicine.stock);
+//               const expiryStatus = getExpiryStatus(medicine.expiryDate);
+//               const StockIcon = stockStatus.icon;
+
+//               return (
+//                 <div
+//                   key={medicine.id}
+//                   className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 overflow-hidden transform hover:scale-105"
+//                 >
+//                   {/* Medicine Image */}
+//                   <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 overflow-hidden">
+//                     {medicine.imageUrl ? (
+//                       <img
+//                         src={medicine.imageUrl}
+//                         alt={medicine.name}
+//                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+//                       />
+//                     ) : (
+//                       <div className="w-full h-full flex items-center justify-center">
+//                         <Package className="w-16 h-16 text-gray-400" />
+//                       </div>
+//                     )}
+
+//                     {/* Status Badge */}
+//                     <div className="absolute top-4 right-4">
+//                       <span
+//                         className={`px-3 py-1 text-xs font-medium rounded-full ${
+//                           medicine.status === "PLACED"
+//                             ? "bg-green-100 text-green-800"
+//                             : medicine.status === "CANCELLED"
+//                             ? "bg-yellow-100 text-yellow-800"
+//                             : "bg-red-100 text-red-800"
+//                         }`}
+//                       >
+//                         {medicine.status}
+//                       </span>
+//                     </div>
+//                   </div>
+
+//                   {/* Medicine Info */}
+//                   <div className="p-6">
+//                     <h4 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+//                       {medicine.name}
+//                     </h4>
+//                     <p className="text-gray-600 mb-4 text-sm line-clamp-2">
+//                       {medicine.description}
+//                     </p>
+
+//                     {/* Stats */}
+//                     <div className="space-y-3 mb-6">
+//                       <div className="flex items-center justify-between">
+//                         <div className="flex items-center space-x-2">
+//                           <DollarSign className="w-4 h-4 text-green-600" />
+//                           {/* <p className="w-4 h-4 text-green-600">Rs</p> */}
+//                           <span className="text-sm text-gray-600">Price</span>
+//                         </div>
+//                         <span className="font-bold text-green-600">
+//                           Rs{medicine.price.toFixed(2)}
+//                         </span>
+//                       </div>
+
+//                       <div className="flex items-center justify-between">
+//                         <div className="flex items-center space-x-2">
+//                           <StockIcon
+//                             className={`w-4 h-4 Rs{stockStatus.color}`}
+//                           />
+//                           <span className="text-sm text-gray-600">Stock</span>
+//                         </div>
+//                         <span className={`font-bold Rs{stockStatus.color}`}>
+//                           {medicine.stock}
+//                         </span>
+//                       </div>
+
+//                       <div className="flex items-center justify-between">
+//                         <div className="flex items-center space-x-2">
+//                           <Calendar className="w-4 h-4 text-blue-600" />
+//                           <span className="text-sm text-gray-600">Expiry</span>
+//                         </div>
+//                         <span
+//                           className={`text-sm font-medium px-2 py-1 rounded-full ${expiryStatus.bg} ${expiryStatus.color}`}
+//                         >
+//                           {expiryStatus.text}
+//                         </span>
+//                       </div>
+//                     </div>
+
+//                     {/* Action Buttons */}
+//                     <div className="flex justify-between items-center">
+//                       <button
+//                         onClick={() => handleView(medicine)}
+//                         className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200 hover:scale-110"
+//                         title="View Details"
+//                       >
+//                         <Eye className="w-5 h-5" />
+//                       </button>
+//                       <button
+//                         onClick={() => handleEdit(medicine)}
+//                         className="p-3 text-green-600 hover:bg-green-50 rounded-full transition-all duration-200 hover:scale-110"
+//                         title="Edit Medicine"
+//                       >
+//                         <Edit className="w-5 h-5" />
+//                       </button>
+//                       <button
+//                         onClick={() => {
+//                           setSelectedMedicine(medicine);
+//                           setShowDeleteModal(true);
+//                         }}
+//                         className="p-3 text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 hover:scale-110"
+//                         title="Delete Medicine"
+//                       >
+//                         <Trash2 className="w-5 h-5" />
+//                       </button>
+//                     </div>
+//                   </div>
+//                 </div>
+//               );
+//             })}
+//           </div>
+//         )}
+
+//         {/* Empty State */}
+//         {!isLoading && medicines.length === 0 && (
+//           <div className="text-center py-20">
+//             <Package className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+//             <h3 className="text-2xl font-bold text-gray-900 mb-2">
+//               No medicines found
+//             </h3>
+//             <p className="text-gray-600 mb-6">
+//               Get started by adding your first medicine to the inventory.
+//             </p>
+//             <button
+//               onClick={() => setShowForm(true)}
+//               className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+//             >
+//               Add Your First Medicine
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+
+
 const MedicineProductsPanel = () => {
   // At the top of your component
   const [currentUser, setCurrentUser] = useState(null);
@@ -3134,7 +4689,7 @@ const MedicineProductsPanel = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async  (id) => {
+  const handleDelete = async (id) => {
     try {
       setIsLoading(true);
       await deleteMedicine(id);
@@ -3183,22 +4738,22 @@ const MedicineProductsPanel = () => {
   // Loading state
   if (isLoading && medicines.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div className="space-y-2">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
               Medicine Products
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
               Manage your pharmaceutical inventory with ease
             </p>
           </div>
@@ -3214,42 +4769,42 @@ const MedicineProductsPanel = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Total Medicines</p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Total Medicines</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
                   {medicines.length}
                 </p>
               </div>
-              <div className="bg-blue-100 p-3 rounded-full">
-                <Package className="w-6 h-6 text-blue-600" />
+              <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                <Package className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">In Stock</p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-gray-600 dark:text-gray-400 text-sm">In Stock</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
                   {medicines.filter((m) => m.stock > 0).length}
                 </p>
               </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+                <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-200">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-600">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Low Stock</p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Low Stock</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
                   {medicines.filter((m) => m.stock <= 10 && m.stock > 0).length}
                 </p>
               </div>
-              <div className="bg-red-100 p-3 rounded-full">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div className="bg-red-100 dark:bg-red-900 p-3 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </div>
@@ -3258,10 +4813,10 @@ const MedicineProductsPanel = () => {
         {/* Add/Edit Medicine Form Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                     {editingId ? "Edit Medicine" : "Add New Medicine"}
                   </h3>
                   <button
@@ -3279,10 +4834,10 @@ const MedicineProductsPanel = () => {
                       });
                       setImageFile(null);
                     }}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                     disabled={isLoading}
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
               </div>
@@ -3290,7 +4845,7 @@ const MedicineProductsPanel = () => {
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Medicine Name *
                     </label>
                     <input
@@ -3298,8 +4853,8 @@ const MedicineProductsPanel = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.name ? "border-red-500" : "border-gray-300"
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                        errors.name ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       }`}
                       placeholder="Enter medicine name"
                       disabled={isLoading}
@@ -3309,17 +4864,17 @@ const MedicineProductsPanel = () => {
                     )}
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Description *
                     </label>
                     <textarea
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
                         errors.description
                           ? "border-red-500"
-                          : "border-gray-300"
+                          : "border-gray-300 dark:border-gray-600"
                       }`}
                       rows={3}
                       placeholder="Enter medicine description"
@@ -3332,7 +4887,7 @@ const MedicineProductsPanel = () => {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Price (Rs) *
                     </label>
                     <input
@@ -3342,8 +4897,8 @@ const MedicineProductsPanel = () => {
                       onChange={handleChange}
                       step="0.01"
                       min="0"
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.price ? "border-red-500" : "border-gray-300"
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                        errors.price ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       }`}
                       placeholder="0.00"
                       disabled={isLoading}
@@ -3355,7 +4910,7 @@ const MedicineProductsPanel = () => {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Stock Quantity *
                     </label>
                     <input
@@ -3364,8 +4919,8 @@ const MedicineProductsPanel = () => {
                       value={formData.stock}
                       onChange={handleChange}
                       min="0"
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.stock ? "border-red-500" : "border-gray-300"
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                        errors.stock ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       }`}
                       placeholder="0"
                       disabled={isLoading}
@@ -3377,7 +4932,7 @@ const MedicineProductsPanel = () => {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Expiry Date *
                     </label>
                     <input
@@ -3385,8 +4940,8 @@ const MedicineProductsPanel = () => {
                       name="expiryDate"
                       value={formData.expiryDate}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.expiryDate ? "border-red-500" : "border-gray-300"
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                        errors.expiryDate ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       }`}
                       disabled={isLoading}
                     />
@@ -3396,7 +4951,7 @@ const MedicineProductsPanel = () => {
                       </p>
                     )}
                   </div>
-                  // Notification component (add this to your render/return)
+                  {/* Notification component */}
                   {notification.show && (
                     <div
                       className={`notification ${notification.type}`}
@@ -3440,22 +4995,16 @@ const MedicineProductsPanel = () => {
                     </div>
                   )}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Status
                     </label>
                     <select
                       name="status"
                       value={formData.status}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
                       disabled={isLoading}
                     >
-                      {/* <option value="PLACED">PLACED</option>
-                      <option value="APPROVED">APPROVED</option>
-                      <option value="SHIPPED">SHIPPED</option>
-                      <option value="DELIVERED">DELIVERED</option>
-                      <option value="CANCELLED">CANCELLED</option>
-                      <option value="RETURNED">RETURNED</option> */}
                       <option value="ADDED">ADDED</option>
                       <option value="AVAILABLE">AVAILABLE</option>
                       <option value="OUT_OF_STOCK">OUT OF STOCK</option>
@@ -3464,24 +5013,24 @@ const MedicineProductsPanel = () => {
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Image
                     </label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleImageChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
                       disabled={isLoading}
                     />
                     {imageFile && (
-                      <p className="text-sm text-gray-500 mt-2">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                         {imageFile.name}
                       </p>
                     )}
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Image URL (alternative)
                     </label>
                     <input
@@ -3489,8 +5038,8 @@ const MedicineProductsPanel = () => {
                       name="imageUrl"
                       value={formData.imageUrl}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.imageUrl ? "border-red-500" : "border-gray-300"
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                        errors.imageUrl ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       }`}
                       placeholder="https://example.com/image.jpg"
                       disabled={isLoading}
@@ -3503,7 +5052,7 @@ const MedicineProductsPanel = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <button
                     type="button"
                     onClick={() => {
@@ -3520,7 +5069,7 @@ const MedicineProductsPanel = () => {
                       });
                       setImageFile(null);
                     }}
-                    className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
                     disabled={isLoading}
                   >
                     Cancel
@@ -3569,17 +5118,17 @@ const MedicineProductsPanel = () => {
         {/* Medicine Detail Modal */}
         {showDetailModal && selectedMedicine && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
-              <div className="p-6 border-b border-gray-200">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                     Medicine Details
                   </h3>
                   <button
                     onClick={() => setShowDetailModal(false)}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                   >
-                    <X className="w-6 h-6 text-gray-500" />
+                    <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
               </div>
@@ -3596,47 +5145,47 @@ const MedicineProductsPanel = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                       {selectedMedicine.name}
                     </h4>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       {selectedMedicine.description}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 p-4 rounded-xl">
-                      <p className="text-sm text-gray-600">Price</p>
-                      <p className="text-lg font-bold text-gray-900">
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Price</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">
                         Rs{selectedMedicine.price.toFixed(2)}
                       </p>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-xl">
-                      <p className="text-sm text-gray-600">Stock</p>
-                      <p className="text-lg font-bold text-gray-900">
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Stock</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">
                         {selectedMedicine.stock}
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-xl">
-                    <p className="text-sm text-gray-600">Expiry Date</p>
-                    <p className="text-lg font-bold text-gray-900">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Expiry Date</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">
                       {new Date(
                         selectedMedicine.expiryDate
                       ).toLocaleDateString()}
                     </p>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-xl">
-                    <p className="text-sm text-gray-600">Status</p>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
                     <span
                       className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
                         selectedMedicine.status === "PLACED"
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                           : selectedMedicine.status === "CANCELLED"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                       }`}
                     >
                       {selectedMedicine.status}
@@ -3651,22 +5200,22 @@ const MedicineProductsPanel = () => {
         {/* Delete Confirmation Modal */}
         {showDeleteModal && selectedMedicine && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full">
               <div className="p-6 text-center">
-                <div className="bg-red-100 p-4 rounded-full w-fit mx-auto mb-4">
-                  <Trash2 className="w-8 h-8 text-red-600" />
+                <div className="bg-red-100 dark:bg-red-900 p-4 rounded-full w-fit mx-auto mb-4">
+                  <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                   Delete Medicine
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Are you sure you want to delete "{selectedMedicine.name}"?
                   This action cannot be undone.
                 </p>
                 <div className="flex justify-center space-x-4">
                   <button
                     onClick={() => setShowDeleteModal(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
                     disabled={isLoading}
                   >
                     Cancel
@@ -3725,10 +5274,10 @@ const MedicineProductsPanel = () => {
               return (
                 <div
                   key={medicine.id}
-                  className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 overflow-hidden transform hover:scale-105"
+                  className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600 overflow-hidden transform hover:scale-105"
                 >
                   {/* Medicine Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 overflow-hidden">
+                  <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
                     {medicine.imageUrl ? (
                       <img
                         src={medicine.imageUrl}
@@ -3737,7 +5286,7 @@ const MedicineProductsPanel = () => {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Package className="w-16 h-16 text-gray-400" />
+                        <Package className="w-16 h-16 text-gray-400 dark:text-gray-500" />
                       </div>
                     )}
 
@@ -3746,10 +5295,10 @@ const MedicineProductsPanel = () => {
                       <span
                         className={`px-3 py-1 text-xs font-medium rounded-full ${
                           medicine.status === "PLACED"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                             : medicine.status === "CANCELLED"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                         }`}
                       >
                         {medicine.status}
@@ -3759,10 +5308,10 @@ const MedicineProductsPanel = () => {
 
                   {/* Medicine Info */}
                   <div className="p-6">
-                    <h4 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {medicine.name}
                     </h4>
-                    <p className="text-gray-600 mb-4 text-sm line-clamp-2">
+                    <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm line-clamp-2">
                       {medicine.description}
                     </p>
 
@@ -3770,11 +5319,10 @@ const MedicineProductsPanel = () => {
                     <div className="space-y-3 mb-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <DollarSign className="w-4 h-4 text-green-600" />
-                          {/* <p className="w-4 h-4 text-green-600">Rs</p> */}
-                          <span className="text-sm text-gray-600">Price</span>
+                          <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Price</span>
                         </div>
-                        <span className="font-bold text-green-600">
+                        <span className="font-bold text-green-600 dark:text-green-400">
                           Rs{medicine.price.toFixed(2)}
                         </span>
                       </div>
@@ -3782,19 +5330,19 @@ const MedicineProductsPanel = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <StockIcon
-                            className={`w-4 h-4 Rs{stockStatus.color}`}
+                            className={`w-4 h-4 ${stockStatus.color}`}
                           />
-                          <span className="text-sm text-gray-600">Stock</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Stock</span>
                         </div>
-                        <span className={`font-bold Rs{stockStatus.color}`}>
+                        <span className={`font-bold ${stockStatus.color}`}>
                           {medicine.stock}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm text-gray-600">Expiry</span>
+                          <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Expiry</span>
                         </div>
                         <span
                           className={`text-sm font-medium px-2 py-1 rounded-full ${expiryStatus.bg} ${expiryStatus.color}`}
@@ -3808,14 +5356,14 @@ const MedicineProductsPanel = () => {
                     <div className="flex justify-between items-center">
                       <button
                         onClick={() => handleView(medicine)}
-                        className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200 hover:scale-110"
+                        className="p-3 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-full transition-all duration-200 hover:scale-110"
                         title="View Details"
                       >
                         <Eye className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => handleEdit(medicine)}
-                        className="p-3 text-green-600 hover:bg-green-50 rounded-full transition-all duration-200 hover:scale-110"
+                        className="p-3 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/50 rounded-full transition-all duration-200 hover:scale-110"
                         title="Edit Medicine"
                       >
                         <Edit className="w-5 h-5" />
@@ -3825,7 +5373,7 @@ const MedicineProductsPanel = () => {
                           setSelectedMedicine(medicine);
                           setShowDeleteModal(true);
                         }}
-                        className="p-3 text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 hover:scale-110"
+                        className="p-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-full transition-all duration-200 hover:scale-110"
                         title="Delete Medicine"
                       >
                         <Trash2 className="w-5 h-5" />
@@ -3841,11 +5389,11 @@ const MedicineProductsPanel = () => {
         {/* Empty State */}
         {!isLoading && medicines.length === 0 && (
           <div className="text-center py-20">
-            <Package className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            <Package className="w-20 h-20 text-gray-400 dark:text-gray-600 mx-auto mb-6" />
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               No medicines found
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Get started by adding your first medicine to the inventory.
             </p>
             <button
@@ -3860,30 +5408,6 @@ const MedicineProductsPanel = () => {
     </div>
   );
 };
-
-
-
-
-
-
-// Action Button Component
-// const ActionButton = ({ icon: Icon, variant = "primary", tooltip }) => {
-//   const baseClasses = "p-2 rounded-lg transition-all duration-200 hover:scale-110";
-//   const variantClasses = variant === "primary" 
-//     ? "bg-sky-100 text-sky-600 hover:bg-sky-200" 
-//     : "bg-gray-100 text-gray-600 hover:bg-gray-200";
-  
-//   return (
-//     <button 
-//       className={`${baseClasses} ${variantClasses}`}
-//       title={tooltip}
-//     >
-//       <Icon className="w-4 h-4" />
-//     </button>
-//   );
-// };
-
-
 
 
 // Plan Badge Component
@@ -3921,117 +5445,7 @@ const FilterChip = ({ label, active, onClick }) => (
   </button>
 );
 
-// const ProductsPanel = () => (
-//   <div className="space-y-6">
-//     <div className="flex justify-between items-center">
-//       <div>
-//         <h3 className="text-2xl font-bold text-gray-900">Medicare Plans</h3>
-//         <p className="text-gray-600 mt-1">
-//           Manage available Medicare coverage options
-//         </p>
-//       </div>
-//       <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 flex items-center space-x-2">
-//         <Plus className="w-4 h-4" />
-//         <span>Add Plan</span>
-//       </button>
-//     </div>
 
-//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-//       {[
-//         {
-//           name: "Medicare Advantage",
-//           members: 1247,
-//           premium: "$0",
-//           type: "Part C",
-//           color: "from-blue-500 to-blue-600",
-//           satisfaction: 94,
-//         },
-//         {
-//           name: "Medicare Supplement",
-//           members: 834,
-//           premium: "$156",
-//           type: "Medigap",
-//           color: "from-green-500 to-green-600",
-//           satisfaction: 89,
-//         },
-//         {
-//           name: "Medicare Part D",
-//           members: 2103,
-//           premium: "$32",
-//           type: "Prescription",
-//           color: "from-purple-500 to-purple-600",
-//           satisfaction: 92,
-//         },
-//       ].map((plan, i) => (
-//         <AnimatedCard
-//           key={i}
-//           className="p-6 group cursor-pointer overflow-hidden relative  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
-//         >
-//           <div
-//             className={`absolute inset-0 bg-gradient-to-br ${plan.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
-//           ></div>
-//           <div className="relative z-10  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-//             <div className="flex items-center justify-between mb-4">
-//               <h4 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-//                 {plan.name}
-//               </h4>
-//               <span
-//                 className={`px-3 py-1 bg-gradient-to-r ${plan.color} text-white text-xs font-medium rounded-full shadow-sm group-hover:shadow-md transition-shadow duration-200`}
-//               >
-//                 {plan.type}
-//               </span>
-//             </div>
-
-//             <div className="space-y-4 ">
-//               <div className="flex justify-between items-center">
-//                 <span className="text-sm text-gray-600">Active Members</span>
-//                 <span className="text-lg font-bold text-gray-900">
-//                   {plan.members.toLocaleString()}
-//                 </span>
-//               </div>
-
-//               <div className="flex justify-between items-center">
-//                 <span className="text-sm text-gray-600">Monthly Premium</span>
-//                 <span className="text-lg font-bold text-green-600">
-//                   {plan.premium}
-//                 </span>
-//               </div>
-
-//               <div className="space-y-2">
-//                 <div className="flex justify-between text-sm">
-//                   <span className="text-gray-600">Satisfaction</span>
-//                   <span className="font-medium text-gray-900">
-//                     {plan.satisfaction}%
-//                   </span>
-//                 </div>
-//                 <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-//                   <div
-//                     className={`h-2 bg-gradient-to-r ${plan.color} rounded-full transition-all duration-1000 ease-out transform origin-left group-hover:shadow-sm`}
-//                     style={{ width: `${plan.satisfaction}%` }}
-//                   ></div>
-//                 </div>
-//               </div>
-//             </div>
-
-//             <div className="mt-6 flex space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-//               <ActionButton
-//                 icon={Eye}
-//                 variant="secondary"
-//                 tooltip="View Details"
-//               />
-//               <ActionButton icon={Edit} variant="primary" tooltip="Edit Plan" />
-//               <ActionButton
-//                 icon={Settings}
-//                 variant="secondary"
-//                 tooltip="Plan Settings"
-//               />
-//             </div>
-//           </div>
-//         </AnimatedCard>
-//       ))}
-//     </div>
-//   </div>
-// );
 
 
 
@@ -4062,58 +5476,135 @@ const CompareBar = ({ selectedPlans, onClear }) => {
   );
 };
 
+
+// / Main ProductsPanel Component with Dark Mode
 const ProductsPanel = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [selectedPlans, setSelectedPlans] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 200]);
   const [showFilters, setShowFilters] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Initialize dark mode from system preference or localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
+  // const plans = [
+  //   {
+  //     name: "Medicare Advantage",
+  //     members: 1247,
+  //     premium: "$0",
+  //     type: "Part C",
+  //     color: "bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20",
+  //     badgeColor: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  //     iconColor: "from-blue-500 to-blue-600",
+  //     satisfaction: 94,
+  //     deductible: "$500",
+  //     ageEligibility: "65+",
+  //     benefits: ["Hospital Coverage", "Doctor Visits", "Preventive Care", "Prescription Drugs"],
+  //     category: "advantage"
+  //   },
+  //   {
+  //     name: "Medicare Supplement",
+  //     members: 834,
+  //     premium: "$156",
+  //     type: "Medigap",
+  //     color: "bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20",
+  //     badgeColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  //     iconColor: "from-green-500 to-green-600",
+  //     satisfaction: 89,
+  //     deductible: "$226",
+  //     ageEligibility: "65+",
+  //     benefits: ["Medicare Gaps", "Foreign Travel", "Out-of-Pocket Costs", "Coinsurance"],
+  //     category: "supplement"
+  //   },
+  //   {
+  //     name: "Medicare Part D",
+  //     members: 2103,
+  //     premium: "$32",
+  //     type: "Prescription",
+  //     color: "bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20",
+  //     badgeColor: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  //     iconColor: "from-purple-500 to-purple-600",
+  //     satisfaction: 92,
+  //     deductible: "$505",
+  //     ageEligibility: "65+",
+  //     benefits: ["Brand Drugs", "Generic Drugs", "Pharmacy Network", "Mail Order"],
+  //     category: "prescription"
+  //   },
+  // ];
+
+
 
   const plans = [
-    {
-      name: "Medicare Advantage",
-      members: 1247,
-      premium: "$0",
-      type: "Part C",
-      color: "bg-gradient-to-br from-sky-50 to-blue-50",
-      badgeColor: "bg-blue-100 text-blue-700",
-      iconColor: "from-blue-500 to-blue-600",
-      satisfaction: 94,
-      deductible: "$500",
-      ageEligibility: "65+",
-      benefits: ["Hospital Coverage", "Doctor Visits", "Preventive Care", "Prescription Drugs"],
-      category: "advantage"
-    },
-    {
-      name: "Medicare Supplement",
-      members: 834,
-      premium: "$156",
-      type: "Medigap",
-      color: "bg-gradient-to-br from-emerald-50 to-teal-50",
-      badgeColor: "bg-emerald-100 text-emerald-700",
-      iconColor: "from-green-500 to-green-600",
-      satisfaction: 89,
-      deductible: "$226",
-      ageEligibility: "65+",
-      benefits: ["Medicare Gaps", "Foreign Travel", "Out-of-Pocket Costs", "Coinsurance"],
-      category: "supplement"
-    },
-    {
-      name: "Medicare Part D",
-      members: 2103,
-      premium: "$32",
-      type: "Prescription",
-      color: "bg-gradient-to-br from-purple-50 to-pink-50",
-      badgeColor: "bg-purple-100 text-purple-700",
-      iconColor: "from-purple-500 to-purple-600",
-      satisfaction: 92,
-      deductible: "$505",
-      ageEligibility: "65+",
-      benefits: ["Brand Drugs", "Generic Drugs", "Pharmacy Network", "Mail Order"],
-      category: "prescription"
-    },
-  ];
-
+  {
+    name: "Medicare Advantage",
+    members: 1247,
+    premium: "$0",
+    type: "Part C",
+    color: "bg-gradient-to-br from-[#090040] to-[#0a0a80]",
+    darkBg: "bg-gradient-to-br from-sky-900/20 to-blue-900/20 border-gray-600",
+    badgeColor: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    iconColor: "from-blue-500 to-blue-600",
+    satisfaction: 94,
+    deductible: "$500",
+    ageEligibility: "65+",
+    benefits: ["Hospital Coverage", "Doctor Visits", "Preventive Care", "Prescription Drugs"],
+    category: "advantage"
+  },
+  {
+    name: "Medicare Supplement",
+    members: 834,
+    premium: "$156",
+    type: "Medigap",
+    color: "bg-gradient-to-br from-[#090040] to-[#0a0a80]",
+    darkBg: "bg-gradient-to-br from-emerald-900/20 to-teal-900/20 border-gray-600",
+    badgeColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+    iconColor: "from-green-500 to-green-600",
+    satisfaction: 89,
+    deductible: "$226",
+    ageEligibility: "65+",
+    benefits: ["Medicare Gaps", "Foreign Travel", "Out-of-Pocket Costs", "Coinsurance"],
+    category: "supplement"
+  },
+  {
+    name: "Medicare Part D",
+    members: 2103,
+    premium: "$32",
+    type: "Prescription",
+    color: "bg-gradient-to-br from-[#090040] to-[#0a0a80]",
+    darkBg: "bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-gray-600",
+    badgeColor: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+    iconColor: "from-purple-500 to-purple-600",
+    satisfaction: 92,
+    deductible: "$505",
+    ageEligibility: "65+",
+    benefits: ["Brand Drugs", "Generic Drugs", "Pharmacy Network", "Mail Order"],
+    category: "prescription"
+  },
+];
+  
   const togglePlanSelection = (planName) => {
     setSelectedPlans(prev => 
       prev.includes(planName) 
@@ -4123,17 +5614,25 @@ const ProductsPanel = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-teal-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-sky-500 via-teal-500 to-emerald-500 text-white py-16 px-6 rounded-b-3xl shadow-xl mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      {/* Header with Dark Mode Toggle */}
+      <div className="bg-gradient-to-r from-sky-500 via-teal-500 to-emerald-500 dark:from-sky-600 dark:via-teal-600 dark:to-emerald-600 text-white py-16 px-6 rounded-b-3xl shadow-xl mb-8 relative">
         <div className="max-w-7xl mx-auto">
+          {/* Dark Mode Toggle in top right */}
+          <div className="absolute top-6 right-6">
+            <DarkModeToggle 
+              isDarkMode={isDarkMode} 
+              toggleDarkMode={toggleDarkMode}
+            />
+          </div>
+          
           <div className="flex items-center space-x-3 mb-4">
             <Shield className="w-12 h-12" />
             <Sparkles className="w-6 h-6 text-yellow-300" />
           </div>
           <h1 className="text-5xl font-bold mb-4">Medicare Plans</h1>
-          <p className="text-xl text-sky-50 max-w-2xl">
-           
+          <p className="text-xl text-sky-50 dark:text-sky-100 max-w-2xl">
+            Find the perfect Medicare plan that fits your healthcare needs and budget
           </p>
           <div className="mt-8 flex items-center space-x-6 text-sm">
             <div className="flex items-center space-x-2">
@@ -4154,7 +5653,7 @@ const ProductsPanel = () => {
 
       <div className="max-w-7xl mx-auto px-6 pb-24">
         {/* Search and Filter Bar */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 mb-8 border border-gray-100 dark:border-gray-700 transition-colors duration-300">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -4163,12 +5662,12 @@ const ProductsPanel = () => {
                 placeholder="Search Medicare plans..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
             <button 
               onClick={() => setShowFilters(!showFilters)}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 flex items-center space-x-2 font-medium"
+              className="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 flex items-center space-x-2 font-medium"
             >
               <Filter className="w-4 h-4" />
               <span>Filters</span>
@@ -4182,9 +5681,9 @@ const ProductsPanel = () => {
 
           {/* Filter Options */}
           {showFilters && (
-            <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600 space-y-4 transition-all duration-300">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Plan Type</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Plan Type</label>
                 <div className="flex flex-wrap gap-2">
                   <FilterChip label="All Plans" active={activeFilter === "all"} onClick={() => setActiveFilter("all")} />
                   <FilterChip label="Advantage" active={activeFilter === "advantage"} onClick={() => setActiveFilter("advantage")} />
@@ -4194,7 +5693,7 @@ const ProductsPanel = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   Monthly Premium: ${priceRange[0]} - ${priceRange[1]}
                 </label>
                 <input 
@@ -4203,7 +5702,7 @@ const ProductsPanel = () => {
                   max="200" 
                   value={priceRange[1]}
                   onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-sky-500"
+                  className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-sky-500"
                 />
               </div>
             </div>
@@ -4218,12 +5717,12 @@ const ProductsPanel = () => {
             { icon: Shield, label: "Active Plans", value: "3", color: "from-purple-500 to-purple-600" },
             { icon: Heart, label: "Coverage Rate", value: "98%", color: "from-pink-500 to-pink-600" },
           ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center mb-4`}>
                 <stat.icon className="w-6 h-6 text-white" />
               </div>
-              <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-              <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{stat.label}</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
             </div>
           ))}
         </div>
@@ -4234,7 +5733,9 @@ const ProductsPanel = () => {
             <AnimatedCard
               key={i}
               className={`p-8 group cursor-pointer overflow-hidden relative border-2 ${
-                selectedPlans.includes(plan.name) ? 'border-sky-500 shadow-xl' : 'border-transparent'
+                selectedPlans.includes(plan.name) 
+                  ? 'border-sky-500 shadow-xl dark:border-sky-400' 
+                  : 'border-transparent'
               }`}
             >
               {/* Selection Checkbox */}
@@ -4243,8 +5744,8 @@ const ProductsPanel = () => {
                   onClick={() => togglePlanSelection(plan.name)}
                   className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-200 ${
                     selectedPlans.includes(plan.name)
-                      ? 'bg-sky-500 border-sky-500'
-                      : 'border-gray-300 hover:border-sky-400'
+                      ? 'bg-sky-500 border-sky-500 dark:bg-sky-400 dark:border-sky-400'
+                      : 'border-gray-300 dark:border-gray-600 hover:border-sky-400 dark:hover:border-sky-400'
                   }`}
                 >
                   {selectedPlans.includes(plan.name) && <Check className="w-4 h-4 text-white" />}
@@ -4262,7 +5763,7 @@ const ProductsPanel = () => {
                       <Shield className="w-7 h-7 text-white" />
                     </div>
                   </div>
-                  <h4 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-sky-600 transition-colors duration-200">
+                  <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors duration-200">
                     {plan.name}
                   </h4>
                   <PlanBadge type={plan.type} color={plan.badgeColor} />
@@ -4270,36 +5771,36 @@ const ProductsPanel = () => {
 
                 {/* Key Metrics */}
                 <div className="space-y-4 mb-6">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm">
+                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 shadow-sm">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-gray-600">Monthly Premium</span>
-                      <span className="text-2xl font-bold text-emerald-600">{plan.premium}</span>
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Monthly Premium</span>
+                      <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{plan.premium}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">Deductible</span>
-                      <span className="font-semibold text-gray-900">{plan.deductible}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Deductible</span>
+                      <span className="font-semibold text-gray-900 dark:text-white">{plan.deductible}</span>
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700">Active Members</span>
-                    <span className="text-lg font-bold text-gray-900">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active Members</span>
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">
                       {plan.members.toLocaleString()}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700">Age Eligibility</span>
-                    <span className="text-lg font-bold text-gray-900">{plan.ageEligibility}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Age Eligibility</span>
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">{plan.ageEligibility}</span>
                   </div>
 
                   {/* Satisfaction Bar */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-700">Member Satisfaction</span>
-                      <span className="font-bold text-gray-900">{plan.satisfaction}%</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Member Satisfaction</span>
+                      <span className="font-bold text-gray-900 dark:text-white">{plan.satisfaction}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 overflow-hidden">
                       <div
                         className={`h-2.5 bg-gradient-to-r ${plan.iconColor} rounded-full transition-all duration-1000 ease-out shadow-sm`}
                         style={{ width: `${plan.satisfaction}%` }}
@@ -4310,11 +5811,11 @@ const ProductsPanel = () => {
 
                 {/* Benefits */}
                 <div className="mb-6">
-                  <h5 className="text-sm font-bold text-gray-900 mb-3 flex items-center">
+                  <h5 className="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center">
                     <Check className="w-4 h-4 mr-2 text-teal-500" />
                     Coverage Benefits
                   </h5>
-                  <div className="space-y-2 bg-white/60 backdrop-blur-sm rounded-xl p-4">
+                  <div className="space-y-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-4">
                     {plan.benefits.map((benefit, idx) => (
                       <BenefitItem key={idx} icon={Check} text={benefit} />
                     ))}
@@ -4327,17 +5828,17 @@ const ProductsPanel = () => {
                     View Details
                   </button>
                   <div className="grid grid-cols-2 gap-2">
-                    <button className="py-2 px-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-lg font-medium hover:bg-white hover:shadow-md transition-all duration-200 text-sm">
+                    <button className="py-2 px-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-white dark:hover:bg-gray-800 hover:shadow-md transition-all duration-200 text-sm">
                       Compare
                     </button>
-                    <button className="py-2 px-4 bg-white/80 backdrop-blur-sm text-sky-600 rounded-lg font-medium hover:bg-white hover:shadow-md transition-all duration-200 text-sm">
+                    <button className="py-2 px-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-sky-600 dark:text-sky-400 rounded-lg font-medium hover:bg-white dark:hover:bg-gray-800 hover:shadow-md transition-all duration-200 text-sm">
                       Enroll Now
                     </button>
                   </div>
                 </div>
 
                 {/* Hover Action Icons */}
-                <div className="mt-4 pt-4 border-t border-gray-200 flex space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                   <ActionButton icon={Eye} variant="secondary" tooltip="View Details" />
                   <ActionButton icon={Edit} variant="primary" tooltip="Edit Plan" />
                   <ActionButton icon={Settings} variant="secondary" tooltip="Plan Settings" />
@@ -4348,13 +5849,13 @@ const ProductsPanel = () => {
         </div>
 
         {/* Trust Badge */}
-        <div className="mt-12 bg-gradient-to-r from-sky-500 to-teal-500 rounded-2xl p-8 text-white text-center shadow-xl">
+        <div className="mt-12 bg-gradient-to-r from-sky-500 to-teal-500 dark:from-sky-600 dark:to-teal-600 rounded-2xl p-8 text-white text-center shadow-xl">
           <div className="flex items-center justify-center mb-4">
             <Shield className="w-12 h-12 mr-3" />
             <Heart className="w-8 h-8" />
           </div>
           <h3 className="text-3xl font-bold mb-2">Trusted by Over 1 Million Users</h3>
-          <p className="text-sky-50 text-lg">
+          <p className="text-sky-50 dark:text-sky-100 text-lg">
             Join thousands of satisfied members who trust us with their healthcare coverage
           </p>
         </div>
