@@ -41,7 +41,31 @@ import { toast } from "react-toastify"; // or your toast library
 import "react-toastify/dist/ReactToastify.css";
 import AddMemberModal from "../components/AddMemberModal";
 import { SearchX } from "lucide-react";
-// import { useTheme } from "../context/ThemeContext";
+
+
+
+
+import  {Sparkles , Star, Filter, Check  } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+
+import {
+  User,
+  UserPlus,
+  FileText,
+  BarChart3,
+
+  TrendingDown,
+  HelpCircle,
+} from 'lucide-react';
+
+
+import {
+  MagnifyingGlassIcon,
+  FunnelIcon,
+  XCircleIcon,
+  ArrowsUpDownIcon,
+} from "@heroicons/react/24/outline";
 
 import {
   ChartBarIcon,
@@ -71,6 +95,10 @@ import {
 import { Badge, Card, Typography, Empty, Spin } from "antd";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { useTheme } from "../hooks/useTheme";
+
+
+
+
 
 const { Title, Text } = Typography;
 
@@ -1852,6 +1880,448 @@ const UsersPanel = ({ members = [], loading, onRefreshMembers }) => {
 
 
 
+// const statusIcons = {
+//   PLACED: "📝",
+//   APPROVED: "✅",
+//   SHIPPED: "🚚",
+//   DELIVERED: "📦",
+//   CANCELLED: "❌",
+//   PENDING: "⏳",
+// };
+
+// // Define the order status flow
+// const Status = {
+//   PLACED: "PLACED",
+//   APPROVED: "APPROVED",
+//   SHIPPED: "SHIPPED",
+//   DELIVERED: "DELIVERED",
+//   CANCELLED: "CANCELLED",
+//   PENDING: "PENDING",
+// };
+
+// const statusColors = {
+//   PLACED: "bg-blue-100/70 text-blue-800 border border-blue-200/50 backdrop-blur-md shadow-lg shadow-blue-500/10",
+//   APPROVED: "bg-emerald-100/70 text-emerald-800 border border-emerald-200/50 backdrop-blur-md shadow-lg shadow-emerald-500/10",
+//   SHIPPED: "bg-purple-100/70 text-purple-800 border border-purple-200/50 backdrop-blur-md shadow-lg shadow-purple-500/10", 
+//   DELIVERED: "bg-gray-100/70 text-gray-800 border border-gray-200/50 backdrop-blur-md shadow-lg shadow-gray-500/10",
+//   CANCELLED: "bg-red-100/70 text-red-800 border border-red-200/50 backdrop-blur-md shadow-lg shadow-red-500/10",
+//   PENDING: "bg-amber-100/70 text-amber-800 border border-amber-200/50 backdrop-blur-md shadow-lg shadow-amber-500/10",
+// };
+
+// const OrdersPanel = () => {
+//   const [orders, setOrders] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [selectedOrder, setSelectedOrder] = useState(null);
+//   const [showModal, setShowModal] = useState(false);
+//   const [statusUpdate, setStatusUpdate] = useState("");
+//   const [activeFilter, setActiveFilter] = useState("ALL");
+
+//   useEffect(() => {
+//     fetchOrders();
+//   }, []);
+
+//   const fetchOrders = async () => {
+//     try {
+//       setLoading(true);
+      
+//       // Get token from localStorage
+//       const token = localStorage.getItem("token");
+      
+//       if (!token) {
+//         setError("No authentication token found. Please login again.");
+//         setLoading(false);
+//         return;
+//       }
+
+//       const response = await axios.get("http://localhost:8080/api/orders/admin", {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           Accept: "application/json",
+//           "Content-Type": "application/json",
+//         }
+//       });
+
+//       // Debug the response
+//       console.log("Orders API Response:", response.data);
+
+//       // Ensure we have an array and transform data if needed
+//       const ordersData = Array.isArray(response.data) ? response.data : [];
+
+//       // Transform data to match frontend expectations
+//       const transformedOrders = ordersData.map((order) => ({
+//         id: order.id,
+//         totalPrice: order.totalPrice,
+//         status: order.status,
+//         orderDate: order.createdAt, // Use the actual field name from API
+//         userName: order.userName,
+//         items: order.items || [],
+//       }));
+
+//       setOrders(transformedOrders);
+//       setLoading(false);
+//     } catch (err) {
+//       if (err.response?.status === 401) {
+//         setError("Session expired. Please login again.");
+//       } else {
+//         setError("Failed to fetch orders");
+//       }
+//       setLoading(false);
+//       console.error("Error fetching orders:", err);
+//     }
+//   };
+
+//   // Count orders by status
+//   const orderCounts = Object.values(Status).reduce((counts, status) => {
+//     const ordersArray = Array.isArray(orders) ? orders : [];
+//     counts[status] = ordersArray.filter(
+//       (order) => order.status === status
+//     ).length;
+//     return counts;
+//   }, {});
+
+//   // Update order status
+//   const updateOrderStatus = async (orderId, newStatus) => {
+//     try {
+//       const token = localStorage.getItem("token");
+      
+//       if (!token) {
+//         alert("No authentication token found. Please login again.");
+//         return;
+//       }
+
+//       await axios.put(
+//         `http://localhost:8080/api/orders/${orderId}/status`,
+//         { status: newStatus },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           }
+//         }
+//       );
+
+//       // Update local state
+//       setOrders((prevOrders) =>
+//         Array.isArray(prevOrders)
+//           ? prevOrders.map((order) =>
+//               order.id === orderId ? { ...order, status: newStatus } : order
+//             )
+//           : []
+//       );
+
+//       setShowModal(false);
+//     } catch (err) {
+//       console.error("Error updating order status:", err);
+//       alert("Failed to update order status");
+//     }
+//   };
+
+//   // Open status update modal
+//   const openStatusModal = (order, newStatus) => {
+//     setSelectedOrder(order);
+//     setStatusUpdate(newStatus);
+//     setShowModal(true);
+//   };
+
+//   // Refresh orders
+//   const refreshOrders = async () => {
+//     try {
+//       setLoading(true);
+//       const token = localStorage.getItem("token");
+      
+//       if (!token) {
+//         setError("No authentication token found. Please login again.");
+//         setLoading(false);
+//         return;
+//       }
+
+//       const response = await axios.get("http://localhost:8080/api/orders/admin", {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           Accept: "application/json",
+//           "Content-Type": "application/json",
+//         }
+//       });
+      
+//       setOrders(Array.isArray(response.data) ? response.data : []);
+//       setLoading(false);
+//     } catch (err) {
+//       setError("Failed to refresh orders");
+//       setLoading(false);
+//       console.error("Error refreshing orders:", err);
+//     }
+//   };
+
+//   // Get available status transitions for an order
+//   const getAvailableStatusTransitions = (currentStatus) => {
+//     const allStatuses = Object.values(Status);
+    
+//     // Admin can transition to any status except the current one
+//     return allStatuses.filter(status => status !== currentStatus);
+//   };
+
+//   // Filter orders based on active filter
+//   const filteredOrders = Array.isArray(orders) 
+//     ? activeFilter === "ALL" 
+//       ? orders 
+//       : orders.filter(order => order.status === activeFilter)
+//     : [];
+
+//   if (loading) {
+//     return (
+//       <div className="flex flex-col justify-center items-center h-96 space-y-4">
+//         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+//         <div className="text-lg text-gray-600 dark:text-gray-300">Loading orders...</div>
+//       </div>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <div className="flex flex-col justify-center items-center h-96 space-y-4">
+//         <div className="text-xl text-red-600 dark:text-red-400">{error}</div>
+//         <button
+//           onClick={refreshOrders}
+//           className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+//         >
+//           <ArrowPathIcon className="w-5 h-5" />
+//           <span>Try Again</span>
+//         </button>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="space-y-6 bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6 min-h-screen">
+//       {/* Header */}
+//       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+//         <div>
+//           <h3 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+//             <ClipboardDocumentListIcon className="w-8 h-8 text-blue-600" />
+//             PharmaFlow Orders
+//           </h3>
+//           <p className="text-gray-600 dark:text-gray-300 mt-1">
+//             Manage and process customer medication orders
+//           </p>
+//         </div>
+//         <div className="flex gap-3">
+//           <button className="px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-300 flex items-center space-x-2 shadow-sm hover:shadow-md">
+//             <ChartBarIcon className="w-5 h-5" />
+//             <span>Reports</span>
+//           </button>
+//           <button className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-green-500/25">
+//             <ArrowTrendingUpIcon className="w-5 h-5" />
+//             <span>Export Data</span>
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Order Statistics */}
+//       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+//         {Object.entries(orderCounts).map(([status, count]) => (
+//           <div
+//             key={status}
+//             className="p-4 group cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/50 dark:border-gray-700/50 hover:-translate-y-1"
+//           >
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 uppercase tracking-wider">
+//                   {status}
+//                 </p>
+//                 <p className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+//                   {count}
+//                 </p>
+//               </div>
+//               <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3">
+//                 <span className="text-white text-xl">
+//                   {statusIcons[status]}
+//                 </span>
+//               </div>
+//             </div>
+//             <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+//               <div
+//                 className="h-1.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000 ease-out transform origin-left"
+//                 style={{
+//                   width: `${
+//                     orders.length > 0
+//                       ? (count / orders.length) * 100
+//                       : 0
+//                   }%`,
+//                 }}
+//               ></div>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+
+//       {/* Orders List */}
+//       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm p-6 border border-gray-100/50 dark:border-gray-700/50">
+//         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+//           <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+//             All Orders
+//             <span className="text-sm font-normal bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2.5 py-0.5 rounded-full">
+//               {filteredOrders.length}
+//             </span>
+//           </h4>
+//           <div className="flex flex-wrap gap-2">
+//             <button
+//               onClick={() => setActiveFilter("ALL")}
+//               className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+//                 activeFilter === "ALL"
+//                   ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700"
+//                   : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+//               }`}
+//             >
+//               All Orders
+//             </button>
+//             {Object.keys(Status).map((status) => (
+//               <button
+//                 key={status}
+//                 onClick={() => setActiveFilter(status)}
+//                 className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+//                   activeFilter === status
+//                     ? `${statusColors[status]} border`
+//                     : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+//                 }`}
+//               >
+//                 {status}
+//               </button>
+//             ))}
+//             <button
+//               onClick={refreshOrders}
+//               className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium flex items-center space-x-1 px-3 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 transition-colors"
+//             >
+//               <span>Refresh</span>
+//               <ArrowPathIcon className="w-4 h-4" />
+//             </button>
+//           </div>
+//         </div>
+
+//         {filteredOrders.length === 0 ? (
+//           <div className="text-center py-16 text-gray-500 dark:text-gray-400 flex flex-col items-center">
+//             <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+//               <ClipboardDocumentListIcon className="w-12 h-12 text-gray-400" />
+//             </div>
+//             <p className="text-lg font-medium">No orders found</p>
+//             <p className="text-sm mt-1">
+//               {activeFilter !== "ALL" ? `No orders with status "${activeFilter}"` : "No orders available"}
+//             </p>
+//           </div>
+//         ) : (
+//           <div className="space-y-4">
+//             {filteredOrders.map((order) => (
+//               <div
+//                 key={order.id}
+//                 className="flex flex-col md:flex-row items-start md:items-center justify-between p-5 bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-gray-700/50 rounded-xl hover:shadow-md group cursor-pointer transition-all duration-300 border border-gray-100/50 dark:border-gray-700/50 hover:-translate-y-0.5"
+//               >
+//                 <div className="flex items-start space-x-4 mb-4 md:mb-0">
+//                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200 flex-shrink-0">
+//                     {order.userName
+//                       .split(" ")
+//                       .map((n) => n[0])
+//                       .join("")}
+//                   </div>
+//                   <div>
+//                     <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+//                       {order.userName}
+//                     </div>
+//                     <div className="text-sm text-gray-500 dark:text-gray-400">
+//                       Order #{order.id} •{" "}
+//                       {new Date(order.orderDate).toLocaleDateString()}
+//                     </div>
+//                     <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+//                       {order.items && order.items.length} item(s) • Total: $
+//                       {order.totalPrice}
+//                     </div>
+//                   </div>
+//                 </div>
+//                 <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto gap-4">
+//                   <div className="text-left md:text-right">
+//                     <div className="font-bold text-gray-900 dark:text-white text-lg">
+//                       ${order.totalPrice}
+//                     </div>
+//                     <div
+//                       className={`text-xs px-3 py-1.5 rounded-full inline-block mt-1 ${
+//                         statusColors[order.status]
+//                       }`}
+//                     >
+//                       {order.status}
+//                     </div>
+//                   </div>
+//                   <div className="flex flex-wrap gap-2">
+//                     {/* Show all available status transitions */}
+//                     {getAvailableStatusTransitions(order.status).map((status) => (
+//                       <button
+//                         key={status}
+//                         onClick={() => openStatusModal(order, status)}
+//                         className={`px-3 py-1.5 text-xs rounded-full transition-all ${
+//                           status === Status.CANCELLED 
+//                             ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50" 
+//                             : status === Status.DELIVERED
+//                             ? "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+//                             : status === Status.SHIPPED
+//                             ? "bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+//                             : status === Status.APPROVED
+//                             ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
+//                             : "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+//                         }`}
+//                       >
+//                         {status === Status.CANCELLED ? "Cancel" : 
+//                          status === Status.DELIVERED ? "Mark Delivered" :
+//                          status === Status.SHIPPED ? "Ship" :
+//                          status === Status.APPROVED ? "Approve" :
+//                          status === Status.PLACED ? "Revert to Placed" :
+//                          status}
+//                       </button>
+//                     ))}
+//                   </div>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Status Update Modal */}
+//       {showModal && selectedOrder && (
+//         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+//           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md border border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
+//             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Update Order Status</h3>
+//             <p className="mb-4 text-gray-600 dark:text-gray-300">
+//               Change order <span className="font-medium">#{selectedOrder.id}</span> from{" "}
+//               <span className={`font-semibold ${statusColors[selectedOrder.status].split(' ')[1]}`}>
+//                 {selectedOrder.status}
+//               </span> to{" "}
+//               <span className={`font-semibold ${statusColors[statusUpdate]?.split(' ')[1] || 'text-gray-900 dark:text-white'}`}>
+//                 {statusUpdate}
+//               </span>?
+//             </p>
+//             <div className="flex justify-end space-x-3">
+//               <button
+//                 onClick={() => setShowModal(false)}
+//                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={() =>
+//                   updateOrderStatus(selectedOrder.id, statusUpdate)
+//                 }
+//                 className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+//               >
+//                 Confirm Update
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+
+
 const statusIcons = {
   PLACED: "📝",
   APPROVED: "✅",
@@ -1861,7 +2331,6 @@ const statusIcons = {
   PENDING: "⏳",
 };
 
-// Define the order status flow
 const Status = {
   PLACED: "PLACED",
   APPROVED: "APPROVED",
@@ -1874,7 +2343,7 @@ const Status = {
 const statusColors = {
   PLACED: "bg-blue-100/70 text-blue-800 border border-blue-200/50 backdrop-blur-md shadow-lg shadow-blue-500/10",
   APPROVED: "bg-emerald-100/70 text-emerald-800 border border-emerald-200/50 backdrop-blur-md shadow-lg shadow-emerald-500/10",
-  SHIPPED: "bg-purple-100/70 text-purple-800 border border-purple-200/50 backdrop-blur-md shadow-lg shadow-purple-500/10", 
+  SHIPPED: "bg-purple-100/70 text-purple-800 border border-purple-200/50 backdrop-blur-md shadow-lg shadow-purple-500/10",
   DELIVERED: "bg-gray-100/70 text-gray-800 border border-gray-200/50 backdrop-blur-md shadow-lg shadow-gray-500/10",
   CANCELLED: "bg-red-100/70 text-red-800 border border-red-200/50 backdrop-blur-md shadow-lg shadow-red-500/10",
   PENDING: "bg-amber-100/70 text-amber-800 border border-amber-200/50 backdrop-blur-md shadow-lg shadow-amber-500/10",
@@ -1889,6 +2358,12 @@ const OrdersPanel = () => {
   const [statusUpdate, setStatusUpdate] = useState("");
   const [activeFilter, setActiveFilter] = useState("ALL");
 
+  // NEW UI STATE (doesn't affect logic)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("latest");
+  const [showFilters, setShowFilters] = useState(false);
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -1896,36 +2371,33 @@ const OrdersPanel = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      
-      // Get token from localStorage
       const token = localStorage.getItem("token");
-      
+
       if (!token) {
         setError("No authentication token found. Please login again.");
         setLoading(false);
         return;
       }
 
-      const response = await axios.get("http://localhost:8080/api/orders/admin", {
+      const response = await fetch("http://localhost:8080/api/orders/admin", {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "Content-Type": "application/json",
-        }
+        },
       });
 
-      // Debug the response
-      console.log("Orders API Response:", response.data);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      // Ensure we have an array and transform data if needed
-      const ordersData = Array.isArray(response.data) ? response.data : [];
-
-      // Transform data to match frontend expectations
+      const data = await response.json();
+      const ordersData = Array.isArray(data) ? data : [];
       const transformedOrders = ordersData.map((order) => ({
         id: order.id,
         totalPrice: order.totalPrice,
         status: order.status,
-        orderDate: order.createdAt, // Use the actual field name from API
+        orderDate: order.createdAt,
         userName: order.userName,
         items: order.items || [],
       }));
@@ -1933,7 +2405,7 @@ const OrdersPanel = () => {
       setOrders(transformedOrders);
       setLoading(false);
     } catch (err) {
-      if (err.response?.status === 401) {
+      if (err.message.includes("401")) {
         setError("Session expired. Please login again.");
       } else {
         setError("Failed to fetch orders");
@@ -1943,37 +2415,37 @@ const OrdersPanel = () => {
     }
   };
 
-  // Count orders by status
   const orderCounts = Object.values(Status).reduce((counts, status) => {
     const ordersArray = Array.isArray(orders) ? orders : [];
-    counts[status] = ordersArray.filter(
-      (order) => order.status === status
-    ).length;
+    counts[status] = ordersArray.filter((order) => order.status === status).length;
     return counts;
   }, {});
 
-  // Update order status
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem("token");
-      
+
       if (!token) {
         alert("No authentication token found. Please login again.");
         return;
       }
 
-      await axios.put(
+      const response = await fetch(
         `http://localhost:8080/api/orders/${orderId}/status`,
-        { status: newStatus },
         {
+          method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-          }
+          },
+          body: JSON.stringify({ status: newStatus }),
         }
       );
 
-      // Update local state
+      if (!response.ok) {
+        throw new Error("Failed to update status");
+      }
+
       setOrders((prevOrders) =>
         Array.isArray(prevOrders)
           ? prevOrders.map((order) =>
@@ -1989,34 +2461,37 @@ const OrdersPanel = () => {
     }
   };
 
-  // Open status update modal
   const openStatusModal = (order, newStatus) => {
     setSelectedOrder(order);
     setStatusUpdate(newStatus);
     setShowModal(true);
   };
 
-  // Refresh orders
   const refreshOrders = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      
+
       if (!token) {
         setError("No authentication token found. Please login again.");
         setLoading(false);
         return;
       }
 
-      const response = await axios.get("http://localhost:8080/api/orders/admin", {
+      const response = await fetch("http://localhost:8080/api/orders/admin", {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "Content-Type": "application/json",
-        }
+        },
       });
-      
-      setOrders(Array.isArray(response.data) ? response.data : []);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch");
+      }
+
+      const data = await response.json();
+      setOrders(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (err) {
       setError("Failed to refresh orders");
@@ -2025,265 +2500,403 @@ const OrdersPanel = () => {
     }
   };
 
-  // Get available status transitions for an order
   const getAvailableStatusTransitions = (currentStatus) => {
     const allStatuses = Object.values(Status);
-    
-    // Admin can transition to any status except the current one
-    return allStatuses.filter(status => status !== currentStatus);
+    return allStatuses.filter((status) => status !== currentStatus);
   };
 
-  // Filter orders based on active filter
-  const filteredOrders = Array.isArray(orders) 
-    ? activeFilter === "ALL" 
-      ? orders 
-      : orders.filter(order => order.status === activeFilter)
+  // ENHANCED FILTERING & SEARCH (UI only)
+  let filteredOrders = Array.isArray(orders)
+    ? activeFilter === "ALL"
+      ? orders
+      : orders.filter((order) => order.status === activeFilter)
     : [];
 
+  // Search filter
+  if (searchQuery) {
+    filteredOrders = filteredOrders.filter(
+      (order) =>
+        order.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.id.toString().includes(searchQuery)
+    );
+  }
+
+  // Date range filter
+  if (dateRange.start && dateRange.end) {
+    filteredOrders = filteredOrders.filter((order) => {
+      const orderDate = new Date(order.orderDate);
+      return (
+        orderDate >= new Date(dateRange.start) &&
+        orderDate <= new Date(dateRange.end)
+      );
+    });
+  }
+
+  // Sorting
+  filteredOrders = [...filteredOrders].sort((a, b) => {
+    switch (sortBy) {
+      case "latest":
+        return new Date(b.orderDate) - new Date(a.orderDate);
+      case "oldest":
+        return new Date(a.orderDate) - new Date(b.orderDate);
+      case "amount-high":
+        return b.totalPrice - a.totalPrice;
+      case "amount-low":
+        return a.totalPrice - b.totalPrice;
+      default:
+        return 0;
+    }
+  });
+
+  // Skeleton Loader
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <div className="text-lg text-gray-600 dark:text-gray-300">Loading orders...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="h-20 bg-white/50 dark:bg-gray-800/50 rounded-2xl animate-pulse" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-32 bg-white/50 dark:bg-gray-800/50 rounded-xl animate-pulse" />
+            ))}
+          </div>
+          <div className="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-24 bg-gray-200/50 dark:bg-gray-700/50 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col justify-center items-center h-96 space-y-4">
-        <div className="text-xl text-red-600 dark:text-red-400">{error}</div>
-        <button
-          onClick={refreshOrders}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
-        >
-          <ArrowPathIcon className="w-5 h-5" />
-          <span>Try Again</span>
-        </button>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-4">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto">
+            <XCircleIcon className="w-10 h-10 text-red-600 dark:text-red-400" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Error Loading Orders</h3>
+          <p className="text-gray-600 dark:text-gray-400">{error}</p>
+          <button
+            onClick={refreshOrders}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center justify-center space-x-2 mx-auto shadow-lg hover:shadow-xl"
+          >
+            <ArrowPathIcon className="w-5 h-5" />
+            <span>Retry</span>
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6 min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h3 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <ClipboardDocumentListIcon className="w-8 h-8 text-blue-600" />
-            PharmaFlow Orders
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Manage and process customer medication orders
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button className="px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-300 flex items-center space-x-2 shadow-sm hover:shadow-md">
-            <ChartBarIcon className="w-5 h-5" />
-            <span>Reports</span>
-          </button>
-          <button className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-green-500/25">
-            <ArrowTrendingUpIcon className="w-5 h-5" />
-            <span>Export Data</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Order Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-        {Object.entries(orderCounts).map(([status, count]) => (
-          <div
-            key={status}
-            className="p-4 group cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/50 dark:border-gray-700/50 hover:-translate-y-1"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 uppercase tracking-wider">
-                  {status}
-                </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
-                  {count}
-                </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <ClipboardDocumentListIcon className="w-8 h-8 text-white" />
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3">
-                <span className="text-white text-xl">
-                  {statusIcons[status]}
-                </span>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  PharmaFlow Orders
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                  Manage and track all medication orders
+                </p>
               </div>
             </div>
-            <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
-              <div
-                className="h-1.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000 ease-out transform origin-left"
-                style={{
-                  width: `${
-                    orders.length > 0
-                      ? (count / orders.length) * 100
-                      : 0
-                  }%`,
-                }}
-              ></div>
+            <div className="flex gap-3">
+              <button className="px-5 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl hover:shadow-md transition-all duration-300 flex items-center space-x-2">
+                <ChartBarIcon className="w-5 h-5" />
+                <span className="hidden sm:inline">Reports</span>
+              </button>
+              <button className="px-5 py-2.5 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300 flex items-center space-x-2">
+                <ArrowTrendingUpIcon className="w-5 h-5" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Orders List */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm p-6 border border-gray-100/50 dark:border-gray-700/50">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            All Orders
-            <span className="text-sm font-normal bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2.5 py-0.5 rounded-full">
-              {filteredOrders.length}
-            </span>
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveFilter("ALL")}
-              className={`px-3 py-1.5 text-sm rounded-full transition-all ${
-                activeFilter === "ALL"
-                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 border border-blue-200 dark:border-blue-700"
-                  : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {Object.entries(orderCounts).map(([status, count]) => (
+            <div
+              key={status}
+              onClick={() => setActiveFilter(status)}
+              className={`group cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border p-5 hover:-translate-y-1 ${
+                activeFilter === status
+                  ? "border-blue-500 ring-2 ring-blue-500/20"
+                  : "border-white/20 dark:border-gray-700/50"
               }`}
             >
-              All Orders
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-3xl">{statusIcons[status]}</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {count}
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                {status}
+              </div>
+              <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-1000"
+                  style={{
+                    width: `${orders.length > 0 ? (count / orders.length) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Search & Filters */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search Bar */}
+            <div className="flex-1 relative">
+              <MagnifyingGlassIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by name or order ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
+              />
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="relative">
+              <ArrowsUpDownIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="pl-12 pr-10 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer text-gray-900 dark:text-white min-w-[180px]"
+              >
+                <option value="latest">Latest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="amount-high">Amount: High to Low</option>
+                <option value="amount-low">Amount: Low to High</option>
+              </select>
+            </div>
+
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-5 py-3 rounded-xl transition-all flex items-center space-x-2 ${
+                showFilters
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300"
+                  : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
+              }`}
+            >
+              <FunnelIcon className="w-5 h-5" />
+              <span>Filters</span>
+            </button>
+
+            <button
+              onClick={refreshOrders}
+              className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center space-x-2"
+            >
+              <ArrowPathIcon className="w-5 h-5" />
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          {/* Extended Filters */}
+          {showFilters && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 dark:text-white"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Status Filter Pills */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            <button
+              onClick={() => setActiveFilter("ALL")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                activeFilter === "ALL"
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+              }`}
+            >
+              All Orders ({orders.length})
             </button>
             {Object.keys(Status).map((status) => (
               <button
                 key={status}
                 onClick={() => setActiveFilter(status)}
-                className={`px-3 py-1.5 text-sm rounded-full transition-all ${
-                  activeFilter === status
-                    ? `${statusColors[status]} border`
-                    : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600"
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  activeFilter === status ? statusColors[status] : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
               >
-                {status}
+                {status} ({orderCounts[status]})
               </button>
             ))}
-            <button
-              onClick={refreshOrders}
-              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium flex items-center space-x-1 px-3 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 transition-colors"
-            >
-              <span>Refresh</span>
-              <ArrowPathIcon className="w-4 h-4" />
-            </button>
           </div>
         </div>
 
-        {filteredOrders.length === 0 ? (
-          <div className="text-center py-16 text-gray-500 dark:text-gray-400 flex flex-col items-center">
-            <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-              <ClipboardDocumentListIcon className="w-12 h-12 text-gray-400" />
+        {/* Orders Table/Cards */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 overflow-hidden">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Orders List
+              </h2>
+              <span className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full text-sm font-semibold">
+                {filteredOrders.length} Results
+              </span>
             </div>
-            <p className="text-lg font-medium">No orders found</p>
-            <p className="text-sm mt-1">
-              {activeFilter !== "ALL" ? `No orders with status "${activeFilter}"` : "No orders available"}
-            </p>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredOrders.map((order) => (
-              <div
-                key={order.id}
-                className="flex flex-col md:flex-row items-start md:items-center justify-between p-5 bg-gradient-to-r from-white to-blue-50/50 dark:from-gray-800 dark:to-gray-700/50 rounded-xl hover:shadow-md group cursor-pointer transition-all duration-300 border border-gray-100/50 dark:border-gray-700/50 hover:-translate-y-0.5"
-              >
-                <div className="flex items-start space-x-4 mb-4 md:mb-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200 flex-shrink-0">
-                    {order.userName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
-                      {order.userName}
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Order #{order.id} •{" "}
-                      {new Date(order.orderDate).toLocaleDateString()}
-                    </div>
-                    <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      {order.items && order.items.length} item(s) • Total: $
-                      {order.totalPrice}
-                    </div>
-                  </div>
+
+          <div className="p-6">
+            {filteredOrders.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <ClipboardDocumentListIcon className="w-12 h-12 text-gray-400" />
                 </div>
-                <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto gap-4">
-                  <div className="text-left md:text-right">
-                    <div className="font-bold text-gray-900 dark:text-white text-lg">
-                      ${order.totalPrice}
-                    </div>
-                    <div
-                      className={`text-xs px-3 py-1.5 rounded-full inline-block mt-1 ${
-                        statusColors[order.status]
-                      }`}
-                    >
-                      {order.status}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {/* Show all available status transitions */}
-                    {getAvailableStatusTransitions(order.status).map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => openStatusModal(order, status)}
-                        className={`px-3 py-1.5 text-xs rounded-full transition-all ${
-                          status === Status.CANCELLED 
-                            ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50" 
-                            : status === Status.DELIVERED
-                            ? "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                            : status === Status.SHIPPED
-                            ? "bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
-                            : status === Status.APPROVED
-                            ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
-                            : "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
-                        }`}
-                      >
-                        {status === Status.CANCELLED ? "Cancel" : 
-                         status === Status.DELIVERED ? "Mark Delivered" :
-                         status === Status.SHIPPED ? "Ship" :
-                         status === Status.APPROVED ? "Approve" :
-                         status === Status.PLACED ? "Revert to Placed" :
-                         status}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  No Orders Found
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {searchQuery
+                    ? "Try adjusting your search criteria"
+                    : activeFilter !== "ALL"
+                    ? `No orders with status "${activeFilter}"`
+                    : "No orders available"}
+                </p>
               </div>
-            ))}
+            ) : (
+              <div className="space-y-3">
+                {filteredOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="group bg-gradient-to-r from-white to-blue-50/30 dark:from-gray-800 dark:to-gray-700/50 rounded-xl p-5 hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:-translate-y-0.5"
+                  >
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                      {/* Order Info */}
+                      <div className="flex items-start space-x-4 flex-1">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
+                          {order.userName
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-gray-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {order.userName}
+                          </h3>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <span className="font-mono">#{order.id}</span>
+                            <span>•</span>
+                            <span>{new Date(order.orderDate).toLocaleDateString()}</span>
+                            <span>•</span>
+                            <span>{order.items?.length || 0} items</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Price & Status */}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                            ${order.totalPrice}
+                          </div>
+                          <div className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${statusColors[order.status]}`}>
+                            {statusIcons[order.status]} {order.status}
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap gap-2">
+                          {getAvailableStatusTransitions(order.status).slice(0, 3).map((status) => (
+                            <button
+                              key={status}
+                              onClick={() => openStatusModal(order, status)}
+                              className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all hover:shadow-md ${
+                                status === Status.CANCELLED
+                                  ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300"
+                                  : status === Status.DELIVERED
+                                  ? "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300"
+                                  : status === Status.SHIPPED
+                                  ? "bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300"
+                                  : "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300"
+                              }`}
+                            >
+                              {status === Status.CANCELLED ? "Cancel" : status === Status.DELIVERED ? "Deliver" : status === Status.SHIPPED ? "Ship" : status}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Status Update Modal */}
       {showModal && selectedOrder && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md border border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Update Order Status</h3>
-            <p className="mb-4 text-gray-600 dark:text-gray-300">
-              Change order <span className="font-medium">#{selectedOrder.id}</span> from{" "}
-              <span className={`font-semibold ${statusColors[selectedOrder.status].split(' ')[1]}`}>
-                {selectedOrder.status}
-              </span> to{" "}
-              <span className={`font-semibold ${statusColors[statusUpdate]?.split(' ')[1] || 'text-gray-900 dark:text-white'}`}>
-                {statusUpdate}
-              </span>?
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() =>
-                  updateOrderStatus(selectedOrder.id, statusUpdate)
-                }
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
-              >
-                Confirm Update
-              </button>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+              <h3 className="text-2xl font-bold">Update Order Status</h3>
+              <p className="text-blue-100 mt-1">Order #{selectedOrder.id}</p>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-700 dark:text-gray-300 mb-6">
+                Change status from{" "}
+                <span className="font-bold text-blue-600 dark:text-blue-400">
+                  {selectedOrder.status}
+                </span>{" "}
+                to{" "}
+                <span className="font-bold text-green-600 dark:text-green-400">
+                  {statusUpdate}
+                </span>
+                ?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => updateOrderStatus(selectedOrder.id, statusUpdate)}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                >
+                  Confirm
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2292,6 +2905,7 @@ const OrdersPanel = () => {
   );
 };
 
+// export default OrdersPanel;
 
 
 
@@ -3247,117 +3861,527 @@ const MedicineProductsPanel = () => {
   );
 };
 
-const ProductsPanel = () => (
-  <div className="space-y-6">
-    <div className="flex justify-between items-center">
-      <div>
-        <h3 className="text-2xl font-bold text-gray-900">Medicare Plans</h3>
-        <p className="text-gray-600 mt-1">
-          Manage available Medicare coverage options
-        </p>
-      </div>
-      <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 flex items-center space-x-2">
-        <Plus className="w-4 h-4" />
-        <span>Add Plan</span>
-      </button>
-    </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-      {[
-        {
-          name: "Medicare Advantage",
-          members: 1247,
-          premium: "$0",
-          type: "Part C",
-          color: "from-blue-500 to-blue-600",
-          satisfaction: 94,
-        },
-        {
-          name: "Medicare Supplement",
-          members: 834,
-          premium: "$156",
-          type: "Medigap",
-          color: "from-green-500 to-green-600",
-          satisfaction: 89,
-        },
-        {
-          name: "Medicare Part D",
-          members: 2103,
-          premium: "$32",
-          type: "Prescription",
-          color: "from-purple-500 to-purple-600",
-          satisfaction: 92,
-        },
-      ].map((plan, i) => (
-        <AnimatedCard
-          key={i}
-          className="p-6 group cursor-pointer overflow-hidden relative  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
-        >
-          <div
-            className={`absolute inset-0 bg-gradient-to-br ${plan.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
-          ></div>
-          <div className="relative z-10  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                {plan.name}
-              </h4>
-              <span
-                className={`px-3 py-1 bg-gradient-to-r ${plan.color} text-white text-xs font-medium rounded-full shadow-sm group-hover:shadow-md transition-shadow duration-200`}
-              >
-                {plan.type}
-              </span>
-            </div>
 
-            <div className="space-y-4 ">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Active Members</span>
-                <span className="text-lg font-bold text-gray-900">
-                  {plan.members.toLocaleString()}
-                </span>
-              </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Monthly Premium</span>
-                <span className="text-lg font-bold text-green-600">
-                  {plan.premium}
-                </span>
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Satisfaction</span>
-                  <span className="font-medium text-gray-900">
-                    {plan.satisfaction}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                  <div
-                    className={`h-2 bg-gradient-to-r ${plan.color} rounded-full transition-all duration-1000 ease-out transform origin-left group-hover:shadow-sm`}
-                    style={{ width: `${plan.satisfaction}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
 
-            <div className="mt-6 flex space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-              <ActionButton
-                icon={Eye}
-                variant="secondary"
-                tooltip="View Details"
-              />
-              <ActionButton icon={Edit} variant="primary" tooltip="Edit Plan" />
-              <ActionButton
-                icon={Settings}
-                variant="secondary"
-                tooltip="Plan Settings"
-              />
-            </div>
-          </div>
-        </AnimatedCard>
-      ))}
-    </div>
+// Action Button Component
+// const ActionButton = ({ icon: Icon, variant = "primary", tooltip }) => {
+//   const baseClasses = "p-2 rounded-lg transition-all duration-200 hover:scale-110";
+//   const variantClasses = variant === "primary" 
+//     ? "bg-sky-100 text-sky-600 hover:bg-sky-200" 
+//     : "bg-gray-100 text-gray-600 hover:bg-gray-200";
+  
+//   return (
+//     <button 
+//       className={`${baseClasses} ${variantClasses}`}
+//       title={tooltip}
+//     >
+//       <Icon className="w-4 h-4" />
+//     </button>
+//   );
+// };
+
+
+
+
+// Plan Badge Component
+const PlanBadge = ({ type, color }) => {
+  return (
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${color} shadow-sm`}>
+      {type}
+    </span>
+  );
+};
+
+
+
+// Benefit Item Component
+const BenefitItem = ({ icon: Icon, text }) => (
+  <div className="flex items-center space-x-2 text-sm text-gray-600">
+    <Icon className="w-4 h-4 text-teal-500 flex-shrink-0" />
+    <span>{text}</span>
   </div>
 );
+
+
+
+// Filter Chip Component
+const FilterChip = ({ label, active, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+      active 
+        ? 'bg-sky-500 text-white shadow-md' 
+        : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+    }`}
+  >
+    {label}
+  </button>
+);
+
+// const ProductsPanel = () => (
+//   <div className="space-y-6">
+//     <div className="flex justify-between items-center">
+//       <div>
+//         <h3 className="text-2xl font-bold text-gray-900">Medicare Plans</h3>
+//         <p className="text-gray-600 mt-1">
+//           Manage available Medicare coverage options
+//         </p>
+//       </div>
+//       <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 flex items-center space-x-2">
+//         <Plus className="w-4 h-4" />
+//         <span>Add Plan</span>
+//       </button>
+//     </div>
+
+//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+//       {[
+//         {
+//           name: "Medicare Advantage",
+//           members: 1247,
+//           premium: "$0",
+//           type: "Part C",
+//           color: "from-blue-500 to-blue-600",
+//           satisfaction: 94,
+//         },
+//         {
+//           name: "Medicare Supplement",
+//           members: 834,
+//           premium: "$156",
+//           type: "Medigap",
+//           color: "from-green-500 to-green-600",
+//           satisfaction: 89,
+//         },
+//         {
+//           name: "Medicare Part D",
+//           members: 2103,
+//           premium: "$32",
+//           type: "Prescription",
+//           color: "from-purple-500 to-purple-600",
+//           satisfaction: 92,
+//         },
+//       ].map((plan, i) => (
+//         <AnimatedCard
+//           key={i}
+//           className="p-6 group cursor-pointer overflow-hidden relative  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
+//         >
+//           <div
+//             className={`absolute inset-0 bg-gradient-to-br ${plan.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+//           ></div>
+//           <div className="relative z-10  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+//             <div className="flex items-center justify-between mb-4">
+//               <h4 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+//                 {plan.name}
+//               </h4>
+//               <span
+//                 className={`px-3 py-1 bg-gradient-to-r ${plan.color} text-white text-xs font-medium rounded-full shadow-sm group-hover:shadow-md transition-shadow duration-200`}
+//               >
+//                 {plan.type}
+//               </span>
+//             </div>
+
+//             <div className="space-y-4 ">
+//               <div className="flex justify-between items-center">
+//                 <span className="text-sm text-gray-600">Active Members</span>
+//                 <span className="text-lg font-bold text-gray-900">
+//                   {plan.members.toLocaleString()}
+//                 </span>
+//               </div>
+
+//               <div className="flex justify-between items-center">
+//                 <span className="text-sm text-gray-600">Monthly Premium</span>
+//                 <span className="text-lg font-bold text-green-600">
+//                   {plan.premium}
+//                 </span>
+//               </div>
+
+//               <div className="space-y-2">
+//                 <div className="flex justify-between text-sm">
+//                   <span className="text-gray-600">Satisfaction</span>
+//                   <span className="font-medium text-gray-900">
+//                     {plan.satisfaction}%
+//                   </span>
+//                 </div>
+//                 <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+//                   <div
+//                     className={`h-2 bg-gradient-to-r ${plan.color} rounded-full transition-all duration-1000 ease-out transform origin-left group-hover:shadow-sm`}
+//                     style={{ width: `${plan.satisfaction}%` }}
+//                   ></div>
+//                 </div>
+//               </div>
+//             </div>
+
+//             <div className="mt-6 flex space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+//               <ActionButton
+//                 icon={Eye}
+//                 variant="secondary"
+//                 tooltip="View Details"
+//               />
+//               <ActionButton icon={Edit} variant="primary" tooltip="Edit Plan" />
+//               <ActionButton
+//                 icon={Settings}
+//                 variant="secondary"
+//                 tooltip="Plan Settings"
+//               />
+//             </div>
+//           </div>
+//         </AnimatedCard>
+//       ))}
+//     </div>
+//   </div>
+// );
+
+
+
+// Compare Bar Component
+const CompareBar = ({ selectedPlans, onClear }) => {
+  if (selectedPlans.length === 0) return null;
+  
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-sky-200 shadow-2xl z-50 p-4 animate-slide-up">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <span className="font-semibold text-gray-900">
+            {selectedPlans.length} plan{selectedPlans.length > 1 ? 's' : ''} selected
+          </span>
+          <button 
+            onClick={onClear}
+            className="text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1"
+          >
+            <X className="w-4 h-4" />
+            <span>Clear</span>
+          </button>
+        </div>
+        <button className="px-6 py-3 bg-gradient-to-r from-sky-500 to-teal-500 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+          Compare Plans
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const ProductsPanel = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [selectedPlans, setSelectedPlans] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 200]);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const plans = [
+    {
+      name: "Medicare Advantage",
+      members: 1247,
+      premium: "$0",
+      type: "Part C",
+      color: "bg-gradient-to-br from-sky-50 to-blue-50",
+      badgeColor: "bg-blue-100 text-blue-700",
+      iconColor: "from-blue-500 to-blue-600",
+      satisfaction: 94,
+      deductible: "$500",
+      ageEligibility: "65+",
+      benefits: ["Hospital Coverage", "Doctor Visits", "Preventive Care", "Prescription Drugs"],
+      category: "advantage"
+    },
+    {
+      name: "Medicare Supplement",
+      members: 834,
+      premium: "$156",
+      type: "Medigap",
+      color: "bg-gradient-to-br from-emerald-50 to-teal-50",
+      badgeColor: "bg-emerald-100 text-emerald-700",
+      iconColor: "from-green-500 to-green-600",
+      satisfaction: 89,
+      deductible: "$226",
+      ageEligibility: "65+",
+      benefits: ["Medicare Gaps", "Foreign Travel", "Out-of-Pocket Costs", "Coinsurance"],
+      category: "supplement"
+    },
+    {
+      name: "Medicare Part D",
+      members: 2103,
+      premium: "$32",
+      type: "Prescription",
+      color: "bg-gradient-to-br from-purple-50 to-pink-50",
+      badgeColor: "bg-purple-100 text-purple-700",
+      iconColor: "from-purple-500 to-purple-600",
+      satisfaction: 92,
+      deductible: "$505",
+      ageEligibility: "65+",
+      benefits: ["Brand Drugs", "Generic Drugs", "Pharmacy Network", "Mail Order"],
+      category: "prescription"
+    },
+  ];
+
+  const togglePlanSelection = (planName) => {
+    setSelectedPlans(prev => 
+      prev.includes(planName) 
+        ? prev.filter(p => p !== planName)
+        : [...prev, planName]
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-teal-50">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-sky-500 via-teal-500 to-emerald-500 text-white py-16 px-6 rounded-b-3xl shadow-xl mb-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center space-x-3 mb-4">
+            <Shield className="w-12 h-12" />
+            <Sparkles className="w-6 h-6 text-yellow-300" />
+          </div>
+          <h1 className="text-5xl font-bold mb-4">Medicare Plans</h1>
+          <p className="text-xl text-sky-50 max-w-2xl">
+           
+          </p>
+          <div className="mt-8 flex items-center space-x-6 text-sm">
+            <div className="flex items-center space-x-2">
+              <Users className="w-5 h-5" />
+              <span>4,184+ Active Members</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
+              <span>4.8/5 Average Rating</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Heart className="w-5 h-5" />
+              <span>Trusted Healthcare Partner</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 pb-24">
+        {/* Search and Filter Bar */}
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border border-gray-100">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search Medicare plans..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+              />
+            </div>
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 flex items-center space-x-2 font-medium"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filters</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+            </button>
+            <button className="px-6 py-3 bg-gradient-to-r from-sky-500 to-teal-500 text-white rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 font-semibold">
+              <Plus className="w-4 h-4" />
+              <span>Add Plan</span>
+            </button>
+          </div>
+
+          {/* Filter Options */}
+          {showFilters && (
+            <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Plan Type</label>
+                <div className="flex flex-wrap gap-2">
+                  <FilterChip label="All Plans" active={activeFilter === "all"} onClick={() => setActiveFilter("all")} />
+                  <FilterChip label="Advantage" active={activeFilter === "advantage"} onClick={() => setActiveFilter("advantage")} />
+                  <FilterChip label="Supplement" active={activeFilter === "supplement"} onClick={() => setActiveFilter("supplement")} />
+                  <FilterChip label="Prescription" active={activeFilter === "prescription"} onClick={() => setActiveFilter("prescription")} />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Monthly Premium: ${priceRange[0]} - ${priceRange[1]}
+                </label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="200" 
+                  value={priceRange[1]}
+                  onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-sky-500"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {[
+            { icon: Users, label: "Total Members", value: "4,184", color: "from-blue-500 to-blue-600" },
+            { icon: TrendingUp, label: "Avg Satisfaction", value: "92%", color: "from-green-500 to-green-600" },
+            { icon: Shield, label: "Active Plans", value: "3", color: "from-purple-500 to-purple-600" },
+            { icon: Heart, label: "Coverage Rate", value: "98%", color: "from-pink-500 to-pink-600" },
+          ].map((stat, i) => (
+            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+              <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center mb-4`}>
+                <stat.icon className="w-6 h-6 text-white" />
+              </div>
+              <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+              <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Plans Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {plans.map((plan, i) => (
+            <AnimatedCard
+              key={i}
+              className={`p-8 group cursor-pointer overflow-hidden relative border-2 ${
+                selectedPlans.includes(plan.name) ? 'border-sky-500 shadow-xl' : 'border-transparent'
+              }`}
+            >
+              {/* Selection Checkbox */}
+              <div className="absolute top-4 right-4 z-20">
+                <button
+                  onClick={() => togglePlanSelection(plan.name)}
+                  className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-200 ${
+                    selectedPlans.includes(plan.name)
+                      ? 'bg-sky-500 border-sky-500'
+                      : 'border-gray-300 hover:border-sky-400'
+                  }`}
+                >
+                  {selectedPlans.includes(plan.name) && <Check className="w-4 h-4 text-white" />}
+                </button>
+              </div>
+
+              {/* Background Gradient */}
+              <div className={`absolute inset-0 ${plan.color} opacity-60 group-hover:opacity-80 transition-opacity duration-300`}></div>
+              
+              <div className="relative z-10">
+                {/* Header */}
+                <div className="mb-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`w-14 h-14 bg-gradient-to-br ${plan.iconColor} rounded-xl flex items-center justify-center shadow-lg`}>
+                      <Shield className="w-7 h-7 text-white" />
+                    </div>
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-sky-600 transition-colors duration-200">
+                    {plan.name}
+                  </h4>
+                  <PlanBadge type={plan.type} color={plan.badgeColor} />
+                </div>
+
+                {/* Key Metrics */}
+                <div className="space-y-4 mb-6">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-600">Monthly Premium</span>
+                      <span className="text-2xl font-bold text-emerald-600">{plan.premium}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Deductible</span>
+                      <span className="font-semibold text-gray-900">{plan.deductible}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Active Members</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {plan.members.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Age Eligibility</span>
+                    <span className="text-lg font-bold text-gray-900">{plan.ageEligibility}</span>
+                  </div>
+
+                  {/* Satisfaction Bar */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-medium text-gray-700">Member Satisfaction</span>
+                      <span className="font-bold text-gray-900">{plan.satisfaction}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                      <div
+                        className={`h-2.5 bg-gradient-to-r ${plan.iconColor} rounded-full transition-all duration-1000 ease-out shadow-sm`}
+                        style={{ width: `${plan.satisfaction}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Benefits */}
+                <div className="mb-6">
+                  <h5 className="text-sm font-bold text-gray-900 mb-3 flex items-center">
+                    <Check className="w-4 h-4 mr-2 text-teal-500" />
+                    Coverage Benefits
+                  </h5>
+                  <div className="space-y-2 bg-white/60 backdrop-blur-sm rounded-xl p-4">
+                    {plan.benefits.map((benefit, idx) => (
+                      <BenefitItem key={idx} icon={Check} text={benefit} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-2">
+                  <button className="w-full py-3 bg-gradient-to-r from-sky-500 to-teal-500 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                    View Details
+                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button className="py-2 px-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-lg font-medium hover:bg-white hover:shadow-md transition-all duration-200 text-sm">
+                      Compare
+                    </button>
+                    <button className="py-2 px-4 bg-white/80 backdrop-blur-sm text-sky-600 rounded-lg font-medium hover:bg-white hover:shadow-md transition-all duration-200 text-sm">
+                      Enroll Now
+                    </button>
+                  </div>
+                </div>
+
+                {/* Hover Action Icons */}
+                <div className="mt-4 pt-4 border-t border-gray-200 flex space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  <ActionButton icon={Eye} variant="secondary" tooltip="View Details" />
+                  <ActionButton icon={Edit} variant="primary" tooltip="Edit Plan" />
+                  <ActionButton icon={Settings} variant="secondary" tooltip="Plan Settings" />
+                </div>
+              </div>
+            </AnimatedCard>
+          ))}
+        </div>
+
+        {/* Trust Badge */}
+        <div className="mt-12 bg-gradient-to-r from-sky-500 to-teal-500 rounded-2xl p-8 text-white text-center shadow-xl">
+          <div className="flex items-center justify-center mb-4">
+            <Shield className="w-12 h-12 mr-3" />
+            <Heart className="w-8 h-8" />
+          </div>
+          <h3 className="text-3xl font-bold mb-2">Trusted by Over 1 Million Users</h3>
+          <p className="text-sky-50 text-lg">
+            Join thousands of satisfied members who trust us with their healthcare coverage
+          </p>
+        </div>
+      </div>
+
+      {/* Compare Bar */}
+      <CompareBar 
+        selectedPlans={selectedPlans} 
+        onClear={() => setSelectedPlans([])} 
+      />
+
+      <style jsx>{`
+        @keyframes slide-up {
+          from {
+            transform: translateY(100%);
+          }
+          to {
+            transform: translateY(0);
+          }
+        }
+        .animate-slide-up {
+          animation: slide-up 0.3s ease-out;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 const AdminDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -3530,285 +4554,476 @@ const AdminDashboard = () => {
           </div>
         </header>
 
+
+
+
+
         {/* Main Content Area */}
-        <main className="p-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-          {activeTab === "dashboard" && (
-            <div className="space-y-8  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-              <div className="flex items-center justify-between ">
-                <div className="space-y-2 ">
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent">
-                    Dashboard Overview
-                  </h1>
-                  <p className="text-gray-600 text-lg">
-                    Welcome back, {user.fullName?.split(" ")[0]}! Here's what's
-                    happening with Medicare today.
-                  </p>
+
+
+        
+                        {/* Main Content Area */}
+<main className="p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500">
+  {activeTab === "dashboard" && (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="space-y-8"
+    >
+      {/* Hero Section */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        <div className="space-y-3 flex-1">
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-teal-500 to-indigo-600 bg-clip-text text-transparent"
+          >
+            Dashboard Overview
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-lg text-gray-600 dark:text-gray-300"
+          >
+            Welcome back, {user.fullName?.split(" ")[0]}! Here's what's happening with Medicare today.
+          </motion.p>
+        </div>
+        
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          className="flex flex-col sm:flex-row items-center gap-4"
+        >
+          {/* Date Card */}
+          <div className="flex items-center space-x-3 px-4 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-sm border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md transition-all duration-300">
+            <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
+          </div>
+
+          {/* Admin Badge */}
+          <div className="flex items-center space-x-3 px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl shadow-lg text-white group cursor-pointer hover:shadow-xl transition-all duration-300">
+            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+              <User className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-semibold">Admin</span>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Quick Actions Panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+      >
+        {[
+          { label: "Add Member", icon: UserPlus, color: "from-green-500 to-emerald-600" },
+          { label: "Add Claim", icon: FileText, color: "from-blue-500 to-cyan-600" },
+          { label: "Manage Plans", icon: Shield, color: "from-purple-500 to-indigo-600" },
+          { label: "View Reports", icon: BarChart3, color: "from-orange-500 to-red-600" },
+          { label: "Manage Users", icon: Users, color: "from-teal-500 to-blue-600" },
+        ].map((action, i) => {
+          const Icon = action.icon;
+          return (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className={`p-4 bg-gradient-to-br ${action.color} rounded-2xl shadow-lg text-white cursor-pointer group hover:shadow-xl transition-all duration-300`}
+            >
+              <div className="flex flex-col items-center space-y-2">
+                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm group-hover:rotate-12 transition-transform duration-300">
+                  <Icon className="w-6 h-6" />
                 </div>
-                <div className="flex items-center space-x-3 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/50">
-                  <Calendar className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {new Date().toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                <span className="text-sm font-semibold text-center">{action.label}</span>
+              </div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
+
+      {/* Key Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          {
+            label: "Total Members",
+            value: "4,184",
+            change: "+12%",
+            icon: Users,
+            color: "from-blue-500 to-blue-600",
+            bg: "from-blue-50/80 to-blue-100/80 dark:from-blue-900/20 dark:to-blue-800/20",
+            trend: "up",
+            description: "Active enrolled members"
+          },
+          {
+            label: "Active Claims",
+            value: "47",
+            change: "-8%",
+            icon: FileText,
+            color: "from-orange-500 to-orange-600",
+            bg: "from-orange-50/80 to-orange-100/80 dark:from-orange-900/20 dark:to-orange-800/20",
+            trend: "down",
+            description: "Claims being processed"
+          },
+          {
+            label: "Monthly Revenue",
+            value: "$1.2M",
+            change: "+23%",
+            icon: DollarSign,
+            color: "from-green-500 to-green-600",
+            bg: "from-green-50/80 to-green-100/80 dark:from-green-900/20 dark:to-green-800/20",
+            trend: "up",
+            description: "Current month revenue"
+          },
+          {
+            label: "Satisfaction Score",
+            value: "94%",
+            change: "+2%",
+            icon: TrendingUp,
+            color: "from-purple-500 to-purple-600",
+            bg: "from-purple-50/80 to-purple-100/80 dark:from-purple-900/20 dark:to-purple-800/20",
+            trend: "up",
+            description: "Member satisfaction rate"
+          },
+        ].map((metric, i) => {
+          const Icon = metric.icon;
+          return (
+            <AnimatedCard key={i} delay={i * 0.1}>
+              <motion.div
+                whileHover={{ scale: 1.02, y: -4 }}
+                className={`p-6 bg-gradient-to-br ${metric.bg} backdrop-blur-sm border border-white/50 dark:border-gray-700/50 rounded-2xl shadow-sm hover:shadow-xl cursor-pointer group relative overflow-hidden transition-all duration-300`}
+              >
+                {/* Hover Gradient Overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                     
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white group-hover:scale-105 transition-transform duration-300">
+                        {metric.value}
+                      </p>
+                      
+                      <div className={`flex items-center space-x-1 text-sm font-semibold ${
+                        metric.trend === "up" ? "text-green-600" : "text-red-600"
+                      }`}>
+                        {metric.trend === "up" ? 
+                          <TrendingUp className="w-4 h-4" /> : 
+                          <TrendingDown className="w-4 h-4" />
+                        }
+                        <span>{metric.change} from last month</span>
+                      </div>
+                    </div>
+                    
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      className={`p-3 rounded-xl bg-gradient-to-br ${metric.color} shadow-lg group-hover:shadow-xl transition-all duration-300`}
+                    >
+                      <Icon className="w-6 h-6 text-white" />
+                    </motion.div>
+                  </div>
+                  
+                  {/* Mini Chart */}
+                  <div className="mt-4 h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: "70%" }}
+                      transition={{ delay: i * 0.1 + 0.5, duration: 1 }}
+                      className={`h-full bg-gradient-to-r ${metric.color} rounded-full`}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatedCard>
+          );
+        })}
+      </div>
+
+      {/* Charts and Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Claims Activity */}
+        <AnimatedCard delay={0.4}>
+          <div className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                Recent Claims Activity
+              </h3>
+              <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium flex items-center space-x-1 hover:underline transition-all duration-200">
+                <span>View All</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {[
+                {
+                  member: "John Smith",
+                  type: "Prescription",
+                  amount: "$245",
+                  status: "approved",
+                  time: "2 hours ago",
+                  avatar: "JS"
+                },
+                {
+                  member: "Mary Johnson",
+                  type: "Hospital Visit",
+                  amount: "$1,850",
+                  status: "review",
+                  time: "4 hours ago",
+                  avatar: "MJ"
+                },
+                {
+                  member: "Robert Brown",
+                  type: "Lab Work",
+                  amount: "$120",
+                  status: "pending",
+                  time: "1 day ago",
+                  avatar: "RB"
+                },
+              ].map((claim, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ x: 4 }}
+                  className="flex items-center justify-between p-4 bg-white dark:bg-gray-700/50 rounded-xl hover:shadow-md transition-all duration-300 group cursor-pointer border border-transparent hover:border-blue-200 dark:hover:border-blue-800"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200">
+                      {claim.avatar}
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                        {claim.member}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {claim.type}
+                      </div>
+                      <div className="text-xs text-gray-400 dark:text-gray-500">
+                        {claim.time}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="text-right">
+                      <div className="font-bold text-gray-900 dark:text-white">
+                        {claim.amount}
+                      </div>
+                      <div className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        claim.status === "approved" 
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" 
+                          : claim.status === "review" 
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                      }`}>
+                        {claim.status.charAt(0).toUpperCase() + claim.status.slice(1)}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </AnimatedCard>
+
+        {/* Plan Enrollment Trends */}
+        <AnimatedCard delay={0.5}>
+          <div className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md transition-all duration-300">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+              Plan Enrollment Trends
+            </h3>
+            
+            <div className="space-y-6">
+              {[
+                {
+                  plan: "Medicare Advantage",
+                  percentage: 78,
+                  members: 1247,
+                  color: "from-blue-500 to-blue-600",
+                  trend: "+5%"
+                },
+                {
+                  plan: "Medicare Supplement",
+                  percentage: 45,
+                  members: 834,
+                  color: "from-green-500 to-green-600",
+                  trend: "+2%"
+                },
+                {
+                  plan: "Medicare Part D",
+                  percentage: 92,
+                  members: 2103,
+                  color: "from-purple-500 to-purple-600",
+                  trend: "+8%"
+                },
+              ].map((plan, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-3 group cursor-pointer"
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                        {plan.plan}
+                      </span>
+                      <span className="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full">
+                        {plan.trend}
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                      {plan.members.toLocaleString()} members
+                    </span>
+                  </div>
+                  
+                  <div className="relative">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${plan.percentage}%` }}
+                        transition={{ delay: i * 0.2 + 0.7, duration: 1 }}
+                        className={`h-3 bg-gradient-to-r ${plan.color} rounded-full shadow-sm group-hover:shadow-md transition-all duration-300`}
+                      />
+                    </div>
+                  
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </AnimatedCard>
+      </div>
+
+      {/* Alerts & Notices */}
+      <AnimatedCard delay={0.6}>
+        <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200/60 dark:border-blue-700/60">
+          <div className="flex items-center space-x-3 mb-4">
+            <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              System Alerts & Notices
+            </h3>
+          </div>
+          
+          <div className="space-y-3">
+            {[
+              {
+                type: "warning",
+                message: "3 claims pending for over 48 hours",
+                action: "Review Now"
+              },
+              {
+                type: "info",
+                message: "Medicare policy update effective next week",
+                action: "View Details"
+              },
+              {
+                type: "success",
+                message: "System maintenance completed successfully",
+                action: "Dismiss"
+              }
+            ].map((alert, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 + i * 0.1 }}
+                className="flex items-center justify-between p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-2 h-2 rounded-full ${
+                    alert.type === "warning" ? "bg-yellow-500" :
+                    alert.type === "info" ? "bg-blue-500" : "bg-green-500"
+                  }`} />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {alert.message}
                   </span>
                 </div>
-              </div>
+                <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium hover:underline transition-colors duration-200">
+                  {alert.action}
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </AnimatedCard>
 
-              {/* Key Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                {[
-                  {
-                    label: "Total Members",
-                    value: "4,184",
-                    change: "+12%",
-                    icon: Users,
-                    color: "from-blue-500 to-blue-600",
-                    bg: "from-blue-50 to-blue-100",
-                  },
-                  {
-                    label: "Active Claims",
-                    value: "47",
-                    change: "-8%",
-                    icon: ShoppingCart,
-                    color: "from-orange-500 to-orange-600",
-                    bg: "from-orange-50 to-orange-100",
-                  },
-                  {
-                    label: "Monthly Revenue",
-                    value: "$1.2M",
-                    change: "+23%",
-                    icon: DollarSign,
-                    color: "from-green-500 to-green-600",
-                    bg: "from-green-50 to-green-100",
-                  },
-                  {
-                    label: "Satisfaction Score",
-                    value: "94%",
-                    change: "+2%",
-                    icon: TrendingUp,
-                    color: "from-purple-500 to-purple-600",
-                    bg: "from-purple-50 to-purple-100",
-                  },
-                ].map((metric, i) => {
-                  const Icon = metric.icon;
-                  return (
-                    <AnimatedCard
-                      key={i}
-                      className={`p-6 bg-gradient-to-br ${metric.bg} border-0 group cursor-pointer overflow-hidden relative  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300`}
-                    >
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
-                      ></div>
-                      <div className="relative z-10  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                        <div className="flex items-start justify-between ">
-                          <div className="space-y-2">
-                            <p className="text-sm font-medium text-gray-600">
-                              {metric.label}
-                            </p>
-                            <p className="text-3xl font-bold text-gray-900 group-hover:scale-105 transition-transform duration-300">
-                              {metric.value}
-                            </p>
-                            <p
-                              className={`text-sm font-semibold flex items-center space-x-1 from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 ${
-                                metric.change.startsWith("+")
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              }`}
-                            >
-                              <ArrowUpRight
-                                className={`w-4 h-4 ${
-                                  !metric.change.startsWith("+")
-                                    ? "rotate-90"
-                                    : ""
-                                }`}
-                              />
-                              <span>{metric.change} from last month</span>
-                            </p>
-                          </div>
-                          <div
-                            className={`p-4 rounded-2xl bg-gradient-to-br ${metric.color} shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110 group-hover:-rotate-3`}
-                          >
-                            <Icon className="w-7 h-7 text-white" />
-                          </div>
-                        </div>
-                      </div>
-                    </AnimatedCard>
-                  );
-                })}
-              </div>
+      {/* Support Widget */}
+      <AnimatedCard delay={0.7}>
+        <div className="p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl border border-gray-200/60 dark:border-gray-700/60 text-center">
+          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <HelpCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Need Help?
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            Our support team is here to help you
+          </p>
+          <div className="flex justify-center space-x-3">
+            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 hover:shadow-lg">
+              Contact Support
+            </button>
+            <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 rounded-xl transition-all duration-200 hover:shadow-lg">
+              View FAQ
+            </button>
+          </div>
+        </div>
+      </AnimatedCard>
+    </motion.div>
+  )}
+  
+  {/* Other panels remain exactly the same */}
+  {activeTab === "users" && (
+    <UsersPanel
+      members={members}
+      loading={loading}
+      onRefreshMembers={fetchMembers}
+    />
+  )}
+  {activeTab === "orders" && <OrdersPanel />}
+  {activeTab === "products" && <ProductsPanel />}
+  {activeTab === "AddMed" && <MedicineProductsPanel />}
+  {activeTab === "chart" && (
+    <ErrorBoundary
+      fallback={
+        <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+          <h3 className="text-red-800 font-medium">Chart Error</h3>
+          <p className="text-red-700">Could not display the chart</p>
+        </div>
+      }
+    >
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      ) : (
+        <ChartBar medicines={medicines} />
+      )}
+    </ErrorBoundary>
+  )}
+</main>
 
-              {/* Recent Activity */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <AnimatedCard className="p-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">
-                      Recent Claims
-                    </h3>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center space-x-1 hover:underline transition-all duration-200 hover:scale-105">
-                      <span>View All</span>
-                      <ArrowUpRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="space-y-4  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                    {[
-                      {
-                        member: "John Smith",
-                        type: "Prescription",
-                        amount: "$245",
-                        status: "Approved",
-                      },
-                      {
-                        member: "Mary Johnson",
-                        type: "Hospital Visit",
-                        amount: "$1,850",
-                        status: "Under Review",
-                      },
-                      {
-                        member: "Robert Brown",
-                        type: "Lab Work",
-                        amount: "$120",
-                        status: "Pending",
-                      },
-                    ].map((claim, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between p-4 bg-gradient-to-r rounded-xl hover:from-blue-50 hover:shadow-md transition-all duration-300 group cursor-pointer  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 "
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-medium shadow-md group-hover:shadow-lg transition-shadow duration-200">
-                            {claim.member
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200 ">
-                              {claim.member}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {claim.type}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="text-right">
-                            <div className="font-bold text-gray-900">
-                              {claim.amount}
-                            </div>
-                            <div
-                              className={`text-xs px-2 py-1 rounded-full  ${
-                                claim.status === "Approved"
-                                  ? "bg-green-100 text-green-800"
-                                  : claim.status === "Under Review"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-yellow-100 text-yellow-800"
-                              }`}
-                            >
-                              {claim.status}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </AnimatedCard>
 
-                <AnimatedCard className="p-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 ">
-                    Plan Enrollment Trends
-                  </h3>
-                  <div className="space-y-6  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                    {[
-                      {
-                        plan: "Medicare Advantage",
-                        percentage: 78,
-                        members: 1247,
-                        color: "from-blue-500 to-blue-600",
-                      },
-                      {
-                        plan: "Medicare Supplement",
-                        percentage: 45,
-                        members: 834,
-                        color: "from-green-500 to-green-600",
-                      },
-                      {
-                        plan: "Medicare Part D",
-                        percentage: 92,
-                        members: 2103,
-                        color: "from-purple-500 to-purple-600",
-                      },
-                    ].map((plan, i) => (
-                      <div
-                        key={i}
-                        className="space-y-3 group  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
-                      >
-                        <div className="flex justify-between items-center  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                          <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                            {plan.plan}
-                          </span>
-                          <span className="text-sm text-gray-500 font-medium">
-                            {plan.members.toLocaleString()} members
-                          </span>
-                        </div>
-                        <div className="relative  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                            <div
-                              className={`h-3 bg-gradient-to-r ${plan.color} rounded-full transition-all duration-1000 ease-out transform origin-left shadow-sm group-hover:shadow-md`}
-                              style={{ width: `${plan.percentage}%` }}
-                            ></div>
-                          </div>
-                          <div className="absolute right-0 top-0 transform translate-y-4 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                            <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg">
-                              {plan.percentage}%
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </AnimatedCard>
-              </div>
-            </div>
-          )}
-          {activeTab === "users" && (
-            <UsersPanel
-              members={members}
-              loading={loading}
-              onRefreshMembers={fetchMembers}
-            />
-          )}
-          {activeTab === "orders" && <OrdersPanel />}
-          {activeTab === "products" && <ProductsPanel />}
-          {activeTab === "AddMed" && <MedicineProductsPanel />}
-          {/* {activeTab === "chart" && <ChartBar/>} */}
-          {activeTab === "chart" && (
-            <ErrorBoundary
-              fallback={
-                <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                  <h3 className="text-red-800 font-medium">Chart Error</h3>
-                  <p className="text-red-700">Could not display the chart</p>
-                </div>
-              }
-            >
-              {isLoading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
-              ) : (
-                <ChartBar medicines={medicines} />
-              )}
-            </ErrorBoundary>
-          )}
-        </main>
+
       </div>
     </div>
   );
 };
 
 export default AdminDashboard;
+
+
 export { MedicineProductsPanel }; // Named export
 export { OrdersPanel };
 export {ChartBar}
