@@ -5935,19 +5935,58 @@ const AdminDashboard = () => {
     }
   }, [activeTab]);
 
+  // const navigation = [
+  //   { id: "dashboard", name: "Overview", icon: Activity },
+  //   { id: "users", name: "Members", icon: Users },
+  //   { id: "orders", name: "Claims", icon: ShoppingCart },
+  //   { id: "products", name: "Plans", icon: Package },
+  //   { id: "AddMed", name: "addMedicines", icon: Pill },
+  //   { id: "chart", name: "ChartBar", icon: BarChart },
+  // ];
+
   const navigation = [
-    { id: "dashboard", name: "Overview", icon: Activity },
-    { id: "users", name: "Members", icon: Users },
-    { id: "orders", name: "Claims", icon: ShoppingCart },
-    { id: "products", name: "Plans", icon: Package },
-    { id: "AddMed", name: "addMedicines", icon: Pill },
-    { id: "chart", name: "ChartBar", icon: BarChart },
-  ];
+    { 
+        id: "dashboard", 
+        name: "Overview", 
+        icon: Activity,
+        className: "text-gray-700 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/50"
+    },
+    { 
+        id: "users", 
+        name: "Members", 
+        icon: Users,
+        className: "text-gray-700 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/50"
+    },
+    { 
+        id: "orders", 
+        name: "Claims", 
+        icon: ShoppingCart,
+        className: "text-gray-700 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/50"
+    },
+    { 
+        id: "products", 
+        name: "Plans", 
+        icon: Package,
+        className: "text-gray-700 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/50"
+    },
+    { 
+        id: "AddMed", 
+        name: "addMedicines", 
+        icon: Pill,
+        className: "text-gray-700 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/50"
+    },
+    { 
+        id: "chart", 
+        name: "ChartBar", 
+        icon: BarChart,
+        className: "text-gray-700 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/50"
+    },
+];
 
   return (
     <div className="min-h-screen bg-gradient-to-br  from-blue-50 via-white to-purple-50  dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {/* Sidebar */}
-      <div
+      {/* <div
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-all duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static lg:inset-0`}
@@ -5985,8 +6024,49 @@ const AdminDashboard = () => {
             );
           })}
         </nav>
-      </div>
+      </div> */}
 
+
+  {/* Sidebar */}
+<div
+  className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-all duration-300 ease-in-out ${
+    sidebarOpen ? "translate-x-0" : "-translate-x-full"
+  } lg:translate-x-0 lg:static lg:inset-0`}
+>
+  <div className="flex items-center justify-center h-16 px-4 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 shadow-lg transition-colors duration-300">
+    <div className="flex items-center space-x-2">
+      <div className="p-2 bg-white/20 dark:bg-gray-700/50 rounded-lg backdrop-blur-sm">
+        <Heart className="w-6 h-6 text-white" />
+      </div>
+      <span className="text-xl font-bold text-white">Medicare Admin</span>
+    </div>
+  </div>
+
+  <nav className="mt-8 px-4 space-y-2">
+    {navigation.map((item) => {
+      const Icon = item.icon;
+      const isActive = activeTab === item.id;
+      return (
+        <button
+          key={item.id}
+          onClick={() => setActiveTab(item.id)}
+          className={`w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-200 ease-out group ${
+            isActive
+              ? "bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-lg transform scale-105"
+              : "text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-gray-700 dark:hover:to-gray-600 hover:text-blue-700 dark:hover:text-blue-300 hover:shadow-sm hover:scale-102"
+          }`}
+        >
+          <Icon
+            className={`w-5 h-5 mr-3 transition-transform duration-200 ${
+              isActive ? "text-white" : "text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:scale-110"
+            }`}
+          />
+          <span className="font-medium">{item.name}</span>
+        </button>
+      );
+    })}
+  </nav>
+</div>
       {/* Main Content */}
       <div
         className={`lg:ml-64 transition-all duration-300 ${
