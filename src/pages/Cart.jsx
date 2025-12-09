@@ -202,6 +202,8 @@ function Cart() {
       })),
     };
 
+    console.log("sending order data", orderData);
+
     const response = await fetch("http://localhost:8080/api/orders", {
       method: "POST",
       headers: {
@@ -224,18 +226,44 @@ function Cart() {
       throw new Error(data.message || data || "Failed to place order");
     }
 
+
+    // Store order details for display
+    localStorage.setItem('lastOrder', JSON.stringify({
+      id: data.id || data.orderId,
+      total: totalPrice,
+      paymentMethod: paymentMethod,
+      status: 'pending',
+      date: new Date().toISOString(),
+      items: cart.length
+    }));
+
     console.log("Order created successfully:", data);
     setShowSuccess(true);
+    // setTimeout(() => {
+    //   setShowSuccess(false);
+    //   clearCart();
+    //   navigate("/dashboard/orders");
+    // }, 2000);
+
+
     setTimeout(() => {
       setShowSuccess(false);
       clearCart();
-      navigate("/dashboard/orders");
+      // Navigate to orders page with order details
+      navigate("/dashboard/orders", { 
+        state: { 
+          orderPlaced: true,
+          orderDetails: data 
+        } 
+      });
     }, 2000);
+
   } catch (error) {
     console.error("Order placement error:", error);
     alert(error.message || "Failed to place order. Please try again.");
   }
 };
+
   const handleStripePaymentSuccess = (paymentIntent) => {
     console.log("Payment succeeded:", paymentIntent);
     handlePlaceOrder(paymentIntent.id);

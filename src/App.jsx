@@ -23,7 +23,6 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import PublicMedicines from "./components/PublicMedicines.jsx";
 import OpenAIPage from "./pages/openAIPage.jsx";
-// import Test from "./components/Test.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrderConfirmation from "./pages/OrderConfirmation.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
@@ -32,7 +31,6 @@ import Cart from "./pages/Cart.jsx";
 import DashboardDefaultContent from "./components/DashboardDefaultContent.jsx";
 import ProfileInfo from "./pages/ ProfileInfo.jsx";
 import UserAddresses from "./pages/UserAddresses.jsx";
-// import UserOrders from "./pages/UserOrders.jsx";
 import Wishlist from "./pages/ Wishlist.jsx";
 import { FirebaseCartProvider } from "./context/FirebaseCartContext.jsx";
 import Orders from "./pages/Orders.jsx";
@@ -41,6 +39,7 @@ import { PlaceOrder } from "./pages/PlaceOrder.jsx";
 import { OrderDetail } from "./pages/OrderDetail.jsx";
 import OAuthSuccessHandler from "./components/OAuthSuccessHandler";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import OrderDetails from "./components/OrderDetails.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -61,7 +60,6 @@ function AppContent() {
           <Route path="/openAI" element={<OpenAIPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           {/* <Route path="/test" element={<Test />} /> */}
-
           <Route path="/reset-password" element={<ResetPassword />} />
           // ✅ CORRECT - Use JSX component syntax
           <Route path="/dashboard" element={<Dashboard />} />
@@ -80,6 +78,8 @@ function AppContent() {
             {/* Order-related routes */}
             <Route path="orders">
               <Route index element={<OrderHistory />} />
+              // Add to your routes
+              <Route path="orders" element={<OrderDetails />} />
               <Route path="new" element={<PlaceOrder />} />
               <Route path=":orderId" element={<OrderDetail />} />
             </Route>
@@ -141,17 +141,3 @@ function App() {
 }
 
 export default App;
-
-{
-  /* Order-related routes */
-}
-{
-  /* <Route path="orders">
-              <Route index element={<OrderHistory />} /> // GET
-              /dashboard/orders
-              <Route path="new" element={<PlaceOrder />} /> // POST
-              /dashboard/orders/new
-              <Route path=":orderId" element={<OrderDetail />} /> // GET
-              /dashboard/orders/123
-            </Route> */
-}
