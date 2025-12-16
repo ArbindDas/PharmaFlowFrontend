@@ -28,7 +28,6 @@ import OrderConfirmation from "./pages/OrderConfirmation.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { App as AntApp } from "antd";
 import Cart from "./pages/Cart.jsx";
-import DashboardDefaultContent from "./components/DashboardDefaultContent.jsx";
 import ProfileInfo from "./pages/ ProfileInfo.jsx";
 import UserAddresses from "./pages/UserAddresses.jsx";
 import Wishlist from "./pages/ Wishlist.jsx";
@@ -72,7 +71,7 @@ function AppContent() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<DashboardDefaultContent />} />
+           
             <Route path="profile" element={<ProfileInfo />} />
 
             {/* Order-related routes */}
