@@ -239,12 +239,12 @@ const logout = () => {
   // Remove axios header
   delete axios.defaults.headers.common['Authorization'];
   
-  // Reset state
-  setUser(null);
-  setIsAuthenticated(false);
+  // // Reset state
+  // setUser(null);
+  // setIsAuthenticated(true);
   
   // Redirect to login page
-  window.location.href = '/login';
+  // window.location.href = '/login';
 };
 
 
@@ -299,6 +299,7 @@ const getUserProfile = async () => {
     const response = await axiosInstance.get("/profile", {
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
 
@@ -312,25 +313,7 @@ const getUserProfile = async () => {
   }
 };
 
-// const forgotPassword = async (email) => {
-//   try {
-//     const response = await axiosInstance.post(
-//       "/forgot-password",
-//       { email },
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-//     return response.data;
-//   } catch (error) {
-//     throw new Error(
-//       error.response?.data?.message ||
-//         "Failed to send reset link. Please try again."
-//     );
-//   }
-// };
+
 
 const forgotPassword = async (email) => {
   try {
@@ -377,7 +360,6 @@ const authService = {
   forgotPassword,
   getAllUsers,
   deleteUser,
-  // Updateuser,
    updateUser, // <-- Alias it with proper casing
   getCurrentUser,
   getToken,

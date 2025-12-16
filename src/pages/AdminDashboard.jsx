@@ -27,6 +27,8 @@ import {
   icons,
   Zap,
 } from "lucide-react";
+// Add this with your other icon imports
+import { Upload } from 'lucide-react';
 import authService from "../api/auth";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { useMemo } from "react";
@@ -2511,6 +2513,1056 @@ const OrdersPanel = () => {
 };
 
 
+// const MedicineProductsPanel = () => {
+//   // At the top of your component
+//   const [currentUser, setCurrentUser] = useState(null);
+
+//   useEffect(() => {
+//     const userData = localStorage.getItem("user");
+//     if (userData) {
+//       const user = JSON.parse(userData);
+//       console.log("Loaded user:", user); // Debug log
+//       setCurrentUser(user);
+//     } else {
+//       console.error("No user data found in localStorage");
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     console.log("✅ MedicineProductsPanel MOUNTED");
+
+//     return () => {
+//       console.log("❌ MedicineProductsPanel UNMOUNTING");
+//     };
+//   }, []);
+
+//   const [medicines, setMedicines] = useState([]);
+//   const [showForm, setShowForm] = useState(false);
+//   const [showDetailModal, setShowDetailModal] = useState(false);
+//   const [selectedMedicine, setSelectedMedicine] = useState(null);
+//   const [showDeleteModal, setShowDeleteModal] = useState(false);
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     description: "",
+//     price: "",
+//     stock: "",
+//     expiryDate: "",
+//     imageUrl: "",
+//     medicineStatus: "ADDED",
+//   });
+
+//   const [notification, setNotification] = useState({
+//     show: false,
+//     type: "", // 'success' or 'error'
+//     message: "",
+//   });
+//   const [errors, setErrors] = useState({});
+//   const [editingId, setEditingId] = useState(null);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [imageFile, setImageFile] = useState(null);
+
+//   const [error, setError] = useState(null);
+
+//   // Add this function after your state declarations
+//   const resetForm = () => {
+//     setFormData({
+//       name: "",
+//       description: "",
+//       price: "",
+//       stock: "",
+//       expiryDate: "",
+//       imageUrl: "",
+//       medicineStatus: "ADDED",
+//     });
+//     setImageFile(null);
+//     setEditingId(null);
+//     setErrors({});
+//   };
+
+//   useEffect(() => {
+//     const fetchMedicines = async () => {
+//       try {
+//         setIsLoading(true); // Use setIsLoading instead of setLoading
+//         const data = await getMedicines();
+//         setMedicines(data);
+//       } catch (err) {
+//         console.error("Error fetching medicines:", err);
+//         setNotification({
+//           show: true,
+//           type: "error",
+//           message: "Failed to fetch medicines. Please try again.",
+//         });
+//       } finally {
+//         setIsLoading(false); // Use setIsLoading
+//       }
+//     };
+
+//     fetchMedicines();
+//   }, []);
+
+//   const validateField = (name, value) => {
+//     let error = "";
+
+//     switch (name) {
+//       case "name":
+//         if (!value) error = "Name is required";
+//         else if (value.length < 2) error = "Name must be at least 2 characters";
+//         break;
+//       case "description":
+//         if (!value) error = "Description is required";
+//         break;
+//       case "price":
+//         if (!value) error = "Price is required";
+//         else if (isNaN(value)) error = "Price must be a number";
+//         else if (Number(value) <= 0) error = "Price must be positive";
+//         break;
+//       case "stock":
+//         if (!value && value !== 0) error = "Stock is required";
+//         else if (isNaN(value)) error = "Stock must be a number";
+//         else if (Number(value) < 0) error = "Stock must be 0 or more";
+//         break;
+//       case "expiryDate":
+//         if (!value) error = "Expiry date is required";
+//         else if (new Date(value) < new Date())
+//           error = "Expiry date must be in the future";
+//         break;
+//       case "imageUrl":
+//         if (value && !/^https?:\/\/.+\..+/.test(value))
+//           error = "Please enter a valid URL";
+//         break;
+//     }
+
+//     return error;
+//   };
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     const error = validateField(name, value);
+//     setErrors((prev) => ({ ...prev, [name]: error }));
+
+//     setFormData((prev) => ({
+//       ...prev,
+//       [name]:
+//         name === "price" || name === "stock"
+//           ? value === ""
+//             ? ""
+//             : Number(value)
+//           : value,
+//     }));
+//   };
+
+//   const handleImageChange = (e) => {
+//     if (e.target.files && e.target.files[0]) {
+//       setImageFile(e.target.files[0]);
+//     }
+//   };
+
+
+//   const handleSubmit = async (e) => {
+//     console.log("=== FORM SUBMIT START ===");
+
+//     // Check first, then prevent
+//     if (e.defaultPrevented) {
+//       console.log("⚠️ Event was already prevented by something else");
+//       console.trace("Who prevented it?");
+//       return;
+//     }
+
+//     e.preventDefault();
+//     e.stopPropagation();
+
+//     console.log("✅ Event prevented successfully");
+//     console.log("Form status before submit:", formData.medicineStatus);
+//     console.log("Form data:", JSON.stringify(formData, null, 2));
+//     console.log("Editing ID:", editingId);
+//     console.log("Has image file:", !!imageFile);
+//     console.log("Is loading?", isLoading);
+
+//     // Validate form data
+//     const newErrors = {};
+//     Object.entries(formData).forEach(([key, value]) => {
+//       if (
+//         key !== "id" &&
+//         key !== "createdAt" &&
+//         key !== "imageUrl" &&
+//         key !== "medicineStatus"
+//       ) {
+//         const error = validateField(key, value);
+//         if (error) newErrors[key] = error;
+//       }
+//     });
+
+//     console.log("Validation errors:", newErrors);
+//     setErrors(newErrors);
+
+//     if (Object.keys(newErrors).length === 0) {
+//       console.log("✅ Validation passed");
+
+//       try {
+//         setIsLoading(true);
+//         console.log("🔄 Setting loading to true");
+
+//         // Ensure medicineStatus is included and uppercase
+//         const medicineData = {
+//           name: formData.name,
+//           description: formData.description,
+//           price: parseFloat(formData.price),
+//           stock: parseInt(formData.stock),
+//           expiryDate: formData.expiryDate,
+//           medicineStatus: (formData.medicineStatus || "ADDED").toUpperCase(),
+//         };
+
+//         console.log("📤 Sending to API:", medicineData);
+
+ 
+
+//         console.log(editingId ? "✏️ UPDATE MODE" : "➕ ADD MODE");
+
+//         if (editingId) {
+//           console.log("✏️ Updating medicine with ID:", editingId);
+//           const updatedMedicine = await updateMedicine(
+//             editingId,
+//             medicineData,
+//             imageFile
+//           );
+//           console.log("✅ Update response:", updatedMedicine);
+//           setMedicines((prev) =>
+//             prev.map((med) => (med.id === editingId ? updatedMedicine : med))
+//           );
+//         } else {
+//           console.log("➕ Adding new medicine");
+//           console.log("Medicine data for ADD:", medicineData);
+
+//           try {
+//             const newMedicine = await addMedicine(medicineData, imageFile);
+//             console.log("✅ Add response:", newMedicine);
+        
+//             setTimeout(() => {
+//               console.log("🔄 Now updating medicines state");
+//               setMedicines((prev) => [...prev, newMedicine]);
+//             }, 1000);
+//           } catch (error) {
+//             console.error("❌ ADD Error:", error);
+//             console.error("Error response:", error.response?.data);
+//             throw error;
+//           }
+//         }
+
+//         // Reset everything
+//         console.log("🔄 Resetting form");
+//         resetForm();
+//         setShowForm(false);
+
+//         // Show success message
+//         setNotification({
+//           show: true,
+//           type: "success",
+//           message: `Medicine ${editingId ? "updated" : "added"} successfully!`,
+//         });
+
+//         // Auto-hide notification after 3 seconds
+//         setTimeout(() => {
+//           setNotification((prev) => ({ ...prev, show: false }));
+//         }, 3000);
+
+//         console.log("✅ Form submitted successfully!");
+//       } catch (error) {
+//         console.error("❌ Error saving medicine:", error);
+//         console.error("Error details:", {
+//           message: error.message,
+//           response: error.response?.data,
+//           status: error.response?.status,
+//           headers: error.response?.headers,
+//         });
+
+//         setNotification({
+//           show: true,
+//           type: "error",
+//           message:
+//             error.response?.data?.message ||
+//             error.message ||
+//             `Failed to ${editingId ? "update" : "add"} medicine`,
+//         });
+//       } finally {
+//         setIsLoading(false);
+//         console.log("🔄 Setting loading to false");
+//       }
+//     } else {
+//       console.log("❌ Validation failed with errors:", newErrors);
+//     }
+
+//     console.log("=== FORM SUBMIT END ===");
+//   };
+//   const handleEdit = (medicine) => {
+//     const validStatuses = [
+//       "ADDED",
+//       "AVAILABLE",
+//       "OUT_OF_STOCK",
+//       "EXPIRED",
+//       "DISCONTINUED",
+//     ];
+//     // Check both possible status fields
+//     const statusValue = medicine.medicineStatus || medicine.status;
+//     const status = validStatuses.includes(statusValue?.toUpperCase())
+//       ? statusValue.toUpperCase()
+//       : "ADDED";
+
+//     setFormData({
+//       name: medicine.name,
+//       description: medicine.description,
+//       price: medicine.price,
+//       stock: medicine.stock,
+//       expiryDate: medicine.expiryDate,
+//       imageUrl: medicine.imageUrl || "",
+//       medicineStatus: status,
+//     });
+
+//     setEditingId(medicine.id);
+//     setShowForm(true);
+//   };
+
+//   const handleDelete = async (id) => {
+//     try {
+//       setIsLoading(true);
+//       await deleteMedicine(id);
+//       setMedicines((prev) => prev.filter((med) => med.id !== id));
+//       setShowDeleteModal(false);
+//       setSelectedMedicine(null);
+//     } catch (error) {
+//       console.error("Error deleting medicine:", error);
+//       // You might want to show an error notification here
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleView = (medicine) => {
+//     setSelectedMedicine(medicine);
+//     setShowDetailModal(true);
+//   };
+
+//   const getStockStatus = (stock) => {
+//     if (stock === 0)
+//       return { color: "text-red-500", bg: "bg-red-50", icon: AlertTriangle };
+//     if (stock <= 10)
+//       return { color: "text-yellow-500", bg: "bg-yellow-50", icon: Clock };
+//     return { color: "text-green-500", bg: "bg-green-50", icon: CheckCircle };
+//   };
+
+//   const getExpiryStatus = (expiryDate) => {
+//     const today = new Date();
+//     const expiry = new Date(expiryDate);
+//     const daysDiff = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+
+//     if (daysDiff <= 0)
+//       return { color: "text-red-500", bg: "bg-red-50", text: "Expired" };
+//     if (daysDiff <= 30)
+//       return {
+//         color: "text-orange-500",
+//         bg: "bg-orange-50",
+//         text: "Expiring Soon",
+//       };
+//     if (daysDiff <= 90)
+//       return { color: "text-yellow-500", bg: "bg-yellow-50", text: "Monitor" };
+//     return { color: "text-green-500", bg: "bg-green-50", text: "Good" };
+//   };
+
+//   // Loading state
+//   if (isLoading && medicines.length === 0) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+//         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
+//       <div className="max-w-7xl mx-auto space-y-8">
+//         {/* Header */}
+//         <div className="flex justify-between items-center">
+//           <div className="space-y-2">
+//             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
+//               Medicine Products
+//             </h1>
+//             <p className="text-gray-600 dark:text-gray-400 text-lg">
+//               Manage your pharmaceutical inventory with ease
+//             </p>
+//           </div>
+//           <button
+//             onClick={() => setShowForm(true)}
+//             className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center space-x-3"
+//             disabled={isLoading}
+//           >
+//             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+//             <span className="font-semibold">Add Medicine</span>
+//           </button>
+//         </div>
+
+//         {/* Stats Cards */}
+//         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+//           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 dark:text-gray-400 text-sm">
+//                   Total Medicines
+//                 </p>
+//                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
+//                   {medicines.length}
+//                 </p>
+//               </div>
+//               <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+//                 <Package className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+//               </div>
+//             </div>
+//           </div>
+//           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-600">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 dark:text-gray-400 text-sm">
+//                   In Stock
+//                 </p>
+//                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
+//                   {/* //{medicines.filter((m) => m.stock > 0).length} */}
+//                 </p>
+//               </div>
+//               <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+//                 <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+//               </div>
+//             </div>
+//           </div>
+//           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-600">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <p className="text-gray-600 dark:text-gray-400 text-sm">
+//                   Low Stock
+//                 </p>
+//                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
+//                   {medicines.filter((m) => m.stock <= 10 && m.stock > 0).length}
+//                 </p>
+//               </div>
+//               <div className="bg-red-100 dark:bg-red-900 p-3 rounded-full">
+//                 <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Add/Edit Medicine Form Modal */}
+//         {showForm && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+//               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+//                 <div className="flex justify-between items-center">
+//                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+//                     {editingId ? "Edit Medicine" : "Add New Medicine"}
+//                   </h3>
+//                   <button
+//                     onClick={() => {
+//                       setShowForm(false);
+//                       setEditingId(null);
+//                       setFormData({
+//                         name: "",
+//                         description: "",
+//                         price: "",
+//                         stock: "",
+//                         expiryDate: "",
+//                         imageUrl: "",
+//                         medicineStatus: "ADDED",
+//                       });
+//                       setImageFile(null);
+//                     }}
+//                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+//                     disabled={isLoading}
+//                   >
+//                     <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+//                   </button>
+//                 </div>
+//               </div>
+
+//               {/* Notification component */}
+//               {notification.show && (
+//                 <div
+//                   className={`notification ${notification.type}`}
+//                   style={{
+//                     position: "fixed",
+//                     top: "20px",
+//                     right: "20px",
+//                     padding: "15px",
+//                     borderRadius: "4px",
+//                     zIndex: 1000,
+//                     backgroundColor:
+//                       notification.type === "success" ? "#dff0d8" : "#f2dede",
+//                     color:
+//                       notification.type === "success" ? "#3c763d" : "#a94442",
+//                     border: `1px solid ${
+//                       notification.type === "success" ? "#d6e9c6" : "#ebccd1"
+//                     }`,
+//                   }}
+//                 >
+//                   {notification.message}
+//                   <button
+//                     onClick={() =>
+//                       setNotification({ ...notification, show: false })
+//                     }
+//                     style={{
+//                       marginLeft: "15px",
+//                       background: "none",
+//                       border: "none",
+//                       cursor: "pointer",
+//                       fontWeight: "bold",
+//                     }}
+//                   >
+//                     ×
+//                   </button>
+//                 </div>
+//               )}
+
+//               <form onSubmit={handleSubmit} className="p-6 space-y-6">
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+//                       Medicine Name *
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="name"
+//                       value={formData.name}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+//                         errors.name
+//                           ? "border-red-500"
+//                           : "border-gray-300 dark:border-gray-600"
+//                       }`}
+//                       placeholder="Enter medicine name"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.name && (
+//                       <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+//                     )}
+//                   </div>
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+//                       Description *
+//                     </label>
+//                     <textarea
+//                       name="description"
+//                       value={formData.description}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+//                         errors.description
+//                           ? "border-red-500"
+//                           : "border-gray-300 dark:border-gray-600"
+//                       }`}
+//                       rows={3}
+//                       placeholder="Enter medicine description"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.description && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.description}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+//                       Price (Rs) *
+//                     </label>
+//                     <input
+//                       type="number"
+//                       name="price"
+//                       value={formData.price}
+//                       onChange={handleChange}
+//                       step="0.01"
+//                       min="0"
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+//                         errors.price
+//                           ? "border-red-500"
+//                           : "border-gray-300 dark:border-gray-600"
+//                       }`}
+//                       placeholder="0.00"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.price && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.price}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+//                       Stock Quantity *
+//                     </label>
+//                     <input
+//                       type="number"
+//                       name="stock"
+//                       value={formData.stock}
+//                       onChange={handleChange}
+//                       min="0"
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+//                         errors.stock
+//                           ? "border-red-500"
+//                           : "border-gray-300 dark:border-gray-600"
+//                       }`}
+//                       placeholder="0"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.stock && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.stock}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+//                       Expiry Date *
+//                     </label>
+//                     <input
+//                       type="date"
+//                       name="expiryDate"
+//                       value={formData.expiryDate}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+//                         errors.expiryDate
+//                           ? "border-red-500"
+//                           : "border-gray-300 dark:border-gray-600"
+//                       }`}
+//                       disabled={isLoading}
+//                     />
+//                     {errors.expiryDate && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.expiryDate}
+//                       </p>
+//                     )}
+//                   </div>
+
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+//                       Status
+//                     </label>
+//                     <select
+//                       // name="status"
+//                       name="medicineStatus"
+//                       // value={formData.status}
+//                       value={formData.medicineStatus}
+//                       onChange={handleChange}
+//                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
+//                       disabled={isLoading}
+//                     >
+//                       <option value="ADDED">ADDED</option>
+//                       <option value="AVAILABLE">AVAILABLE</option>
+//                       <option value="OUT_OF_STOCK">OUT OF STOCK</option>
+//                       <option value="EXPIRED">EXPIRED</option>
+//                       <option value="DISCONTINUED">DISCONTINUED</option>
+//                     </select>
+//                   </div>
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+//                       Image
+//                     </label>
+//                     <input
+//                       type="file"
+//                       accept="image/*"
+//                       onChange={handleImageChange}
+//                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
+//                       disabled={isLoading}
+//                     />
+//                     {imageFile && (
+//                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+//                         {imageFile.name}
+//                       </p>
+//                     )}
+//                   </div>
+//                   <div className="md:col-span-2">
+//                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+//                       Image URL (alternative)
+//                     </label>
+//                     <input
+//                       type="text"
+//                       name="imageUrl"
+//                       value={formData.imageUrl}
+//                       onChange={handleChange}
+//                       className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+//                         errors.imageUrl
+//                           ? "border-red-500"
+//                           : "border-gray-300 dark:border-gray-600"
+//                       }`}
+//                       placeholder="https://example.com/image.jpg"
+//                       disabled={isLoading}
+//                     />
+//                     {errors.imageUrl && (
+//                       <p className="text-red-500 text-sm mt-1">
+//                         {errors.imageUrl}
+//                       </p>
+//                     )}
+//                   </div>
+//                 </div>
+
+//                 <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+
+
+//                   <button
+//                     // type="button"
+//                      type="submit"
+//                     onClick={() => {
+//                       setShowForm(false);
+//                       resetForm();
+//                     }}
+//                     className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+//                     disabled={isLoading}
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     type="submit"
+//                     className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 flex items-center justify-center"
+//                     disabled={isLoading}
+//                   >
+//                     {isLoading ? (
+//                       <>
+//                         <svg
+//                           className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+//                           xmlns="http://www.w3.org/2000/svg"
+//                           fill="none"
+//                           viewBox="0 0 24 24"
+//                         >
+//                           <circle
+//                             className="opacity-25"
+//                             cx="12"
+//                             cy="12"
+//                             r="10"
+//                             stroke="currentColor"
+//                             strokeWidth="4"
+//                           ></circle>
+//                           <path
+//                             className="opacity-75"
+//                             fill="currentColor"
+//                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+//                           ></path>
+//                         </svg>
+//                         {editingId ? "Updating..." : "Saving..."}
+//                       </>
+//                     ) : editingId ? (
+//                       "Update Medicine"
+//                     ) : (
+//                       "Save Medicine"
+//                     )}
+//                   </button>
+//                 </div>
+//               </form>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Medicine Detail Modal */}
+//         {showDetailModal && selectedMedicine && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full">
+//               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+//                 <div className="flex justify-between items-center">
+//                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+//                     Medicine Details
+//                   </h3>
+//                   <button
+//                     onClick={() => setShowDetailModal(false)}
+//                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+//                   >
+//                     <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+//                   </button>
+//                 </div>
+//               </div>
+
+//               <div className="p-6">
+//                 <img
+//                   src={selectedMedicine.imageUrl} // S3 URL
+//                   alt={selectedMedicine.name}
+//                   onError={(e) => {
+//                     e.target.src = "/placeholder.jpg"; // Fallback to local
+//                     e.target.onerror = null; // Prevent infinite loop
+//                   }}
+//                 />
+
+//                 <div className="space-y-4">
+//                   <div>
+//                     <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+//                       {selectedMedicine.name}
+//                     </h4>
+//                     <p className="text-gray-600 dark:text-gray-400">
+//                       {selectedMedicine.description}
+//                     </p>
+//                   </div>
+
+//                   <div className="grid grid-cols-2 gap-4">
+//                     <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+//                       <p className="text-sm text-gray-600 dark:text-gray-400">
+//                         Price
+//                       </p>
+//                       <p className="text-lg font-bold text-gray-900 dark:text-white">
+//                         Rs{selectedMedicine.price.toFixed(2)}
+//                       </p>
+//                     </div>
+//                     <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+//                       <p className="text-sm text-gray-600 dark:text-gray-400">
+//                         Stock
+//                       </p>
+//                       <p className="text-lg font-bold text-gray-900 dark:text-white">
+//                         {selectedMedicine.stock}
+//                       </p>
+//                     </div>
+//                   </div>
+
+//                   <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+//                     <p className="text-sm text-gray-600 dark:text-gray-400">
+//                       Expiry Date
+//                     </p>
+//                     <p className="text-lg font-bold text-gray-900 dark:text-white">
+//                       {new Date(
+//                         selectedMedicine.expiryDate
+//                       ).toLocaleDateString()}
+//                     </p>
+//                   </div>
+
+//                   <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+//                     <p className="text-sm text-gray-600 dark:text-gray-400">
+//                       Status
+//                     </p>
+//                     <span
+//                       className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+//                         selectedMedicine.status === "PLACED"
+//                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+//                           : selectedMedicine.status === "CANCELLED"
+//                           ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+//                           : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+//                       }`}
+//                     >
+//                       {selectedMedicine.status}
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Delete Confirmation Modal */}
+//         {showDeleteModal && selectedMedicine && (
+//           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+//             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full">
+//               <div className="p-6 text-center">
+//                 <div className="bg-red-100 dark:bg-red-900 p-4 rounded-full w-fit mx-auto mb-4">
+//                   <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
+//                 </div>
+//                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+//                   Delete Medicine
+//                 </h3>
+//                 <p className="text-gray-600 dark:text-gray-400 mb-6">
+//                   Are you sure you want to delete "{selectedMedicine.name}"?
+//                   This action cannot be undone.
+//                 </p>
+//                 <div className="flex justify-center space-x-4">
+//                   <button
+//                     onClick={() => setShowDeleteModal(false)}
+//                     className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+//                     disabled={isLoading}
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     onClick={() => handleDelete(selectedMedicine.id)}
+//                     className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all flex items-center justify-center"
+//                     disabled={isLoading}
+//                   >
+//                     {isLoading ? (
+//                       <>
+//                         <svg
+//                           className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+//                           xmlns="http://www.w3.org/2000/svg"
+//                           fill="none"
+//                           viewBox="0 0 24 24"
+//                         >
+//                           <circle
+//                             className="opacity-25"
+//                             cx="12"
+//                             cy="12"
+//                             r="10"
+//                             stroke="currentColor"
+//                             strokeWidth="4"
+//                           ></circle>
+//                           <path
+//                             className="opacity-75"
+//                             fill="currentColor"
+//                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+//                           ></path>
+//                         </svg>
+//                         Deleting...
+//                       </>
+//                     ) : (
+//                       "Delete"
+//                     )}
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Medicine Products Grid */}
+//         {isLoading && medicines.length > 0 ? (
+//           <div className="flex justify-center py-20">
+//             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+//           </div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+//             {medicines.map((medicine) => {
+//               const stockStatus = getStockStatus(medicine.stock);
+//               const expiryStatus = getExpiryStatus(medicine.expiryDate);
+//               const StockIcon = stockStatus.icon;
+
+//               return (
+//                 <div
+//                   key={medicine.id}
+//                   className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600 overflow-hidden transform hover:scale-105"
+//                 >
+//                   {/* Medicine Image */}
+//                   <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
+//                     {medicine.imageUrl ? (
+//                       <img
+//                         src={medicine.imageUrl}
+//                         alt={medicine.name}
+//                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+//                       />
+//                     ) : (
+//                       <div className="w-full h-full flex items-center justify-center">
+//                         <Package className="w-16 h-16 text-gray-400 dark:text-gray-500" />
+//                       </div>
+//                     )}
+
+//                     {/* Status Badge */}
+//                     <div className="absolute top-4 right-4">
+//                       <span
+//                         className={`px-3 py-1 text-xs font-medium rounded-full ${
+//                           medicine.status === "PLACED"
+//                             ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+//                             : medicine.status === "CANCELLED"
+//                             ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+//                             : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+//                         }`}
+//                       >
+//                         {medicine.status}
+//                       </span>
+//                     </div>
+//                   </div>
+
+//                   {/* Medicine Info */}
+//                   <div className="p-6">
+//                     <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+//                       {medicine.name}
+//                     </h4>
+//                     <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm line-clamp-2">
+//                       {medicine.description}
+//                     </p>
+
+//                     {/* Stats */}
+//                     <div className="space-y-3 mb-6">
+//                       <div className="flex items-center justify-between">
+//                         <div className="flex items-center space-x-2">
+//                           <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
+//                           <span className="text-sm text-gray-600 dark:text-gray-400">
+//                             Price
+//                           </span>
+//                         </div>
+//                         <span className="font-bold text-green-600 dark:text-green-400">
+//                           Rs{medicine.price.toFixed(2)}
+//                         </span>
+//                       </div>
+
+//                       <div className="flex items-center justify-between">
+//                         <div className="flex items-center space-x-2">
+//                           <StockIcon
+//                             className={`w-4 h-4 ${stockStatus.color}`}
+//                           />
+//                           <span className="text-sm text-gray-600 dark:text-gray-400">
+//                             Stock
+//                           </span>
+//                         </div>
+//                         <span className={`font-bold ${stockStatus.color}`}>
+//                           {medicine.stock}
+//                         </span>
+//                       </div>
+
+//                       <div className="flex items-center justify-between">
+//                         <div className="flex items-center space-x-2">
+//                           <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+//                           <span className="text-sm text-gray-600 dark:text-gray-400">
+//                             Expiry
+//                           </span>
+//                         </div>
+//                         <span
+//                           className={`text-sm font-medium px-2 py-1 rounded-full ${expiryStatus.bg} ${expiryStatus.color}`}
+//                         >
+//                           {expiryStatus.text}
+//                         </span>
+//                       </div>
+//                     </div>
+
+//                     {/* Action Buttons */}
+//                     <div className="flex justify-between items-center">
+//                       <button
+//                         onClick={() => handleView(medicine)}
+//                         className="p-3 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-full transition-all duration-200 hover:scale-110"
+//                         title="View Details"
+//                       >
+//                         <Eye className="w-5 h-5" />
+//                       </button>
+//                       <button
+//                         onClick={() => handleEdit(medicine)}
+//                         className="p-3 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/50 rounded-full transition-all duration-200 hover:scale-110"
+//                         title="Edit Medicine"
+//                       >
+//                         <Edit className="w-5 h-5" />
+//                       </button>
+//                       <button
+//                         onClick={() => {
+//                           setSelectedMedicine(medicine);
+//                           setShowDeleteModal(true);
+//                         }}
+//                         className="p-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-full transition-all duration-200 hover:scale-110"
+//                         title="Delete Medicine"
+//                       >
+//                         <Trash2 className="w-5 h-5" />
+//                       </button>
+//                     </div>
+//                   </div>
+//                 </div>
+//               );
+//             })}
+//           </div>
+//         )}
+
+//         {/* Empty State */}
+//         {!isLoading && medicines.length === 0 && (
+//           <div className="text-center py-20">
+//             <Package className="w-20 h-20 text-gray-400 dark:text-gray-600 mx-auto mb-6" />
+//             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+//               No medicines found
+//             </h3>
+//             <p className="text-gray-600 dark:text-gray-400 mb-6">
+//               Get started by adding your first medicine to the inventory.
+//             </p>
+//             <button
+//               onClick={() => setShowForm(true)}
+//               className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+//             >
+//               Add Your First Medicine
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+
 const MedicineProductsPanel = () => {
   // At the top of your component
   const [currentUser, setCurrentUser] = useState(null);
@@ -2603,30 +3655,41 @@ const MedicineProductsPanel = () => {
 
     switch (name) {
       case "name":
-        if (!value) error = "Name is required";
+        if (!value.trim()) error = "Name is required";
         else if (value.length < 2) error = "Name must be at least 2 characters";
+        else if (value.length > 100) error = "Name must be less than 100 characters";
         break;
       case "description":
-        if (!value) error = "Description is required";
+        if (!value.trim()) error = "Description is required";
+        else if (value.length < 10) error = "Description must be at least 10 characters";
+        else if (value.length > 500) error = "Description must be less than 500 characters";
         break;
       case "price":
-        if (!value) error = "Price is required";
+        if (!value && value !== 0) error = "Price is required";
         else if (isNaN(value)) error = "Price must be a number";
         else if (Number(value) <= 0) error = "Price must be positive";
+        else if (Number(value) > 999999) error = "Price must be less than 1,000,000";
         break;
       case "stock":
         if (!value && value !== 0) error = "Stock is required";
         else if (isNaN(value)) error = "Stock must be a number";
+        else if (!Number.isInteger(Number(value))) error = "Stock must be a whole number";
         else if (Number(value) < 0) error = "Stock must be 0 or more";
+        else if (Number(value) > 99999) error = "Stock must be less than 100,000";
         break;
       case "expiryDate":
         if (!value) error = "Expiry date is required";
         else if (new Date(value) < new Date())
           error = "Expiry date must be in the future";
+        else if (new Date(value) > new Date(new Date().setFullYear(new Date().getFullYear() + 10)))
+          error = "Expiry date must be within 10 years";
         break;
       case "imageUrl":
-        if (value && !/^https?:\/\/.+\..+/.test(value))
-          error = "Please enter a valid URL";
+        if (value && value.trim() !== "") {
+          if (!/^https?:\/\/.+\..+/.test(value))
+            error = "Please enter a valid URL";
+          else if (value.length > 500) error = "URL must be less than 500 characters";
+        }
         break;
     }
 
@@ -2635,6 +3698,8 @@ const MedicineProductsPanel = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Validate the field immediately
     const error = validateField(name, value);
     setErrors((prev) => ({ ...prev, [name]: error }));
 
@@ -2649,9 +3714,39 @@ const MedicineProductsPanel = () => {
     }));
   };
 
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    
+    // Re-validate on blur for better UX
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
+      const file = e.target.files[0];
+      
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        setErrors((prev) => ({ 
+          ...prev, 
+          imageFile: 'Please upload a valid image (JPEG, PNG, GIF, WebP)' 
+        }));
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors((prev) => ({ 
+          ...prev, 
+          imageFile: 'Image size must be less than 5MB' 
+        }));
+        return;
+      }
+      
+      setImageFile(file);
+      setErrors((prev) => ({ ...prev, imageFile: '' }));
     }
   };
 
@@ -2676,7 +3771,7 @@ const MedicineProductsPanel = () => {
     console.log("Has image file:", !!imageFile);
     console.log("Is loading?", isLoading);
 
-    // Validate form data
+    // Validate all fields on submit
     const newErrors = {};
     Object.entries(formData).forEach(([key, value]) => {
       if (
@@ -2690,6 +3785,17 @@ const MedicineProductsPanel = () => {
       }
     });
 
+    // Validate image URL if no file uploaded
+    if (!imageFile && formData.imageUrl && formData.imageUrl.trim() !== "") {
+      const imageUrlError = validateField("imageUrl", formData.imageUrl);
+      if (imageUrlError) newErrors.imageUrl = imageUrlError;
+    }
+
+    // Validate that either image file or image URL is provided
+    if (!imageFile && (!formData.imageUrl || formData.imageUrl.trim() === "")) {
+      newErrors.imageUrl = "Please upload an image or provide an image URL";
+    }
+
     console.log("Validation errors:", newErrors);
     setErrors(newErrors);
 
@@ -2702,8 +3808,8 @@ const MedicineProductsPanel = () => {
 
         // Ensure medicineStatus is included and uppercase
         const medicineData = {
-          name: formData.name,
-          description: formData.description,
+          name: formData.name.trim(),
+          description: formData.description.trim(),
           price: parseFloat(formData.price),
           stock: parseInt(formData.stock),
           expiryDate: formData.expiryDate,
@@ -2959,16 +4065,7 @@ const MedicineProductsPanel = () => {
                     onClick={() => {
                       setShowForm(false);
                       setEditingId(null);
-                      setFormData({
-                        name: "",
-                        description: "",
-                        price: "",
-                        stock: "",
-                        expiryDate: "",
-                        imageUrl: "",
-                        medicineStatus: "ADDED",
-                      });
-                      setImageFile(null);
+                      resetForm();
                     }}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                     disabled={isLoading}
@@ -3027,18 +4124,25 @@ const MedicineProductsPanel = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                      onBlur={handleBlur}
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${
                         errors.name
-                          ? "border-red-500"
-                          : "border-gray-300 dark:border-gray-600"
+                          ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-600 focus:border-transparent dark:focus:border-transparent"
                       }`}
                       placeholder="Enter medicine name"
                       disabled={isLoading}
                     />
                     {errors.name && (
-                      <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.name}</p>
+                    )}
+                    {!errors.name && formData.name && (
+                      <p className="text-green-500 dark:text-green-400 text-sm mt-1">
+                        {formData.name.length}/100 characters
+                      </p>
                     )}
                   </div>
+                  
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Description *
@@ -3047,46 +4151,63 @@ const MedicineProductsPanel = () => {
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                      onBlur={handleBlur}
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${
                         errors.description
-                          ? "border-red-500"
-                          : "border-gray-300 dark:border-gray-600"
+                          ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-600 focus:border-transparent dark:focus:border-transparent"
                       }`}
                       rows={3}
                       placeholder="Enter medicine description"
                       disabled={isLoading}
                     />
                     {errors.description && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                         {errors.description}
                       </p>
                     )}
+                    {!errors.description && formData.description && (
+                      <p className={`text-sm mt-1 ${
+                        formData.description.length > 500 
+                          ? "text-red-500 dark:text-red-400" 
+                          : "text-green-500 dark:text-green-400"
+                      }`}>
+                        {formData.description.length}/500 characters
+                      </p>
+                    )}
                   </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Price (Rs) *
                     </label>
-                    <input
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleChange}
-                      step="0.01"
-                      min="0"
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
-                        errors.price
-                          ? "border-red-500"
-                          : "border-gray-300 dark:border-gray-600"
-                      }`}
-                      placeholder="0.00"
-                      disabled={isLoading}
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-gray-500 dark:text-gray-400">Rs</span>
+                      <input
+                        type="number"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        step="0.01"
+                        min="0"
+                        max="999999"
+                        className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${
+                          errors.price
+                            ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                            : "border-gray-300 dark:border-gray-600 focus:border-transparent dark:focus:border-transparent"
+                        }`}
+                        placeholder="0.00"
+                        disabled={isLoading}
+                      />
+                    </div>
                     {errors.price && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                         {errors.price}
                       </p>
                     )}
                   </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Stock Quantity *
@@ -3096,21 +4217,24 @@ const MedicineProductsPanel = () => {
                       name="stock"
                       value={formData.stock}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       min="0"
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                      max="99999"
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${
                         errors.stock
-                          ? "border-red-500"
-                          : "border-gray-300 dark:border-gray-600"
+                          ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-600 focus:border-transparent dark:focus:border-transparent"
                       }`}
                       placeholder="0"
                       disabled={isLoading}
                     />
                     {errors.stock && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                         {errors.stock}
                       </p>
                     )}
                   </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Expiry Date *
@@ -3120,15 +4244,18 @@ const MedicineProductsPanel = () => {
                       name="expiryDate"
                       value={formData.expiryDate}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                      onBlur={handleBlur}
+                      min={new Date().toISOString().split('T')[0]}
+                      max={new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString().split('T')[0]}
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                         errors.expiryDate
-                          ? "border-red-500"
-                          : "border-gray-300 dark:border-gray-600"
+                          ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-600 focus:border-transparent dark:focus:border-transparent"
                       }`}
                       disabled={isLoading}
                     />
                     {errors.expiryDate && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                         {errors.expiryDate}
                       </p>
                     )}
@@ -3136,15 +4263,13 @@ const MedicineProductsPanel = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Status
+                      Status *
                     </label>
                     <select
-                      // name="status"
                       name="medicineStatus"
-                      // value={formData.status}
                       value={formData.medicineStatus}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       disabled={isLoading}
                     >
                       <option value="ADDED">ADDED</option>
@@ -3154,88 +4279,102 @@ const MedicineProductsPanel = () => {
                       <option value="DISCONTINUED">DISCONTINUED</option>
                     </select>
                   </div>
+                  
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Image
+                      Image Upload *
                     </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
-                      disabled={isLoading}
-                    />
-                    {imageFile && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        {imageFile.name}
-                      </p>
+                    <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
+                      errors.imageFile 
+                        ? 'border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-900/20' 
+                        : 'border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500'
+                    }`}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                        id="image-upload"
+                        disabled={isLoading}
+                      />
+                      <label htmlFor="image-upload" className="cursor-pointer">
+                        {imageFile ? (
+                          <div className="flex items-center justify-center space-x-3">
+                            <img 
+                              src={URL.createObjectURL(imageFile)} 
+                              alt="Preview" 
+                              className="w-16 h-16 object-cover rounded-lg"
+                            />
+                            <div className="text-left">
+                              <p className="text-gray-900 dark:text-white font-medium">{imageFile.name}</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {(imageFile.size / 1024).toFixed(2)} KB
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <Upload className="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500 mb-3" />
+                            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
+                              Click to upload image
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              PNG, JPG, GIF up to 5MB
+                            </p>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                    {errors.imageFile && (
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-2">{errors.imageFile}</p>
                     )}
                   </div>
+                  
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Image URL (alternative)
+                      OR - Image URL
                     </label>
                     <input
                       type="text"
                       name="imageUrl"
                       value={formData.imageUrl}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                      onBlur={handleBlur}
+                      className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 ${
                         errors.imageUrl
-                          ? "border-red-500"
-                          : "border-gray-300 dark:border-gray-600"
+                          ? "border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-600 focus:border-transparent dark:focus:border-transparent"
                       }`}
                       placeholder="https://example.com/image.jpg"
-                      disabled={isLoading}
+                      disabled={isLoading || !!imageFile}
                     />
                     {errors.imageUrl && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                         {errors.imageUrl}
                       </p>
                     )}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Provide either an image file or URL
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  {/* <button
-                    type="button"
-                    onClick={() => {
-                      setShowForm(false);
-                      resetForm(); // Use the reset function
-                      setEditingId(null);
-                      setFormData({
-                        name: "",
-                        description: "",
-                        price: "",
-                        stock: "",
-                        expiryDate: "",
-                        imageUrl: "",
-                        medicineStatus: "ADDED",
-                      });
-                      setImageFile(null);
-                    }}
-                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-                    disabled={isLoading}
-                  >
-                    Cancel
-                  </button> */}
-
                   <button
-                    // type="button"
-                     type="submit"
+                    type="button"
                     onClick={() => {
                       setShowForm(false);
                       resetForm();
                     }}
-                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all bg-white dark:bg-gray-800"
                     disabled={isLoading}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 flex items-center justify-center"
-                    disabled={isLoading}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    disabled={isLoading || Object.keys(errors).some(key => errors[key])}
                   >
                     {isLoading ? (
                       <>
@@ -3295,6 +4434,7 @@ const MedicineProductsPanel = () => {
                 <img
                   src={selectedMedicine.imageUrl} // S3 URL
                   alt={selectedMedicine.name}
+                  className="w-full h-64 object-cover rounded-xl mb-6"
                   onError={(e) => {
                     e.target.src = "/placeholder.jpg"; // Fallback to local
                     e.target.onerror = null; // Prevent infinite loop
@@ -3381,14 +4521,14 @@ const MedicineProductsPanel = () => {
                 <div className="flex justify-center space-x-4">
                   <button
                     onClick={() => setShowDeleteModal(false)}
-                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                    className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all bg-white dark:bg-gray-800"
                     disabled={isLoading}
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleDelete(selectedMedicine.id)}
-                    className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all flex items-center justify-center"
+                    className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   >
                     {isLoading ? (

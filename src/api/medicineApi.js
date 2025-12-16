@@ -7,9 +7,6 @@ const API_BASE_URL = "http://localhost:8080/api/medicines";
 // Create axios instance without default auth header
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // Add request interceptor to dynamically add token
@@ -136,7 +133,6 @@ export const addMedicine = async (medicineData, imageFile) => {
     const response = await api.post("/addMedicines", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        // ❌ REMOVE THIS: "Authorization": `Bearer ${localStorage.getItem('token')}`
       },
     });
     
@@ -162,6 +158,8 @@ export const addMedicine = async (medicineData, imageFile) => {
     throw error; // Re-throw to handle in component
   }
 };
+
+
 
 export const updateMedicine = async (id, formData, imageFile) => {
   const formDataToSend = new FormData();
