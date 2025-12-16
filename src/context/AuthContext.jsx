@@ -87,14 +87,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // const logout = () => {
-  //   authService.logout();
-  //   setUser(null);
-  //   setIsAuthenticated(false);
-  //   setError(null);
-  //   // Remove axios header
-  //   delete axios.defaults.headers.common['Authorization'];
-  // };
 
   const logout = () => {
   // Determine auth type first
