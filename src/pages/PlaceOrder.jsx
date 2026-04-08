@@ -18,6 +18,56 @@ export function PlaceOrder() {
     totalPrice, // Total price of all items
   } = useFirebaseCart();
 
+ 
+  // const handleSubmit = async () => {
+  //   if (cart.length === 0) {
+  //     setError("Your cart is empty");
+  //     return;
+  //   }
+
+  //   setIsSubmitting(true);
+  //   setError(null);
+
+  //   try {
+  //     // Calculate total price from cart
+  //     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  //     const response = await fetch("/api/orders", {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         totalPrice: totalPrice,           // ← ADD THIS
+  //         paymentMethod: "cod",             // ← ADD THIS (or make it dynamic)
+  //         orderItems: cart.map((item) => ({ // ← RENAME items to orderItems
+  //           medicineId: item.id,            // ← make sure this matches your cart object
+  //           quantity: String(item.quantity),// ← backend expects String
+  //           unitPrice: item.price,          // ← ADD THIS
+  //         })),
+  //       }),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to place order");
+  //     }
+
+  //     const newOrder = await response.json();
+  //     await clearCart();
+  //     setShowConfirmation(true);
+
+  //     setTimeout(() => {
+  //       setShowConfirmation(false);
+  //       navigate(`/dashboard/orders/${newOrder.id}`);
+  //     }, 3000);
+  //   } catch (error) {
+  //     console.error("Order placement error:", error);
+  //     setError(error.message);
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
   const handleSubmit = async () => {
     if (cart.length === 0) {
       setError("Your cart is empty");
@@ -28,21 +78,31 @@ export function PlaceOrder() {
     setError(null);
 
     try {
+      // ✅ Use totalPrice from context directly (no need to recalculate)
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ items: cart }), // Using cart from Firebase context
+        body: JSON.stringify({
+          totalPrice: totalPrice,            // ✅ from useFirebaseCart context
+          paymentMethod: "cod",              // ✅ fixed
+          orderItems: cart.map((item) => ({
+            medicineId: item.medicineId || item.id,  // ✅ check which one your cart uses
+            quantity: String(item.quantity),
+            unitPrice: item.price,
+          })),
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to place order");
+        const errorText = await response.text(); // ✅ get actual error from backend
+        throw new Error(errorText || "Failed to place order");
       }
 
       const newOrder = await response.json();
-      await clearCart(); // Make sure to await if clearCart is async
+      await clearCart();
       setShowConfirmation(true);
 
       setTimeout(() => {
@@ -55,7 +115,6 @@ export function PlaceOrder() {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="max-w-4xl mx-auto p-6">
       {/* Confirmation Popup */}
